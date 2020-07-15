@@ -1,7 +1,7 @@
 (setenv "PATH" (concat "/Library/TeX/texbin:"
                      (getenv "PATH")))
 (add-to-list 'exec-path "/Library/TeX/texbin")
-(setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin")) 
+(setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
 (setq exec-path (append exec-path '("/usr/local/bin")))
 
 (require 'fast-scroll)
@@ -69,6 +69,7 @@
 (global-set-key "\C-c\l" 'goto-line)
 (global-set-key "\C-x\l" '(lambda () (interactive)
 			    (switch-to-buffer "*slime-repl sbcl*")))
+(global-set-key (kbd "C-x C-b") 'ibuffer) ;; Use Ibuffer for Buffer List
 (global-set-key "\C-c\ib" 'ibuffer)
 ;; Becasue I just can't quite those MacOS bindings, and why should I?
 (global-set-key (kbd "s-<right>") 'move-end-of-line)
@@ -84,6 +85,13 @@
 (global-set-key (kbd "S-s-C-<up>") 'enlarge-window-horizontally)
 (global-set-key (kbd "s-C-<down>") 'shrink-window)
 (global-set-key (kbd "s-C-<up>") 'enlarge-window)
+
+;; font scaling
+(use-package default-text-scale
+  :ensure t
+  :config
+  (global-set-key (kbd "s-=") 'default-text-scale-increase)
+  (global-set-key (kbd "s--") 'default-text-scale-decrease))
 
 (setq auto-mode-alist
       (append '(("\\.c$"       . c-mode)
@@ -106,7 +114,7 @@
 		("\\.py$"      . python-mode)
 		("\\.ly$"      . lilypond-mode)
 		("\\.js$"      . js2-mode)
-		("\\.json$"    . json.mode)
+		("\\.json$"    . json-mode)
 		("\\.jsx$"     . web-mode)
 		("\\.html$"    . web-mode)
 		("\\.ejs$"     . web-mode)
@@ -143,9 +151,9 @@
 (delete-selection-mode 1)
 
 (setq-default fill-column 80)
-  (add-hook 'web-mode-hook 
+  (add-hook 'web-mode-hook
 	    (lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
-  (add-hook 'js2-mode-hook 
+  (add-hook 'js2-mode-hook
 	  (lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
   (toggle-text-mode-auto-fill)
   (add-hook 'lisp-mode-hook 'turn-on-auto-fill)
@@ -204,6 +212,30 @@
   (newline)
   (insert "export default Test;"))
 
+(defun web-boilerplate ()
+  (interactive)
+  (insert "<!DOCTYPE html>")
+  (newline)
+  (insert "<html>")
+  (newline)
+  (insert "    <head>")
+  (newline)
+  (insert "	<title>Page Title</title>")
+  (newline)
+  (insert "    </head>")
+  (newline)
+  (insert "    <body>")
+  (newline)
+  (newline)
+  (insert"	   <h1>This is a Heading</h1>")
+  (newline)
+  (insert "        <p>This is a paragraph.</p>")
+  (newline)
+  (newline)
+  (insert "    </body>")
+  (newline)
+  (insert "</html>"))
+
 (defun elisp-depend-filename (fullpath)
   "Return filename without extension and path.
    FULLPATH is the full path of file."
@@ -217,7 +249,7 @@
     (let* ((beg (point))
 	   (end (progn (forward-sexp) (point)))
 	   (name (buffer-substring beg end))
-	   (buffer (elisp-depend-filename (buffer-file-name))) 
+	   (buffer (elisp-depend-filename (buffer-file-name)))
 	   ;; (buffer-name))
 	   ;; is this defun or defmethod
 	   (letter (progn
@@ -309,39 +341,39 @@
     (add-hook hook (lambda () (flyspell-mode 1))))
 (dolist (hook '(lisp-mode-hook web-mode-hook js2-mode-hook))
   (add-hook hook (lambda () (flyspell-prog-mode))))
-  (setq flyspell-issue-message-flag nil)
-  (defun flyspell-emacs-popup-textual (event poss word)
-    "A textual flyspell popup menu."
-    (require 'popup)
-    (let* ((corrects (if flyspell-sort-corrections
-			 (sort (car (cdr (cdr poss))) 'string<)
-		       (car (cdr (cdr poss)))))
-	   (cor-menu (if (consp corrects)
-			 (mapcar (lambda (correct)
-				   (list correct correct))
-				 corrects)
-		       '()))
-	   (affix (car (cdr (cdr (cdr poss)))))
-	   show-affix-info
-	   (base-menu  (let ((save (if (and (consp affix) show-affix-info)
-				       (list
-					(list (concat "Save affix: " (car affix))
-					      'save)
-					'("Accept (session)" session)
-					'("Accept (buffer)" buffer))
-				     '(("Save word" save)
-				       ("Accept (session)" session)
-				       ("Accept (buffer)" buffer)))))
-			 (if (consp cor-menu)
-			     (append cor-menu (cons "" save))
-			   save)))
-	   (menu (mapcar
-		  (lambda (arg) (if (consp arg) (car arg) arg))
-		  base-menu)))
-		  (cadr (assoc (popup-menu* menu :scroll-bar t) base-menu))))
-      (eval-after-load "flyspell"
-	  '(progn
-	     (fset 'flyspell-emacs-popup 'flyspell-emacs-popup-textual)))
+(setq flyspell-issue-message-flag nil)
+(defun flyspell-emacs-popup-textual (event poss word)
+  "A textual flyspell popup menu."
+  (require 'popup)
+  (let* ((corrects (if flyspell-sort-corrections
+		       (sort (car (cdr (cdr poss))) 'string<)
+		     (car (cdr (cdr poss)))))
+	 (cor-menu (if (consp corrects)
+		       (mapcar (lambda (correct)
+				 (list correct correct))
+			       corrects)
+		     '()))
+	 (affix (car (cdr (cdr (cdr poss)))))
+	 show-affix-info
+	 (base-menu  (let ((save (if (and (consp affix) show-affix-info)
+				     (list
+				      (list (concat "Save affix: " (car affix))
+					    'save)
+				      '("Accept (session)" session)
+				      '("Accept (buffer)" buffer))
+				   '(("Save word" save)
+				     ("Accept (session)" session)
+				     ("Accept (buffer)" buffer)))))
+		       (if (consp cor-menu)
+			   (append cor-menu (cons "" save))
+			 save)))
+	 (menu (mapcar
+		(lambda (arg) (if (consp arg) (car arg) arg))
+		base-menu)))
+    (cadr (assoc (popup-menu* menu :scroll-bar t) base-menu))))
+(eval-after-load "flyspell"
+  '(progn
+     (fset 'flyspell-emacs-popup 'flyspell-emacs-popup-textual)))
 
 (require 'flycheck)
 (setq-default flycheck-disabled-checkers
@@ -349,6 +381,7 @@
                       '(javascript-jshint json-jsonlist)))
 ;; Enable eslint checker for web-mode
 (flycheck-add-mode 'javascript-eslint 'web-mode)
+(flycheck-add-mode 'javascript-eslint 'js2-mode)
 
 (require 'smartparens-config)
 (add-hook 'web-mode-hook #'smartparens-mode)
@@ -358,7 +391,7 @@
 
 (require 'lisp-extra-font-lock)
 (lisp-extra-font-lock-global-mode 1)
-(font-lock-add-keywords 
+(font-lock-add-keywords
  'emacs-lisp-mode
  '(("(\\s-*\\(\\_<\\(?:\\sw\\|\\s_\\)+\\)\\_>"
     1 'font-lock-func-face))
@@ -376,7 +409,7 @@
 		(intern (format "rainbow-delimiters-depth-%d-face" index))))
 	   (cl-callf color-saturate-name (face-foreground face) 30)))
 
-(require 'dimmer)			
+(require 'dimmer)
 
 (use-package dimmer
     :defer 1
@@ -418,7 +451,39 @@
 (require 'multi-term)
 (setq multi-term-program "/bin/zsh")
 
-(add-hook 'web-mode-hook  'emmet-mode) 
+(require 'js-comint)
+(setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
+(add-hook 'js2-mode-hook '(lambda ()
+			    (local-set-key "\C-x\C-e" 'js-send-last-sexp)
+			    (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
+			    (local-set-key "\C-cb" 'js-send-buffer)
+			    (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
+			    (local-set-key "\C-cl" 'js-load-file-and-go)
+			    ))
+
+;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+(setq lsp-keymap-prefix "s-l")
+
+(use-package lsp-mode
+    :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+            (js2-mode . lsp))
+    :commands lsp)
+
+;; optionally
+(use-package lsp-ui :commands lsp-ui-mode)
+
+(require 'emmet-mode)
+(setq web-mode-ac-sources-alist
+  '(("css" . (ac-source-css-property))
+    ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
+(setq web-mode-content-types-alist
+  '(("jsx" . "\\.js[x]?\\'")))
+(add-hook 'web-mode-hook  'emmet-mode)
+(setq web-mode-ac-sources-alist
+  '(("php" . (ac-source-yasnippet ac-source-php-auto-yasnippets))
+    ("html" . (ac-source-emmet-html-aliases ac-source-emmet-html-snippets))
+    ("css" . (ac-source-css-property ac-source-emmet-css-snippets))))
+
 (add-hook 'web-mode-before-auto-complete-hooks
     '(lambda ()
      (let ((web-mode-cur-language
@@ -429,39 +494,61 @@
                (if (string= web-mode-cur-language "css")
     	   (setq emmet-use-css-transform t)
       	 (setq emmet-use-css-transform nil)))))
+(setq emmet-expand-jsx-className? t)
+
+(add-hook 'local-write-file-hooks
+            (lambda ()
+               (delete-trailing-whitespace)
+               nil))
 
 (defun my-setup-indent (n)
-    ;; java/c/c++
-    (setq-local c-basic-offset n)
-    ;; web development
-    ;; (setq-local coffee-tab-width n) ; coffeescript
-    ;; (setq-local javascript-indent-level n) ; javascript-mode
-    ;; (setq-local js-indent-level n) ; js-mode
-    ;; (setq-local js2-basic-offset n) ; js2-mode, in latest js2-mode, it's alias of js-indent-level
-    (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
-    (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
-    (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
-    (setq-local css-indent-offset n) ; css-mode
-    )
+  ;; java/c/c++
+  (setq-local c-basic-offset n)
+  ;; web development
+  ;; (setq-local coffee-tab-width n) ; coffeescript
+  ;; (setq-local javascript-indent-level n) ; javascript-mode
+  ;; (setq-local js-indent-level n) ; js-mode
+  ;; (setq-local js2-basic-offset n) ; js2-mode, in latest js2-mode, it's alias of js-indent-level
+  (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
+  (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
+  (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
+  (setq-local css-indent-offset n) ; css-mode
+  )
 
-  (defun my-web-code-style ()
-    (interactive)
-    ;; use tab instead of space
-    (setq-local indent-tabs-mode t)
-    ;; indent 4 spaces width
-    (my-setup-indent 4))
+(defun my-web-code-style ()
+  (interactive)
+  ;; use tab instead of space
+  (setq-local indent-tabs-mode t)
+  ;; indent 4 spaces width
+  (my-setup-indent 4))
 
-  (add-hook 'web-mode-hook 'my-web-code-style)
+(add-hook 'web-mode-hook 'my-web-code-style)
 
-(setq web-mode-content-types-alist
-  '(("jsx" . "\\.js[x]?\\'")))
-
-(require 'js-comint)
-(setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
-(add-hook 'js2-mode-hook '(lambda () 
-			    (local-set-key "\C-x\C-e" 'js-send-last-sexp)
-			    (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
-			    (local-set-key "\C-cb" 'js-send-buffer)
-			    (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
-			    (local-set-key "\C-cl" 'js-load-file-and-go)
-			    ))
+(setq ibuffer-saved-filter-groups
+      '(("home"
+	 ("emacs-config" (or (filename . ".emacs.d")
+			     (filename . "emacs-config")
+			     (filename . "djr-init")))
+	 ("Org" (or (mode . org-mode)
+		    (filename . "OrgMode")))
+	 ("lisp" (filename . "\*lisp")
+	  (filename . "\*lsp")
+	  (filename . "\*el")
+	  (filename . "\*clm"))
+	 ("Web Dev" (or (mode . html-mode)
+			(mode . css-mode)
+			(mode . web-mode)
+			(mode . js2-mode)))
+	 ("ERC" (mode . erc-mode))
+	 ("Help" (or (name . "\*Help\*")
+		     (name . "\*Apropos\*")
+		     (name . "\*info\*"))))))
+(add-hook 'ibuffer-mode-hook
+	  '(lambda ()
+	     (ibuffer-switch-to-saved-filter-groups "home")))
+(setq ibuffer-expert t)
+(setq ibuffer-show-empty-filter-groups nil)
+(add-hook 'ibuffer-mode-hook
+	  '(lambda ()
+	     (ibuffer-auto-mode 1)
+	     (ibuffer-switch-to-saved-filter-groups "home")))
