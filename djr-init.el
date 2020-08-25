@@ -4,8 +4,6 @@
 (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
 (setq exec-path (append exec-path '("/usr/local/bin")))
 
-(require 'fast-scroll)
-
 (setq-default org-display-custom-times t)
 (setq org-time-stamp-custom-formats '("<%e %B %Y>" . "<%a, %e %b %Y %H:%M>"))
 (require 'ox)
@@ -19,9 +17,12 @@
 (add-to-list 'org-export-filter-timestamp-functions
 	     #'endless/filter-timestamp)
 
-(add-to-list 'default-frame-alist '(font . "Monaco"))
-
 '(require 'org-tempo)
+
+;; Reveal.js + Org mode
+(require 'ox-reveal)
+(setq Org-Reveal-root "file:///Users/danieljross/reveal.js")
+(setq Org-Reveal-title-slide nil)
 
 (defalias 'pi 'package-install)
 (defalias 'pl 'package-list-packages)
@@ -33,36 +34,6 @@
 (defalias 'scd 'sc-deftest-template)
 (defalias 'tf 'transpose-frame)
 (defalias 'rbp 'react-boilerplate)
-
-;; Set your lisp system and, optionally, some contribs
-(setq inferior-lisp-program "/opt/sbcl/bin/sbcl")
-(let ((sbcl-local (car (file-expand-wildcards
-			"/usr/local/Cellar/sbcl/*/lib/sbcl/sbcl.core"))))
-  (setq slime-lisp-implementations
-	`((sbcl ("/usr/local/bin/sbcl"
-		 "--core"
-		 ;; replace with correct path of sbcl
-		 ,sbcl-local
-		 "--dynamic-space-size" "2147")))))
-
-;; slime
-(require 'slime)
-(require 'slime-autoloads)
-;; Also setup the slime-fancy contrib
-(add-to-list 'slime-contribs 'slime-fancy)
-(slime-setup)
-(with-eval-after-load 'slime-repl
-  (require 'slime-repl-ansi-color))
-(add-hook 'slime-repl-mode-hook 'slime-repl-ansi-color-mode)
-
-;; keybinding for this is in the key bindings menu
-;; `C-c n'
-(defun djr-new-buffer-frame ()
-  "Create a new frame with a new empty buffer."
-  (interactive)
-  (let ((buffer (generate-new-buffer "untitled")))
-    (set-buffer-major-mode buffer)
-    (display-buffer buffer '(display-buffer-pop-up-frame . nil))))
 
 (global-set-key "\M-3" '(lambda() (interactive) (insert "#")))
 (global-set-key (kbd "C-c n") #'djr-new-buffer-frame)
@@ -85,6 +56,27 @@
 (global-set-key (kbd "S-s-C-<up>") 'enlarge-window-horizontally)
 (global-set-key (kbd "s-C-<down>") 'shrink-window)
 (global-set-key (kbd "s-C-<up>") 'enlarge-window)
+
+(require 'buffer-move)
+(global-set-key (kbd "<C-M-up>")     'buf-move-up)
+(global-set-key (kbd "<C-M-down>")   'buf-move-down)
+(global-set-key (kbd "<C-M-left>")   'buf-move-left)
+(global-set-key (kbd "<C-M-right>")  'buf-move-right)
+
+(setq default-frame-alist
+    (add-to-list 'default-frame-alist '(width . 100)))
+(setq default-frame-alist
+    (add-to-list 'default-frame-alist '(height . 200)))
+
+;;; Use the commands "control+x" followed by an arrow to
+;;; navigate between panes
+(global-set-key (kbd "C-x <up>") 'windmove-up)
+(global-set-key (kbd "C-x <down>") 'windmove-down)
+(global-set-key (kbd "C-x <left>") 'windmove-left)
+(global-set-key (kbd "C-x <right>") 'windmove-right)
+
+(custom-set-variables
+ '(zoom-mode t))
 
 ;; font scaling
 (use-package default-text-scale
@@ -150,6 +142,8 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 (delete-selection-mode 1)
 
+(add-to-list 'default-frame-alist '(font . "Monaco"))
+
 (setq-default fill-column 80)
   (add-hook 'web-mode-hook
 	    (lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
@@ -165,23 +159,48 @@
 (set-selection-coding-system 'utf-8)
 (prefer-coding-system 'utf-8)
 
-(require 'buffer-move)
-(global-set-key (kbd "<C-M-up>")     'buf-move-up)
-(global-set-key (kbd "<C-M-down>")   'buf-move-down)
-(global-set-key (kbd "<C-M-left>")   'buf-move-left)
-(global-set-key (kbd "<C-M-right>")  'buf-move-right)
+;; keybinding for this is in the key bindings menu
+;; `C-c n'
+(defun djr-new-buffer-frame ()
+  "Create a new frame with a new empty buffer."
+  (interactive)
+  (let ((buffer (generate-new-buffer "untitled")))
+    (set-buffer-major-mode buffer)
+    (display-buffer buffer '(display-buffer-pop-up-frame . nil))))
 
-(setq default-frame-alist
-    (add-to-list 'default-frame-alist '(width . 100)))
-(setq default-frame-alist
-    (add-to-list 'default-frame-alist '(height . 200)))
+(require 'fast-scroll)
 
-;;; Use the commands "control+x" followed by an arrow to
-;;; navigate between panes
-(global-set-key (kbd "C-x <up>") 'windmove-up)
-(global-set-key (kbd "C-x <down>") 'windmove-down)
-(global-set-key (kbd "C-x <left>") 'windmove-left)
-(global-set-key (kbd "C-x <right>") 'windmove-right)
+(require 'dimmer)
+
+(use-package dimmer
+    :defer 1
+    :config
+    (setq dimmer-exclusion-predicates
+	  '(helm--alive-p window-minibuffer-p echo-area-p))
+    (setq dimmer-exclusion-regexp-list
+	  '("^\\*[h|H]elm.*\\*" "^\\*Minibuf-[0-9]+\\*"
+	    "^.\\*which-key\\*$" "^*Messages*" "*LV*"
+	    "^*[e|E]cho [a|A]rea 0*" "*scratch*"
+	    "transient")))
+
+(dimmer-mode t)
+
+(require 'telephone-line)
+(setq telephone-line-lhs
+      '((evil   . (telephone-line-evil-tag-segment))
+	(accent . (telephone-line-vc-segment
+		   telephone-line-erc-modified-channels-segment
+		   telephone-line-process-segment))
+	(nil    . (telephone-line-minor-mode-segment
+		   telephone-line-buffer-segment))))
+(setq telephone-line-rhs
+      '((nil    . (telephone-line-misc-info-segment))
+	(accent . (telephone-line-major-mode-segment))
+	(evil   . (telephone-line-airline-position-segment))))
+(telephone-line-mode t)
+
+(require 'cl-lib)
+(require 'color)
 
 (defun sc-deftest-template ()
     (interactive)
@@ -196,6 +215,10 @@
 (defun js-80-slash ()
   (interactive)
   (loop repeat 80 do (insert "/")))
+
+(defun lisp-80-slash ()
+  (interactive)
+  (loop repeat 80 do (insert ";")))
 
 (defun react-boilerplate ()
   (interactive)
@@ -249,7 +272,7 @@
     (let* ((beg (point))
 	   (end (progn (forward-sexp) (point)))
 	   (name (buffer-substring beg end))
-	   (buffer (elisp-depend-filename (buffer-file-name)))
+	   (buffer (elisp-depend-filename (buffer-file-name))) 
 	   ;; (buffer-name))
 	   ;; is this defun or defmethod
 	   (letter (progn
@@ -260,15 +283,25 @@
 		       ;; (insert (preceding-sexp))
 		       (if (string= fun "defun")
 			   "f"
-			   "m")))))
+			 "m")))))
       (beginning-of-line)
       (newline)
       (previous-line)
+      (newline)
+      (insert
+       ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;")
+      (newline)
       (insert ";;; ****" letter "* " buffer "/" name)
       ;; (insert ";;; ****" letter "*" buffer "/" name)
       (newline)
       ;; (insert ";;; FUNCTION")
       ;; (newline)
+      (insert ";;; AUTHOR")
+      (newline)
+      (insert ";;; Daniel Ross (mr.danielross[at]gmail[dot]com) ")
+      (newline)
+      (insert ";;; ")
+      (newline)
       (robodoc-fun-aux "DATE")
       (robodoc-fun-aux "DESCRIPTION")
       ;; (insert ";;; " name ":")
@@ -292,7 +325,6 @@
       (forward-sexp 2)
       (newline)
       (insert ";;; ****"))))
-
 
 (defun robodoc-fun-aux (tag)
   (insert ";;; " tag)
@@ -326,7 +358,7 @@
   (progn
     (ac-config-default)
     (setq ac-use-quick-help nil)
-    (setq ac-quick-help-delay 0.05)
+    (setq ac-quick-help-delay 0.1)
     (global-auto-complete-mode t)))
 (require 'ac-slime)
 (add-hook 'slime-mode-hook 'set-up-slime-ac)
@@ -383,11 +415,49 @@
 (flycheck-add-mode 'javascript-eslint 'web-mode)
 (flycheck-add-mode 'javascript-eslint 'js2-mode)
 
-(require 'smartparens-config)
-(add-hook 'web-mode-hook #'smartparens-mode)
-(add-hook 'emacs-lisp-mode-hook #'smartparens-mode)
-(add-hook 'lisp-mode-hook #'smartparens-mode)
-(add-hook 'latex-mode-hook #'smartparens-mode)
+;; Set your lisp system and, optionally, some contribs
+    (setq inferior-lisp-program "/opt/sbcl/bin/sbcl")
+    (let ((sbcl-local (car (file-expand-wildcards
+			    "/usr/local/Cellar/sbcl/*/lib/sbcl/sbcl.core"))))
+      (setq slime-lisp-implementations
+	    `((sbcl ("/usr/local/bin/sbcl"
+		     "--core"
+		     ;; replace with correct path of sbcl
+		     ,sbcl-local
+		     "--dynamic-space-size" "2147")))))
+
+    ;; slime
+    (require 'slime)
+    (require 'slime-autoloads)
+    ;; Also setup the slime-fancy contrib
+    (add-to-list 'slime-contribs 'slime-fancy)
+    (add-hook 'slime-repl-mode-hook 'slime-repl-ansi-color-mode)
+    (slime-setup)
+    (with-eval-after-load 'slime-repl
+      (require 'slime-repl-ansi-color)
+   ; (slime-set-default-directory "~/lisp")
+)
+
+;; (autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
+;; (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
+;; (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
+;; (add-hook 'ielm-mode-hook             #'enable-paredit-mode)
+;; (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
+;; (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+;; (add-hook 'scheme-mode-hook           #'enable-paredit-mode)
+;; (add-hook 'slime-repl-mode-hook (lambda () (paredit-mode +1)))
+;; ;; Stop SLIME's REPL from grabbing DEL,
+;; ;; which is annoying when backspacing over a '('
+;; (defun override-slime-repl-bindings-with-paredit ()
+;;   (define-key slime-repl-mode-map
+;;     (read-kbd-macro paredit-backward-delete-key) nil))
+;; (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
+
+;; (require 'smartparens-config)
+;; (add-hook 'web-mode-hook #'smartparens-mode)
+;; (add-hook 'emacs-lisp-mode-hook #'smartparens-mode)
+;; (add-hook 'lisp-mode-hook #'smartparens-mode)
+;; (add-hook 'latex-mode-hook #'SMARTPARENS-MODE)
 
 (require 'lisp-extra-font-lock)
 (lisp-extra-font-lock-global-mode 1)
@@ -396,9 +466,6 @@
  '(("(\\s-*\\(\\_<\\(?:\\sw\\|\\s_\\)+\\)\\_>"
     1 'font-lock-func-face))
  'append) ;; <-- Add after all other rules
-
-(require 'cl-lib)
-(require 'color)
 
 (require 'rainbow-delimiters)
 (add-hook 'lisp-mode-hook 'rainbow-delimiters-mode)
@@ -409,47 +476,10 @@
 		(intern (format "rainbow-delimiters-depth-%d-face" index))))
 	   (cl-callf color-saturate-name (face-foreground face) 30)))
 
-(require 'dimmer)
-
-(use-package dimmer
-    :defer 1
-    :config
-    (setq dimmer-exclusion-predicates
-	  '(helm--alive-p window-minibuffer-p echo-area-p))
-    (setq dimmer-exclusion-regexp-list
-	  '("^\\*[h|H]elm.*\\*" "^\\*Minibuf-[0-9]+\\*"
-	    "^.\\*which-key\\*$" "^*Messages*" "*LV*"
-	    "^*[e|E]cho [a|A]rea 0*" "*scratch*"
-	    "transient")))
-
-(dimmer-mode t)
-
-;; Reveal.js + Org mode
-(require 'ox-reveal)
-(setq Org-Reveal-root "file:///Users/danieljross/reveal.js")
-(setq Org-Reveal-title-slide nil)
-
 (setq markdown-command "pandoc")
 
 (latex-preview-pane-enable)
 (require 'latex-pretty-symbols)
-
-(require 'telephone-line)
-(setq telephone-line-lhs
-      '((evil   . (telephone-line-evil-tag-segment))
-	(accent . (telephone-line-vc-segment
-		   telephone-line-erc-modified-channels-segment
-		   telephone-line-process-segment))
-	(nil    . (telephone-line-minor-mode-segment
-		   telephone-line-buffer-segment))))
-(setq telephone-line-rhs
-      '((nil    . (telephone-line-misc-info-segment))
-	(accent . (telephone-line-major-mode-segment))
-	(evil   . (telephone-line-airline-position-segment))))
-(telephone-line-mode t)
-
-(require 'multi-term)
-(setq multi-term-program "/bin/zsh")
 
 (require 'js-comint)
 (setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
@@ -488,18 +518,18 @@
     '(lambda ()
      (let ((web-mode-cur-language
   	    (web-mode-language-at-pos)))
-               (if (string= web-mode-cur-language "php")
+	       (if (string= web-mode-cur-language "php")
     	   (yas-activate-extra-mode 'php-mode)
       	 (yas-deactivate-extra-mode 'php-mode))
-               (if (string= web-mode-cur-language "css")
+	       (if (string= web-mode-cur-language "css")
     	   (setq emmet-use-css-transform t)
       	 (setq emmet-use-css-transform nil)))))
 (setq emmet-expand-jsx-className? t)
 
 (add-hook 'local-write-file-hooks
             (lambda ()
-               (delete-trailing-whitespace)
-               nil))
+	       (delete-trailing-whitespace)
+	       nil))
 
 (defun my-setup-indent (n)
   ;; java/c/c++
@@ -524,31 +554,78 @@
 
 (add-hook 'web-mode-hook 'my-web-code-style)
 
+(setq-default web-mode-comment-formats
+	      '(("java"       . "/*")
+		("javascript" . "//")
+		("php"        . "/*")))
+
+
+
+(require 'prettier-js)
+(add-hook 'js2-mode-hook 'prettier-js-mode)
+;; (add-hook 'web-mode-hook 'prettier-js-mode)
+(add-hook 'js-mode-hook 'prettier-js-mode)
+(defun enable-minor-mode (my-pair)
+  "Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
+  (if (buffer-file-name)
+      (if (string-match (car my-pair) buffer-file-name)
+	  (funcall (cdr my-pair)))))
+(add-hook 'web-mode-hook #'(lambda ()
+			     (enable-minor-mode
+			      '("\\.jsx?\\'" . prettier-js-mode))))
+(setq prettier-js-args 
+      '("--trailing-comma" "none"
+	"--bracket-spacing" "true"
+	"--single-quote" "true"
+	"--jsx-single-quote" "true"
+	"--jsx-bracket-same-line" "true"
+	"--print-width" "80"
+	"--use-tabs" "false"
+	"--tab-width" "4"))
+
 (setq ibuffer-saved-filter-groups
-      '(("home"
-	 ("emacs-config" (or (filename . ".emacs.d")
-			     (filename . "emacs-config")
-			     (filename . "djr-init")))
-	 ("Org" (or (mode . org-mode)
-		    (filename . "OrgMode")))
-	 ("lisp" (filename . "\*lisp")
-	  (filename . "\*lsp")
-	  (filename . "\*el")
-	  (filename . "\*clm"))
-	 ("Web Dev" (or (mode . html-mode)
-			(mode . css-mode)
-			(mode . web-mode)
-			(mode . js2-mode)))
-	 ("ERC" (mode . erc-mode))
-	 ("Help" (or (name . "\*Help\*")
-		     (name . "\*Apropos\*")
-		     (name . "\*info\*"))))))
-(add-hook 'ibuffer-mode-hook
-	  '(lambda ()
-	     (ibuffer-switch-to-saved-filter-groups "home")))
-(setq ibuffer-expert t)
-(setq ibuffer-show-empty-filter-groups nil)
-(add-hook 'ibuffer-mode-hook
-	  '(lambda ()
-	     (ibuffer-auto-mode 1)
-	     (ibuffer-switch-to-saved-filter-groups "home")))
+	'(("home"
+	   ("emacs-config" (or (filename . ".emacs.d")
+			       (filename . "emacs-config")
+			       (filename . "djr-init")))
+	   ("Org" (or (mode . org-mode)
+		      (filename . "OrgMode")))
+	   ("lisp" (or (filename . "*.lisp")
+		       (filename . "*.lsp")
+		       (filename . "*.el")
+		       (filename . "*.asd")
+		       (filename . "*.clm")
+		       (mode . lisp-mode)))
+	   ("Web Dev" (or (mode . html-mode)
+			  (mode . css-mode)
+			  (mode . web-mode)
+			  (mode . js2-mode)))
+	   ("ERC" (mode . erc-mode))
+	   ("Shells/Terminals/REPLs" (or (name . "\*eshell\*")
+					 (name . "\*terminal\*")
+					 (name . "\*slime-repl sbcl\*")
+					 (name . "\*shell\*")))
+	   ("Logs" (or (name . "\*Messages\*")
+		       (name . "\*slime-events\*")
+		       (name . "\*inferior-lisp\*")
+		       (name . "\*lsp-log\*")
+		       (name . "\*jsts-ls\*")
+		       (name . "\*jsts-log\*")
+		       (name . "\*jsts-ls::stderr\*")))
+	   ("Help" (or (name . "\*Help\*")
+		       (name . "\*Apropos\*")
+		       (name . "\*Completions\*")
+		       (name . "\*info\*")))
+	   ("Misc" (or  (name . "untitled")
+			(name . "\*scratch\*"))))))
+  (add-hook 'ibuffer-mode-hook
+	    '(lambda ()
+	       (ibuffer-switch-to-saved-filter-groups "home")))
+  (setq ibuffer-expert t)
+  (setq ibuffer-show-empty-filter-groups nil)
+  (add-hook 'ibuffer-mode-hook
+	    '(lambda ()
+	       (ibuffer-auto-mode 1)
+	       (ibuffer-switch-to-saved-filter-groups "home")))
+(setq dired-auto-revert-buffer t
+      auto-revert-verbose nil)
