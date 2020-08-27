@@ -4,24 +4,19 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(column-number-mode t)
- '(custom-enabled-themes (quote (deeper-blue)))
+ '(custom-enabled-themes '(deeper-blue))
  '(debug-on-error t)
  '(display-line-numbers t)
- '(fringe-mode (quote (nil . 0)) nil (fringe))
+ '(fringe-mode '(nil . 0) nil (fringe))
  '(global-hl-line-mode t)
- '(indicate-buffer-boundaries (quote left))
+ '(indicate-buffer-boundaries 'left)
  '(inhibit-startup-buffer-menu t)
  '(inhibit-startup-screen t)
  '(initial-scratch-message nil)
- '(markdown-command "/usr/local/bin/pandoc" t)
+ '(markdown-command "/usr/local/bin/pandoc")
  '(package-selected-packages
-   (quote
-    (zoom prettier-js sos paredit js-auto-beautify csv-mode default-text-scale lsp-ui lsp-mode json-mode js2-mode transpose-frame flycheck emmet-mode js-comint fast-scroll buffer-move whitespace-cleanup-mode magit multi-term telephone-line exec-path-from-shell latex-pretty-symbols latex-preview-pane markdown-mode ac-slime tabbar auctex ox-reveal dimmer slime-repl-ansi-color rainbow-delimiters smartparens lisp-extra-font-lock web-mode auto-complete slime)))
- '(safe-local-variable-values
-   (quote
-    ((base . 10)
-     (package . clm)
-     (syntax . common-lisp))))
+   '(xkcd zoom prettier-js sos paredit js-auto-beautify csv-mode default-text-scale lsp-ui lsp-mode json-mode js2-mode transpose-frame flycheck emmet-mode js-comint fast-scroll buffer-move whitespace-cleanup-mode magit multi-term telephone-line exec-path-from-shell latex-pretty-symbols latex-preview-pane markdown-mode ac-slime tabbar auctex ox-reveal dimmer slime-repl-ansi-color rainbow-delimiters smartparens lisp-extra-font-lock web-mode auto-complete slime))
+ '(safe-local-variable-values '((base . 10) (package . clm) (syntax . common-lisp)))
  '(show-paren-mode t)
  '(telephone-line-mode t)
  '(tool-bar-mode nil)

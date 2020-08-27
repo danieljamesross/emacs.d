@@ -1,7 +1,7 @@
-auto-save-list
+auto-save-list/*
 SessionDesktop.el
-eshell
-elpa
-transient
-url
+eshell/*
+elpa/*
+transient/*
+url/*
 ac-comphist.dat
