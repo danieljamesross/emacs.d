@@ -10,34 +10,6 @@
  (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
  (setq exec-path (append exec-path '("/usr/local/bin")))
  #+END_SRC
-
-** Org
-*** org-mode dates
-  #+BEGIN_SRC emacs-lisp
-    (setq-default org-display-custom-times t)
-    (setq org-time-stamp-custom-formats '("<%e %B %Y>" . "<%a, %e %b %Y %H:%M>"))
-    (require 'ox)
-    (defun endless/filter-timestamp (trans back _comm)
-      "Remove <> around time-stamps."
-      (pcase back
-	((or `jekyll `html)
-	 (replace-regexp-in-string "&[lg]t;" "" trans))
-	(`latex
-	 (replace-regexp-in-string "[<>]" "" trans))))
-    (add-to-list 'org-export-filter-timestamp-functions
-		 #'endless/filter-timestamp)
-  #+END_SRC
-*** Org tempo
-  #+BEGIN_SRC emacs-lisp
-  '(require 'org-tempo)
-  #+END_SRC
-*** org-reveal
-  #+BEGIN_SRC emacs-lisp
-  ;; Reveal.js + Org mode
-  (require 'ox-reveal)
-  (setq Org-Reveal-root "file:///Users/danieljross/reveal.js")
-  (setq Org-Reveal-title-slide nil)
-  #+END_SRC
 ** Shortcuts
 *** Aliases
   #+BEGIN_SRC emacs-lisp
@@ -259,7 +231,7 @@
 *** Add sc-deftest
  #+BEGIN_SRC emacs-lisp
    (defun sc-deftest-template ()
-       (interactive)
+     (interactive)
      (insert "(sc-deftest test- ()")
      (newline)
      (insert "  (let* (())")
@@ -282,46 +254,54 @@
  #+END_SRC
 *** React boilerplate
  #+BEGIN_SRC emacs-lisp
-     (defun react-boilerplate ()
-       (interactive)
-       (insert "import React from 'react';")
-       (newline)
-       (newline)
-       (insert "function Test() {")
-       (newline)
-       (newline)
-       (insert "    return ();")
-       (newline)
-       (insert "};")
-       (newline)
-       (newline)
-       (insert "export default Test;"))
+   (defun react-boilerplate (name)
+     (interactive "sFunction Name: ")
+     (js2-mode)
+     (insert "import React from 'react';")
+     (newline)
+     (newline)
+     (insert "function ")
+     (insert name) 
+     (insert "() {")
+     (newline)
+     (newline)
+     (insert "    return ();")
+     (newline)
+     (insert "};")
+     (newline)
+     (newline)
+     (insert "export default ")
+     (insert name)
+     (insert ";"))
  #+END_SRC
 *** Web boilerplate
  #+BEGIN_SRC emacs-lisp
-	 (defun web-boilerplate ()
-	   (interactive)
-	   (insert "<!DOCTYPE html>")
-	   (newline)
-	   (insert "<html>")
-	   (newline)
-	   (insert "    <head>")
-	   (newline)
-	   (insert "	<title>Page Title</title>")
-	   (newline)
-	   (insert "    </head>")
-	   (newline)
-	   (insert "    <body>")
-	   (newline)
-	   (newline)
-	   (insert"	   <h1>This is a Heading</h1>")
-	   (newline)
-	   (insert "        <p>This is a paragraph.</p>")
-	   (newline)
-	   (newline)
-	   (insert "    </body>")
-	   (newline)
-	   (insert "</html>"))
+   (defun web-boilerplate (page-title)
+     (interactive "sHTML Title: ")
+     (web-mode)
+     (insert "<!DOCTYPE html>")
+     (newline)
+     (insert "<html>")
+     (newline)
+     (insert "    <head>")
+     (newline)
+     (insert "	<title>")
+     (insert page-title)
+     (insert "</title>")
+     (newline)
+     (insert "    </head>")
+     (newline)
+     (insert "    <body>")
+     (newline)
+     (newline)
+     (insert "       <h1>This is a Heading</h1>")
+     (newline)
+     (insert "        <p>This is a paragraph.</p>")
+     (newline)
+     (newline)
+     (insert "    </body>")
+     (newline)
+     (insert "</html>"))
  #+END_SRC
 *** ROBODOC
   #+BEGIN_SRC emacs-lisp
@@ -515,12 +495,7 @@
     (add-hook 'slime-repl-mode-hook 'slime-repl-ansi-color-mode)
     (slime-setup)
     (with-eval-after-load 'slime-repl
-      (require 'slime-repl-ansi-color)
-   ; (slime-set-default-directory "~/lisp")
-)
-
-
-
+      (require 'slime-repl-ansi-color))
   #+END_SRC
 *** paredit
 Man, this is slow. Removing it for now.
@@ -677,11 +652,6 @@ This also slow, removing
 		  ("php"        . "/*")))
 
 #+END_SRC
-*** j2-beautify
- #+BEGIN_SRC emacs-lisp
-
-
- #+END_SRC
 *** js-prettier-mode
  #+BEGIN_SRC emacs-lisp
    (require 'prettier-js)
@@ -761,3 +731,38 @@ This also slow, removing
 	auto-revert-verbose nil)
 
 #+END_SRC
+** Org
+*** org-mode dates
+  #+BEGIN_SRC emacs-lisp
+    (setq-default org-display-custom-times t)
+    (setq org-time-stamp-custom-formats '("<%e %B %Y>" . "<%a, %e %b %Y %H:%M>"))
+    (require 'ox)
+    (defun endless/filter-timestamp (trans back _comm)
+      "Remove <> around time-stamps."
+      (pcase back
+	((or `jekyll `html)
+	 (replace-regexp-in-string "&[lg]t;" "" trans))
+	(`latex
+	 (replace-regexp-in-string "[<>]" "" trans))))
+    (add-to-list 'org-export-filter-timestamp-functions
+		 #'endless/filter-timestamp)
+  #+END_SRC
+*** Org tempo
+  #+BEGIN_SRC emacs-lisp
+  (require 'org-tempo)
+ (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  #+END_SRC
+*** org-reveal
+  #+BEGIN_SRC emacs-lisp
+  ;; Reveal.js + Org mode
+  (require 'ox-reveal)
+  (setq Org-Reveal-root "file:///Users/danieljross/reveal.js")
+  (setq Org-Reveal-title-slide nil)
+  #+END_SRC
+*** org bullets
+  #+BEGIN_SRC emacs-lisp
+      (use-package org-bullets
+	:ensure t
+	:config
+	(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+  #+END_SRC

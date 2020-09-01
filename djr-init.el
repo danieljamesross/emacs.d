@@ -4,26 +4,6 @@
 (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
 (setq exec-path (append exec-path '("/usr/local/bin")))
 
-(setq-default org-display-custom-times t)
-(setq org-time-stamp-custom-formats '("<%e %B %Y>" . "<%a, %e %b %Y %H:%M>"))
-(require 'ox)
-(defun endless/filter-timestamp (trans back _comm)
-  "Remove <> around time-stamps."
-  (pcase back
-    ((or `jekyll `html)
-     (replace-regexp-in-string "&[lg]t;" "" trans))
-    (`latex
-     (replace-regexp-in-string "[<>]" "" trans))))
-(add-to-list 'org-export-filter-timestamp-functions
-	     #'endless/filter-timestamp)
-
-'(require 'org-tempo)
-
-;; Reveal.js + Org mode
-(require 'ox-reveal)
-(setq Org-Reveal-root "file:///Users/danieljross/reveal.js")
-(setq Org-Reveal-title-slide nil)
-
 (defalias 'pi 'package-install)
 (defalias 'pl 'package-list-packages)
 (defalias 'pr 'package-refresh-contents)
@@ -220,12 +200,15 @@
   (interactive)
   (loop repeat 80 do (insert ";")))
 
-(defun react-boilerplate ()
-  (interactive)
+(defun react-boilerplate (name)
+  (interactive "sFunction Name: ")
+  (js2-mode)
   (insert "import React from 'react';")
   (newline)
   (newline)
-  (insert "function Test() {")
+  (insert "function ")
+  (insert name) 
+  (insert "() {")
   (newline)
   (newline)
   (insert "    return ();")
@@ -233,24 +216,29 @@
   (insert "};")
   (newline)
   (newline)
-  (insert "export default Test;"))
+  (insert "export default ")
+  (insert name)
+  (insert ";"))
 
-(defun web-boilerplate ()
-  (interactive)
+(defun web-boilerplate (page-title)
+  (interactive "sHTML Title: ")
+  (web-mode)
   (insert "<!DOCTYPE html>")
   (newline)
   (insert "<html>")
   (newline)
   (insert "    <head>")
   (newline)
-  (insert "	<title>Page Title</title>")
+  (insert "	<title>")
+  (insert page-title)
+  (insert "</title>")
   (newline)
   (insert "    </head>")
   (newline)
   (insert "    <body>")
   (newline)
   (newline)
-  (insert"	   <h1>This is a Heading</h1>")
+  (insert "       <h1>This is a Heading</h1>")
   (newline)
   (insert "        <p>This is a paragraph.</p>")
   (newline)
@@ -633,3 +621,29 @@
 	       (ibuffer-switch-to-saved-filter-groups "home")))
 (setq dired-auto-revert-buffer t
       auto-revert-verbose nil)
+
+(setq-default org-display-custom-times t)
+(setq org-time-stamp-custom-formats '("<%e %B %Y>" . "<%a, %e %b %Y %H:%M>"))
+(require 'ox)
+(defun endless/filter-timestamp (trans back _comm)
+  "Remove <> around time-stamps."
+  (pcase back
+    ((or `jekyll `html)
+     (replace-regexp-in-string "&[lg]t;" "" trans))
+    (`latex
+     (replace-regexp-in-string "[<>]" "" trans))))
+(add-to-list 'org-export-filter-timestamp-functions
+	     #'endless/filter-timestamp)
+
+(require 'org-tempo)
+(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+
+;; Reveal.js + Org mode
+(require 'ox-reveal)
+(setq Org-Reveal-root "file:///Users/danieljross/reveal.js")
+(setq Org-Reveal-title-slide nil)
+
+(use-package org-bullets
+  :ensure t
+  :config
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
