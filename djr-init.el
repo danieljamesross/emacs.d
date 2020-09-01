@@ -183,7 +183,7 @@
 (require 'color)
 
 (defun sc-deftest-template ()
-    (interactive)
+  (interactive)
   (insert "(sc-deftest test- ()")
   (newline)
   (insert "  (let* (())")
@@ -337,7 +337,7 @@
 ;; Thanks to Pierre Donat-Bouillud
 ;; https://github.com/programLyrique/antesc-mode
 ;; lilypond mode
-(add-to-list 'load-path (expand-file-name (expand-file-name "~/site-lisp")))
+(add-to-list 'load-path (expand-file-name "~/site-lisp"))
 (load (expand-file-name "~/site-lisp/lilypond-init.el"))
 
 (use-package auto-complete
@@ -404,27 +404,25 @@
 (flycheck-add-mode 'javascript-eslint 'js2-mode)
 
 ;; Set your lisp system and, optionally, some contribs
-    (setq inferior-lisp-program "/opt/sbcl/bin/sbcl")
-    (let ((sbcl-local (car (file-expand-wildcards
-			    "/usr/local/Cellar/sbcl/*/lib/sbcl/sbcl.core"))))
-      (setq slime-lisp-implementations
-	    `((sbcl ("/usr/local/bin/sbcl"
-		     "--core"
-		     ;; replace with correct path of sbcl
-		     ,sbcl-local
-		     "--dynamic-space-size" "2147")))))
+(setq inferior-lisp-program "/opt/sbcl/bin/sbcl")
+(let ((sbcl-local (car (file-expand-wildcards
+			"/usr/local/Cellar/sbcl/*/lib/sbcl/sbcl.core"))))
+  (setq slime-lisp-implementations
+	`((sbcl ("/usr/local/bin/sbcl"
+		 "--core"
+		 ;; replace with correct path of sbcl
+		 ,sbcl-local
+		 "--dynamic-space-size" "2147")))))
 
-    ;; slime
-    (require 'slime)
-    (require 'slime-autoloads)
-    ;; Also setup the slime-fancy contrib
-    (add-to-list 'slime-contribs 'slime-fancy)
-    (add-hook 'slime-repl-mode-hook 'slime-repl-ansi-color-mode)
-    (slime-setup)
-    (with-eval-after-load 'slime-repl
-      (require 'slime-repl-ansi-color)
-   ; (slime-set-default-directory "~/lisp")
-)
+;; slime
+(require 'slime)
+(require 'slime-autoloads)
+;; Also setup the slime-fancy contrib
+(add-to-list 'slime-contribs 'slime-fancy)
+(add-hook 'slime-repl-mode-hook 'slime-repl-ansi-color-mode)
+(slime-setup)
+(with-eval-after-load 'slime-repl
+  (require 'slime-repl-ansi-color))
 
 ;; (autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
 ;; (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
@@ -546,8 +544,6 @@
 	      '(("java"       . "/*")
 		("javascript" . "//")
 		("php"        . "/*")))
-
-
 
 (require 'prettier-js)
 (add-hook 'js2-mode-hook 'prettier-js-mode)

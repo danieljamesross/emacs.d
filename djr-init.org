@@ -2,6 +2,8 @@
 :PROPERTIES:
 :header-args: :results silent :tangle yes
 :END:
+This is my initialisation file for Emacs. Behold!, the code blocks will be
+compiled at startup, but not these titles or this text. 
 ** PATH
  #+BEGIN_SRC emacs-lisp
  (setenv "PATH" (concat "/Library/TeX/texbin:"
@@ -193,15 +195,15 @@
     (require 'dimmer)
 
     (use-package dimmer
-	:defer 1
-	:config
-	(setq dimmer-exclusion-predicates
-	      '(helm--alive-p window-minibuffer-p echo-area-p))
-	(setq dimmer-exclusion-regexp-list
-	      '("^\\*[h|H]elm.*\\*" "^\\*Minibuf-[0-9]+\\*"
-		"^.\\*which-key\\*$" "^*Messages*" "*LV*"
-		"^*[e|E]cho [a|A]rea 0*" "*scratch*"
-		"transient")))
+      :defer 1
+      :config
+      (setq dimmer-exclusion-predicates
+	    '(helm--alive-p window-minibuffer-p echo-area-p))
+      (setq dimmer-exclusion-regexp-list
+	    '("^\\*[h|H]elm.*\\*" "^\\*Minibuf-[0-9]+\\*"
+	      "^.\\*which-key\\*$" "^*Messages*" "*LV*"
+	      "^*[e|E]cho [a|A]rea 0*" "*scratch*"
+	      "transient")))
 
     (dimmer-mode t)
 
@@ -230,9 +232,11 @@
 ** Generate Code
 *** Add sc-deftest
  #+BEGIN_SRC emacs-lisp
-   (defun sc-deftest-template ()
-     (interactive)
-     (insert "(sc-deftest test- ()")
+   (defun sc-deftest-template (test)
+     (interactive "sdef-test name: ")
+     (insert "(sc-deftest test-")
+     (insert test)
+     (insert " ()")
      (newline)
      (insert "  (let* (())")
      (newline)
@@ -400,7 +404,7 @@
     ;; Thanks to Pierre Donat-Bouillud
     ;; https://github.com/programLyrique/antesc-mode
     ;; lilypond mode
-    (add-to-list 'load-path (expand-file-name (expand-file-name "~/site-lisp")))
+    (add-to-list 'load-path (expand-file-name "~/site-lisp"))
     (load (expand-file-name "~/site-lisp/lilypond-init.el"))
   #+END_SRC
 ** Auto Complete and Fly
@@ -629,8 +633,7 @@ This also slow, removing
      (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
      (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
      (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
-     (setq-local css-indent-offset n) ; css-mode
-     )
+     (setq-local css-indent-offset n)) ; css-mode
 
    (defun my-web-code-style ()
      (interactive)
@@ -645,7 +648,7 @@ This also slow, removing
 
 *** web comment style
 #+BEGIN_SRC emacs-lisp
-
+;; this still doesn't work properly
   (setq-default web-mode-comment-formats
 		'(("java"       . "/*")
 		  ("javascript" . "//")
@@ -761,8 +764,9 @@ This also slow, removing
   #+END_SRC
 *** org bullets
   #+BEGIN_SRC emacs-lisp
-      (use-package org-bullets
-	:ensure t
-	:config
-	(add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+    (use-package org-bullets
+      :ensure t
+      :config
+      (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
   #+END_SRC
+  
