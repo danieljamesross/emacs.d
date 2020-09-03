@@ -9,5 +9,5 @@
   (package-refresh-contents)
   (package-install 'use-package))
 
-(org-babel-load-file (expand-file-name "~/.emacs.d/djr-init.org"))
+(org-babel-load-file (expand-file-name "~/.emacs.d/README.org"))
 (put 'upcase-region 'disabled nil)
