@@ -1,20 +1,20 @@
 * org-init
-:PROPERTIES:
-:header-args: :results silent :tangle yes
-:END:
-This is my initialisation file for Emacs. Behold!, the code blocks will be
-compiled at startup, but not these titles or this text. 
+  :PROPERTIES:
+  :header-args: :results silent :tangle yes
+  :END:
+  This is my initialisation file for Emacs. Behold!, the code blocks will be
+  compiled at startup, but not these titles or this text. 
 ** PATH
- #+BEGIN_SRC emacs-lisp
+   #+BEGIN_SRC emacs-lisp
  (setenv "PATH" (concat "/Library/TeX/texbin:"
                       (getenv "PATH")))
  (add-to-list 'exec-path "/Library/TeX/texbin")
  (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
  (setq exec-path (append exec-path '("/usr/local/bin")))
- #+END_SRC
+   #+END_SRC
 ** Shortcuts
 *** Aliases
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     (defalias 'pi 'package-install)
     (defalias 'pl 'package-list-packages)
     (defalias 'pr 'package-refresh-contents)
@@ -25,9 +25,9 @@ compiled at startup, but not these titles or this text.
     (defalias 'scd 'sc-deftest-template)
     (defalias 'tf 'transpose-frame)
     (defalias 'rbp 'react-boilerplate)
-  #+END_SRC
+    #+END_SRC
 *** Key bindings
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     (global-set-key "\M-3" '(lambda() (interactive) (insert "#")))
     (global-set-key (kbd "C-c n") #'djr-new-buffer-frame)
     (global-set-key "\C-c\l" 'goto-line)
@@ -49,18 +49,18 @@ compiled at startup, but not these titles or this text.
     (global-set-key (kbd "S-s-C-<up>") 'enlarge-window-horizontally)
     (global-set-key (kbd "s-C-<down>") 'shrink-window)
     (global-set-key (kbd "s-C-<up>") 'enlarge-window)
-  #+END_SRC
+    #+END_SRC
 ** Buffers and Panes
 *** buffer-move
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (require 'buffer-move)
   (global-set-key (kbd "<C-M-up>")     'buf-move-up)
   (global-set-key (kbd "<C-M-down>")   'buf-move-down)
   (global-set-key (kbd "<C-M-left>")   'buf-move-left)
   (global-set-key (kbd "<C-M-right>")  'buf-move-right)
-  #+END_SRC
+    #+END_SRC
 *** Panes
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (setq default-frame-alist
       (add-to-list 'default-frame-alist '(width . 100)))
   (setq default-frame-alist
@@ -72,65 +72,24 @@ compiled at startup, but not these titles or this text.
   (global-set-key (kbd "C-x <down>") 'windmove-down)
   (global-set-key (kbd "C-x <left>") 'windmove-left)
   (global-set-key (kbd "C-x <right>") 'windmove-right)
-  #+END_SRC
+    #+END_SRC
 *** zoom mode
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
 (custom-set-variables
  '(zoom-mode t))
-#+END_SRC
+    #+END_SRC
 ** Cosmetic
 *** Text inc/dec
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    ;; font scaling
    (use-package default-text-scale
      :ensure t
      :config
      (global-set-key (kbd "s-=") 'default-text-scale-increase)
      (global-set-key (kbd "s--") 'default-text-scale-decrease))
- #+END_SRC
-*** File Types & modes
-  #+BEGIN_SRC emacs-lisp
-    (setq auto-mode-alist
-	  (append '(("\\.c$"       . c-mode)
-		    ("\\.cs$"      . csharp-mode)
-		    ("\\.txt$"     . text-mode)
-		    ("\\.md$"      . markdown-mode)
-		    ("\\.cpp$"     . c++-mode)
-		    ("\\.CPP$"     . c++-mode)
-		    ("\\.h$"       . c-mode)
-		    ("\\.lsp$"     . lisp-mode)
-		    ("\\.cl$"      . lisp-mode)
-		    ("\\.cm$"      . lisp-mode)
-		    ("\\.lisp$"    . lisp-mode)
-		    ("\\.clm$"     . lisp-mode)
-		    ("\\.ins$"     . lisp-mode)
-		    ("\\.el$"      . lisp-mode)
-		    ("\\.el.gz$"   . lisp-mode)
-		    ("\\.ws$"      . lisp-mode)
-		    ("\\.asd$"     . lisp-mode)
-		    ("\\.py$"      . python-mode)
-		    ("\\.ly$"      . lilypond-mode)
-		    ("\\.js$"      . js2-mode)
-		    ("\\.json$"    . json-mode)
-		    ("\\.jsx$"     . web-mode)
-		    ("\\.html$"    . web-mode)
-		    ("\\.ejs$"     . web-mode)
-		    ("\\.htm$"     . web-mode)
-		    ("\\.shtml$"   . web-mode)
-		    ("\\.tex$"     . latex-mode)
-		    ("\\.cls$"     . latex-mode)
-		    ("\\.java$"    . java-mode)
-		    ("\\.ascii$"   . text-mode)
-		    ("\\.sql$"     . sql-mode)
-		    ("\\.pl$"      . perl-mode)
-		    ("\\.php$"     . php-mode)
-		    ("\\.jxs$"     . shader-mode)
-		    ("\\.sh$"      . shell-mode)
-		    ("\\.gnuplot$"      . shell-mode))
-		  auto-mode-alist))
-  #+END_SRC
+    #+END_SRC
 *** Custom file
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (defadvice en/disable-command (around put-in-custom-file activate)
 	"Put declarations in `custom-file'."
 	(let ((user-init-file custom-file))
@@ -138,9 +97,9 @@ compiled at startup, but not these titles or this text.
 
   (setq custom-file (expand-file-name "~/.emacs.d/djr-custom.el"))
   (load custom-file)
-  #+END_SRC
+    #+END_SRC
 *** Customize
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (set-variable 'meta-flag 't)
   (define-key esc-map "?" 'describe-key-briefly)
   (require 'saveplace)
@@ -150,13 +109,9 @@ compiled at startup, but not these titles or this text.
   (setq case-fold-search t)
   (fset 'yes-or-no-p 'y-or-n-p)
   (delete-selection-mode 1)
-  #+END_SRC
-*** Fonts
-  #+BEGIN_SRC emacs-lisp
-  (add-to-list 'default-frame-alist '(font . "Monaco"))
-  #+END_SRC
+    #+END_SRC
 *** autofill
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     (setq-default fill-column 80)
       (add-hook 'web-mode-hook
 		(lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
@@ -164,19 +119,11 @@ compiled at startup, but not these titles or this text.
 	      (lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
       (toggle-text-mode-auto-fill)
       (add-hook 'lisp-mode-hook 'turn-on-auto-fill)
+      (add-hook 'emacs-lisp-mode-hook 'turn-on-auto-fill)
 
-  #+END_SRC
-*** UTF-8
-  #+BEGIN_SRC emacs-lisp
-  ;;; utf-8
-  (setq locale-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (set-selection-coding-system 'utf-8)
-  (prefer-coding-system 'utf-8)
-  #+END_SRC
+    #+END_SRC
 *** new UNTITLED file
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   ;; keybinding for this is in the key bindings menu
   ;; `C-c n'
   (defun djr-new-buffer-frame ()
@@ -185,13 +132,13 @@ compiled at startup, but not these titles or this text.
     (let ((buffer (generate-new-buffer "untitled")))
       (set-buffer-major-mode buffer)
       (display-buffer buffer '(display-buffer-pop-up-frame . nil))))
-  #+END_SRC
+    #+END_SRC
 *** fast-scroll
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (require 'fast-scroll)
-  #+END_SRC
+    #+END_SRC
 *** dimmer-mode
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     (require 'dimmer)
 
     (use-package dimmer
@@ -207,9 +154,9 @@ compiled at startup, but not these titles or this text.
 
     (dimmer-mode t)
 
-  #+END_SRC
+    #+END_SRC
 *** telephone-line
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     (require 'telephone-line)
     (setq telephone-line-lhs
 	  '((evil   . (telephone-line-evil-tag-segment))
@@ -223,15 +170,186 @@ compiled at startup, but not these titles or this text.
 	    (accent . (telephone-line-major-mode-segment))
 	    (evil   . (telephone-line-airline-position-segment))))
     (telephone-line-mode t)
-  #+END_SRC
-** Color
- #+BEGIN_SRC emacs-lisp
- (require 'cl-lib)
- (require 'color)
- #+END_SRC
+    #+END_SRC
+** Font & Encoding & Ligatures
+*** UTF-8
+    #+BEGIN_SRC emacs-lisp
+  ;;; utf-8
+  (setq locale-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+    #+END_SRC
+*** Unicode
+    #+begin_src emacs-lisp
+      (use-package unicode-fonts
+	:ensure t
+	:config
+	(unicode-fonts-setup))
+    #+end_src
+*** fira-code-mode
+    Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emulation-in-emacs/post.md#appendix-b-update-1-firacode-integration][here]]
+    #+begin_src emacs-lisp
+      (use-package fira-code-mode
+	:custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
+	:hook prog-mode)  
+      (defun fira-code-mode--make-alist (list)
+	"Generate prettify-symbols alist from LIST."
+	(let ((idx -1))
+	  (mapcar
+	   (lambda (s)
+	     (setq idx (1+ idx))
+	     (let* ((code (+ #Xe100 idx))
+		    (width (string-width s))
+		    (prefix ())
+		    (suffix '(?\s (Br . Br)))
+		    (n 1))
+	       (while (< n width)
+		 (setq prefix (append prefix '(?\s (Br . Bl))))
+		 (setq n (1+ n)))
+	       (cons s (append prefix suffix (list (decode-char 'ucs code))))))
+	   list)))
+
+      (defconst fira-code-mode--ligatures
+	'("www" "**" "***" "**/" "*>" "*/" "\\\\" "\\\\\\"
+	  "{-" "[]" "::" ":::" ":=" "!!" "!=" "!==" "-}"
+	  "--" "---" "-->" "->" "->>" "-<" "-<<" "-~"
+	  "#{" "#[" "##" "###" "####" "#(" "#?" "#_" "#_("
+	  ".-" ".=" ".." "..<" "..." "?=" "??" ";;" "/*"
+	  "/**" "/=" "/==" "/>" "//" "///" "&&" "||" "||="
+	  "|=" "|>" "^=" "$>" "++" "+++" "+>" "=:=" "=="
+	  "===" "==>" "=>" "=>>" "<=" "=<<" "=/=" ">-" ">="
+	  ">=>" ">>" ">>-" ">>=" ">>>" "<*" "<*>" "<|" "<|>"
+	  "<$" "<$>" "<!--" "<-" "<--" "<->" "<+" "<+>" "<="
+	  "<==" "<=>" "<=<" "<>" "<<" "<<-" "<<=" "<<<" "<~"
+	  "<~~" "</" "</>" "~@" "~-" "~=" "~>" "~~" "~~>" "%%"
+	  "x" ":" "+" "+" "*"))
+
+      (defvar fira-code-mode--old-prettify-alist)
+
+      (defun fira-code-mode--enable ()
+	"Enable Fira Code ligatures in current buffer."
+	(setq-local fira-code-mode--old-prettify-alist prettify-symbols-alist)
+	(setq-local prettify-symbols-alist
+		    (append (fira-code-mode--make-alist fira-code-mode--ligatures)
+			    fira-code-mode--old-prettify-alist))
+	(prettify-symbols-mode t))
+
+      (defun fira-code-mode--disable ()
+	"Disable Fira Code ligatures in current buffer."
+	(setq-local prettify-symbols-alist fira-code-mode--old-prettify-alist)
+	(prettify-symbols-mode -1))
+
+      (define-minor-mode fira-code-mode
+	"Fira Code ligatures minor mode"
+	:lighter " Fira Code"
+	(setq-local prettify-symbols-unprettify-at-point 'right-edge)
+	(if fira-code-mode
+	    (fira-code-mode--enable)
+	  (fira-code-mode--disable)))
+    #+end_src
+    I don't know where this gets called, if at all, but I call the innner bit
+    explicitly [[fonts][here]]  
+    #+begin_src emacs-lisp
+      (defun fira-code-mode--setup ()
+	"Setup Fira Code Symbols"
+	(set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol"))
+
+      (provide 'fira-code-mode)
+    #+end_src
+*** Fonts
+    <<fonts>> 
+    #+BEGIN_SRC emacs-lisp
+    ;; used to be my default, but now do ligatures
+    ;; (add-to-list 'default-frame-alist '(font . "Monaco"))
+    ;; I find Fira is prettier than Cascadia but leaving it in just in case
+    ;; (add-to-list 'default-frame-alist '(font . "Cascadia Code SemiLight"))
+    (add-to-list 'default-frame-alist '(font . "Fira Code"))
+    (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
+    ;; (add-to-list 'default-frame-alist '(font . "Fira Code Symbol"))
+    ;; (set-fontset-font t nil "Fira Code Symbol" nil 'append)
+    (set-face-attribute 'default nil :height 120)
+    #+END_SRC
+*** Ligatures
+    #+begin_src emacs-lisp
+      (use-package ligature
+	:load-path "~/.emacs.d/ligature/"
+	:config
+	;; Enable the "www" ligature in every possible major mode
+	(ligature-set-ligatures 't '("www"))
+	;; Enable traditional ligature support in eww-mode, if the
+	;; `variable-pitch' face supports it
+	(ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+	;; Enable all Cascadia Code ligatures in programming modes
+	(ligature-set-ligatures
+	 'prog-mode
+	 '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+	   ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+	   "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+	   "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+	   "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+	   "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+	   "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+	   "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+	   ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+	   "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+	   "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+	   "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+	   "\\" "://"))
+	;; Enables ligature checks globally in all buffers. You can also do it
+	;; per mode with `ligature-mode'.
+	(global-ligature-mode t))
+    #+end_src
+** File Types & modes
+   #+BEGIN_SRC emacs-lisp
+   (setq auto-mode-alist
+	 (append '(("\\.c$"       . c-mode)
+		   ("\\.cs$"      . csharp-mode)
+		   ("\\.txt$"     . text-mode)
+		   ("\\.md$"      . markdown-mode)
+		   ("\\.cpp$"     . c++-mode)
+		   ("\\.CPP$"     . c++-mode)
+		   ("\\.h$"       . c-mode)
+		   ("\\.lsp$"     . lisp-mode)
+		   ("\\.cl$"      . lisp-mode)
+		   ("\\.cm$"      . lisp-mode)
+		   ("\\.lisp$"    . lisp-mode)
+		   ("\\.clm$"     . lisp-mode)
+		   ("\\.ins$"     . lisp-mode)
+		   ("\\.el$"      . lisp-mode)
+		   ("\\.el.gz$"   . lisp-mode)
+		   ("\\.ws$"      . lisp-mode)
+		   ("\\.asd$"     . lisp-mode)
+		   ("\\.py$"      . python-mode)
+		   ("\\.ly$"      . lilypond-mode)
+		   ("\\.js$"      . js2-mode)
+		   ("\\.json$"    . json-mode)
+		   ("\\.jsx$"     . web-mode)
+		   ("\\.html$"    . web-mode)
+		   ("\\.ejs$"     . web-mode)
+		   ("\\.htm$"     . web-mode)
+		   ("\\.shtml$"   . web-mode)
+		   ("\\.tex$"     . latex-mode)
+		   ("\\.cls$"     . latex-mode)
+		   ("\\.java$"    . java-mode)
+		   ("\\.ascii$"   . text-mode)
+		   ("\\.sql$"     . sql-mode)
+		   ("\\.pl$"      . perl-mode)
+		   ("\\.php$"     . php-mode)
+		   ("\\.jxs$"     . shader-mode)
+		   ("\\.sh$"      . shell-mode)
+		   ("\\.gnuplot$" . shell-mode))
+		 auto-mode-alist))
+   #+END_SRC
+** Colours
+   #+BEGIN_SRC emacs-lisp
+     (require 'cl-lib)
+     (require 'color)
+   #+END_SRC
 ** Generate Code
 *** Add sc-deftest
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (defun sc-deftest-template (test)
      (interactive "sdef-test name: ")
      (insert "(sc-deftest test-")
@@ -243,21 +361,21 @@ compiled at startup, but not these titles or this text.
      (insert "    (sc-test-check ")
      (newline)
      (insert "    )))"))
- #+END_SRC
+    #+END_SRC
 *** js-80-slash
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (defun js-80-slash ()
      (interactive)
      (loop repeat 80 do (insert "/")))
- #+END_SRC
+    #+END_SRC
 *** lisp-80-slash
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (defun lisp-80-slash ()
      (interactive)
      (loop repeat 80 do (insert ";")))
- #+END_SRC
+    #+END_SRC
 *** React boilerplate
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (defun react-boilerplate (name)
      (interactive "sFunction Name: ")
      (js2-mode)
@@ -277,9 +395,9 @@ compiled at startup, but not these titles or this text.
      (insert "export default ")
      (insert name)
      (insert ";"))
- #+END_SRC
+    #+END_SRC
 *** Web boilerplate
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (defun web-boilerplate (page-title)
      (interactive "sHTML Title: ")
      (web-mode)
@@ -306,9 +424,9 @@ compiled at startup, but not these titles or this text.
      (insert "    </body>")
      (newline)
      (insert "</html>"))
- #+END_SRC
+    #+END_SRC
 *** ROBODOC
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     (defun elisp-depend-filename (fullpath)
       "Return filename without extension and path.
        FULLPATH is the full path of file."
@@ -383,10 +501,10 @@ compiled at startup, but not these titles or this text.
       (newline)
       (insert ";;; ")
       (newline))
-  #+END_SRC
-** Non Package Modes
+    #+END_SRC
+** Non Elpa/Melpa Package Modes
 *** Antescofo mode
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     ;; Antescofo text highlighting
     ;; Thanks to Pierre Donat-Bouillud
     ;; https://github.com/programLyrique/antesc-mode
@@ -397,19 +515,19 @@ compiled at startup, but not these titles or this text.
     (setq auto-mode-alist
 	  (append '(("\\.\\(score\\|asco\\)\\.txt$" . antesc-mode))
 		  auto-mode-alist))
-  #+END_SRC
+    #+END_SRC
 *** Lilypond mode
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     ;; Antescofo text highlighting
     ;; Thanks to Pierre Donat-Bouillud
     ;; https://github.com/programLyrique/antesc-mode
     ;; lilypond mode
     (add-to-list 'load-path (expand-file-name "~/site-lisp"))
     (load (expand-file-name "~/site-lisp/lilypond-init.el"))
-  #+END_SRC
+    #+END_SRC
 ** Auto Complete and Fly
 *** Autocomplete
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     (use-package auto-complete
       :ensure t
       :init
@@ -423,9 +541,9 @@ compiled at startup, but not these titles or this text.
     (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
     (eval-after-load "auto-complete"
       '(add-to-list 'ac-modes 'slime-repl-mode))
-  #+END_SRC
+    #+END_SRC
 *** Flyspell
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     ;; flyspell
     (setq flyspell-mode t)
     ;  (add-hook 'LaTeX-mode-hook '(flyspell-mode t))
@@ -466,9 +584,9 @@ compiled at startup, but not these titles or this text.
     (eval-after-load "flyspell"
       '(progn
 	 (fset 'flyspell-emacs-popup 'flyspell-emacs-popup-textual)))
-  #+END_SRC
+    #+END_SRC
 *** Flycheck
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
  (require 'flycheck)
  (setq-default flycheck-disabled-checkers
                (append flycheck-disabled-checkers
@@ -476,10 +594,10 @@ compiled at startup, but not these titles or this text.
  ;; Enable eslint checker for web-mode
  (flycheck-add-mode 'javascript-eslint 'web-mode)
  (flycheck-add-mode 'javascript-eslint 'js2-mode)
- #+END_SRC
+    #+END_SRC
 ** Lisp stuff
 *** slime & SBCL
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     ;; Set your lisp system and, optionally, some contribs
     (setq inferior-lisp-program "/opt/sbcl/bin/sbcl")
     (let ((sbcl-local (car (file-expand-wildcards
@@ -500,10 +618,10 @@ compiled at startup, but not these titles or this text.
     (slime-setup)
     (with-eval-after-load 'slime-repl
       (require 'slime-repl-ansi-color))
-  #+END_SRC
+    #+END_SRC
 *** paredit
-Man, this is slow. Removing it for now.
-#+BEGIN_SRC emacs-lisp
+    Man, this is slow. Removing it for now.
+    #+BEGIN_SRC emacs-lisp
   ;; (autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
   ;; (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
   ;; (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
@@ -518,18 +636,18 @@ Man, this is slow. Removing it for now.
   ;;   (define-key slime-repl-mode-map
   ;;     (read-kbd-macro paredit-backward-delete-key) nil))
   ;; (add-hook 'slime-repl-mode-hook 'override-slime-repl-bindings-with-paredit)
-#+END_SRC
+    #+END_SRC
 *** smartparens
-This also slow, removing
-  #+BEGIN_SRC emacs-lisp
+    This also slow, removing
+    #+BEGIN_SRC emacs-lisp
     ;; (require 'smartparens-config)
     ;; (add-hook 'web-mode-hook #'smartparens-mode)
     ;; (add-hook 'emacs-lisp-mode-hook #'smartparens-mode)
     ;; (add-hook 'lisp-mode-hook #'smartparens-mode)
     ;; (add-hook 'latex-mode-hook #'SMARTPARENS-MODE)
-  #+END_SRC
+    #+END_SRC
 *** lisp extra font lock
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     (require 'lisp-extra-font-lock)
     (lisp-extra-font-lock-global-mode 1)
     (font-lock-add-keywords
@@ -538,9 +656,9 @@ This also slow, removing
 	1 'font-lock-func-face))
      'append) ;; <-- Add after all other rules
 
-  #+END_SRC
+    #+END_SRC
 *** rainbow delimiters
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     (require 'rainbow-delimiters)
     (add-hook 'lisp-mode-hook 'rainbow-delimiters-mode)
 
@@ -549,20 +667,20 @@ This also slow, removing
 	     (let ((face
 		    (intern (format "rainbow-delimiters-depth-%d-face" index))))
 	       (cl-callf color-saturate-name (face-foreground face) 30)))
-  #+END_SRC
+    #+END_SRC
 ** Word Processing
 *** markdown pandoc
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (setq markdown-command "pandoc")
-  #+END_SRC
+    #+END_SRC
 *** LaTeX
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (latex-preview-pane-enable)
   (require 'latex-pretty-symbols)
-  #+END_SRC
+    #+END_SRC
 ** Web Dev Stuff
 *** js-comint / js2
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
  (require 'js-comint)
  (setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
  (add-hook 'js2-mode-hook '(lambda ()
@@ -573,10 +691,10 @@ This also slow, removing
 			     (local-set-key "\C-cl" 'js-load-file-and-go)
 			     ))
 
- #+END_SRC
+    #+END_SRC
 *** lsp-mode
- Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
- #+BEGIN_SRC  emacs-lisp
+    Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
+    #+BEGIN_SRC  emacs-lisp
  ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
  (setq lsp-keymap-prefix "s-l")
 
@@ -588,9 +706,9 @@ This also slow, removing
  ;; optionally
  (use-package lsp-ui :commands lsp-ui-mode)
 
- #+END_SRC
+    #+END_SRC
 *** emmet & web-mode
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
  (require 'emmet-mode)
  (setq web-mode-ac-sources-alist
    '(("css" . (ac-source-css-property))
@@ -619,9 +737,9 @@ This also slow, removing
              (lambda ()
 		(delete-trailing-whitespace)
 		nil))
- #+END_SRC
+    #+END_SRC
 *** web-mode-indent
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (defun my-setup-indent (n)
      ;; java/c/c++
      (setq-local c-basic-offset n)
@@ -644,19 +762,19 @@ This also slow, removing
 
    (add-hook 'web-mode-hook 'my-web-code-style)
 
- #+END_SRC
+    #+END_SRC
 
 *** web comment style
-#+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
 ;; this still doesn't work properly
   (setq-default web-mode-comment-formats
 		'(("java"       . "/*")
 		  ("javascript" . "//")
 		  ("php"        . "/*")))
 
-#+END_SRC
+    #+END_SRC
 *** js-prettier-mode
- #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
    (require 'prettier-js)
    (add-hook 'js2-mode-hook 'prettier-js-mode)
    ;; (add-hook 'web-mode-hook 'prettier-js-mode)
@@ -679,9 +797,9 @@ This also slow, removing
 	   "--use-tabs" "false"
 	   "--tab-width" "4"))
 
- #+END_SRC
-** iBuffer + dired
-#+BEGIN_SRC emacs-lisp
+    #+END_SRC
+** iBuffer & Dired
+   #+BEGIN_SRC emacs-lisp
     (setq ibuffer-saved-filter-groups
 	  '(("home"
 	     ("emacs-config" (or (filename . ".emacs.d")
@@ -733,10 +851,10 @@ This also slow, removing
   (setq dired-auto-revert-buffer t
 	auto-revert-verbose nil)
 
-#+END_SRC
+   #+END_SRC
 ** Org
 *** org-mode dates
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     (setq-default org-display-custom-times t)
     (setq org-time-stamp-custom-formats '("<%e %B %Y>" . "<%a, %e %b %Y %H:%M>"))
     (require 'ox)
@@ -749,24 +867,33 @@ This also slow, removing
 	 (replace-regexp-in-string "[<>]" "" trans))))
     (add-to-list 'org-export-filter-timestamp-functions
 		 #'endless/filter-timestamp)
-  #+END_SRC
+    #+END_SRC
 *** Org tempo
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   (require 'org-tempo)
  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-  #+END_SRC
+    #+END_SRC
 *** org-reveal
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
   ;; Reveal.js + Org mode
   (require 'ox-reveal)
   (setq Org-Reveal-root "file:///Users/danieljross/reveal.js")
   (setq Org-Reveal-title-slide nil)
-  #+END_SRC
+    #+END_SRC
 *** org bullets
-  #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
     (use-package org-bullets
       :ensure t
       :config
       (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
-  #+END_SRC
-  
+    #+END_SRC
+** Eshell syntax highlighting
+Taken from [https://github.com/akreisher/eshell-syntax-highlighting/](here).
+   #+begin_src emacs-lisp
+     ;; Using vanilla emacs package loading
+     (add-to-list 'load-path
+		  (expand-file-name "~/.emacs.d/eshell-syntax-highlighting"))
+     (require 'eshell-syntax-highlighting)
+     ;; Use this to enable syntax highlighting by default
+     (eshell-syntax-highlighting-enable)
+   #+end_src

@@ -65,6 +65,187 @@
   (global-set-key (kbd "s-=") 'default-text-scale-increase)
   (global-set-key (kbd "s--") 'default-text-scale-decrease))
 
+(defadvice en/disable-command (around put-in-custom-file activate)
+      "Put declarations in `custom-file'."
+      (let ((user-init-file custom-file))
+        ad-do-it))
+
+(setq custom-file (expand-file-name "~/.emacs.d/djr-custom.el"))
+(load custom-file)
+
+(set-variable 'meta-flag 't)
+(define-key esc-map "?" 'describe-key-briefly)
+(require 'saveplace)
+(setq-default save-place t)
+(setq make-backup-files nil)
+(setq debug-on-error t)
+(setq case-fold-search t)
+(fset 'yes-or-no-p 'y-or-n-p)
+(delete-selection-mode 1)
+
+(setq-default fill-column 80)
+  (add-hook 'web-mode-hook
+	    (lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
+  (add-hook 'js2-mode-hook
+	  (lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
+  (toggle-text-mode-auto-fill)
+  (add-hook 'lisp-mode-hook 'turn-on-auto-fill)
+  (add-hook 'emacs-lisp-mode-hook 'turn-on-auto-fill)
+
+;; keybinding for this is in the key bindings menu
+;; `C-c n'
+(defun djr-new-buffer-frame ()
+  "Create a new frame with a new empty buffer."
+  (interactive)
+  (let ((buffer (generate-new-buffer "untitled")))
+    (set-buffer-major-mode buffer)
+    (display-buffer buffer '(display-buffer-pop-up-frame . nil))))
+
+(require 'fast-scroll)
+
+(require 'dimmer)
+
+(use-package dimmer
+  :defer 1
+  :config
+  (setq dimmer-exclusion-predicates
+	'(helm--alive-p window-minibuffer-p echo-area-p))
+  (setq dimmer-exclusion-regexp-list
+	'("^\\*[h|H]elm.*\\*" "^\\*Minibuf-[0-9]+\\*"
+	  "^.\\*which-key\\*$" "^*Messages*" "*LV*"
+	  "^*[e|E]cho [a|A]rea 0*" "*scratch*"
+	  "transient")))
+
+(dimmer-mode t)
+
+(require 'telephone-line)
+(setq telephone-line-lhs
+      '((evil   . (telephone-line-evil-tag-segment))
+	(accent . (telephone-line-vc-segment
+		   telephone-line-erc-modified-channels-segment
+		   telephone-line-process-segment))
+	(nil    . (telephone-line-minor-mode-segment
+		   telephone-line-buffer-segment))))
+(setq telephone-line-rhs
+      '((nil    . (telephone-line-misc-info-segment))
+	(accent . (telephone-line-major-mode-segment))
+	(evil   . (telephone-line-airline-position-segment))))
+(telephone-line-mode t)
+
+;;; utf-8
+(setq locale-coding-system 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(set-selection-coding-system 'utf-8)
+(prefer-coding-system 'utf-8)
+
+(use-package unicode-fonts
+  :ensure t
+  :config
+  (unicode-fonts-setup))
+
+(use-package fira-code-mode
+  :custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
+  :hook prog-mode)  
+(defun fira-code-mode--make-alist (list)
+  "Generate prettify-symbols alist from LIST."
+  (let ((idx -1))
+    (mapcar
+     (lambda (s)
+       (setq idx (1+ idx))
+       (let* ((code (+ #Xe100 idx))
+	      (width (string-width s))
+	      (prefix ())
+	      (suffix '(?\s (Br . Br)))
+	      (n 1))
+	 (while (< n width)
+	   (setq prefix (append prefix '(?\s (Br . Bl))))
+	   (setq n (1+ n)))
+	 (cons s (append prefix suffix (list (decode-char 'ucs code))))))
+     list)))
+
+(defconst fira-code-mode--ligatures
+  '("www" "**" "***" "**/" "*>" "*/" "\\\\" "\\\\\\"
+    "{-" "[]" "::" ":::" ":=" "!!" "!=" "!==" "-}"
+    "--" "---" "-->" "->" "->>" "-<" "-<<" "-~"
+    "#{" "#[" "##" "###" "####" "#(" "#?" "#_" "#_("
+    ".-" ".=" ".." "..<" "..." "?=" "??" ";;" "/*"
+    "/**" "/=" "/==" "/>" "//" "///" "&&" "||" "||="
+    "|=" "|>" "^=" "$>" "++" "+++" "+>" "=:=" "=="
+    "===" "==>" "=>" "=>>" "<=" "=<<" "=/=" ">-" ">="
+    ">=>" ">>" ">>-" ">>=" ">>>" "<*" "<*>" "<|" "<|>"
+    "<$" "<$>" "<!--" "<-" "<--" "<->" "<+" "<+>" "<="
+    "<==" "<=>" "<=<" "<>" "<<" "<<-" "<<=" "<<<" "<~"
+    "<~~" "</" "</>" "~@" "~-" "~=" "~>" "~~" "~~>" "%%"
+    "x" ":" "+" "+" "*"))
+
+(defvar fira-code-mode--old-prettify-alist)
+
+(defun fira-code-mode--enable ()
+  "Enable Fira Code ligatures in current buffer."
+  (setq-local fira-code-mode--old-prettify-alist prettify-symbols-alist)
+  (setq-local prettify-symbols-alist
+	      (append (fira-code-mode--make-alist fira-code-mode--ligatures)
+		      fira-code-mode--old-prettify-alist))
+  (prettify-symbols-mode t))
+
+(defun fira-code-mode--disable ()
+  "Disable Fira Code ligatures in current buffer."
+  (setq-local prettify-symbols-alist fira-code-mode--old-prettify-alist)
+  (prettify-symbols-mode -1))
+
+(define-minor-mode fira-code-mode
+  "Fira Code ligatures minor mode"
+  :lighter " Fira Code"
+  (setq-local prettify-symbols-unprettify-at-point 'right-edge)
+  (if fira-code-mode
+      (fira-code-mode--enable)
+    (fira-code-mode--disable)))
+
+(defun fira-code-mode--setup ()
+  "Setup Fira Code Symbols"
+  (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol"))
+
+(provide 'fira-code-mode)
+
+;; used to be my default, but now do ligatures
+;; (add-to-list 'default-frame-alist '(font . "Monaco"))
+;; I find Fira is prettier than Cascadia but leaving it in just in case
+;; (add-to-list 'default-frame-alist '(font . "Cascadia Code SemiLight"))
+(add-to-list 'default-frame-alist '(font . "Fira Code"))
+(set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
+;; (add-to-list 'default-frame-alist '(font . "Fira Code Symbol"))
+;; (set-fontset-font t nil "Fira Code Symbol" nil 'append)
+(set-face-attribute 'default nil :height 120)
+
+(use-package ligature
+  :load-path "~/.emacs.d/ligature/"
+  :config
+  ;; Enable the "www" ligature in every possible major mode
+  (ligature-set-ligatures 't '("www"))
+  ;; Enable traditional ligature support in eww-mode, if the
+  ;; `variable-pitch' face supports it
+  (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+  ;; Enable all Cascadia Code ligatures in programming modes
+  (ligature-set-ligatures
+   'prog-mode
+   '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+     ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+     "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+     "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+     "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+     "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+     "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+     "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+     ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+     "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+     "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+     "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+     "\\" "://"))
+  ;; Enables ligature checks globally in all buffers. You can also do it
+  ;; per mode with `ligature-mode'.
+  (global-ligature-mode t))
+
 (setq auto-mode-alist
       (append '(("\\.c$"       . c-mode)
 		("\\.cs$"      . csharp-mode)
@@ -101,90 +282,17 @@
 		("\\.php$"     . php-mode)
 		("\\.jxs$"     . shader-mode)
 		("\\.sh$"      . shell-mode)
-		("\\.gnuplot$"      . shell-mode))
+		("\\.gnuplot$" . shell-mode))
 	      auto-mode-alist))
-
-(defadvice en/disable-command (around put-in-custom-file activate)
-      "Put declarations in `custom-file'."
-      (let ((user-init-file custom-file))
-        ad-do-it))
-
-(setq custom-file (expand-file-name "~/.emacs.d/djr-custom.el"))
-(load custom-file)
-
-(set-variable 'meta-flag 't)
-(define-key esc-map "?" 'describe-key-briefly)
-(require 'saveplace)
-(setq-default save-place t)
-(setq make-backup-files nil)
-(setq debug-on-error t)
-(setq case-fold-search t)
-(fset 'yes-or-no-p 'y-or-n-p)
-(delete-selection-mode 1)
-
-(add-to-list 'default-frame-alist '(font . "Monaco"))
-
-(setq-default fill-column 80)
-  (add-hook 'web-mode-hook
-	    (lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
-  (add-hook 'js2-mode-hook
-	  (lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
-  (toggle-text-mode-auto-fill)
-  (add-hook 'lisp-mode-hook 'turn-on-auto-fill)
-
-;;; utf-8
-(setq locale-coding-system 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(set-selection-coding-system 'utf-8)
-(prefer-coding-system 'utf-8)
-
-;; keybinding for this is in the key bindings menu
-;; `C-c n'
-(defun djr-new-buffer-frame ()
-  "Create a new frame with a new empty buffer."
-  (interactive)
-  (let ((buffer (generate-new-buffer "untitled")))
-    (set-buffer-major-mode buffer)
-    (display-buffer buffer '(display-buffer-pop-up-frame . nil))))
-
-(require 'fast-scroll)
-
-(require 'dimmer)
-
-(use-package dimmer
-    :defer 1
-    :config
-    (setq dimmer-exclusion-predicates
-	  '(helm--alive-p window-minibuffer-p echo-area-p))
-    (setq dimmer-exclusion-regexp-list
-	  '("^\\*[h|H]elm.*\\*" "^\\*Minibuf-[0-9]+\\*"
-	    "^.\\*which-key\\*$" "^*Messages*" "*LV*"
-	    "^*[e|E]cho [a|A]rea 0*" "*scratch*"
-	    "transient")))
-
-(dimmer-mode t)
-
-(require 'telephone-line)
-(setq telephone-line-lhs
-      '((evil   . (telephone-line-evil-tag-segment))
-	(accent . (telephone-line-vc-segment
-		   telephone-line-erc-modified-channels-segment
-		   telephone-line-process-segment))
-	(nil    . (telephone-line-minor-mode-segment
-		   telephone-line-buffer-segment))))
-(setq telephone-line-rhs
-      '((nil    . (telephone-line-misc-info-segment))
-	(accent . (telephone-line-major-mode-segment))
-	(evil   . (telephone-line-airline-position-segment))))
-(telephone-line-mode t)
 
 (require 'cl-lib)
 (require 'color)
 
-(defun sc-deftest-template ()
-  (interactive)
-  (insert "(sc-deftest test- ()")
+(defun sc-deftest-template (test)
+  (interactive "sdef-test name: ")
+  (insert "(sc-deftest test-")
+  (insert test)
+  (insert " ()")
   (newline)
   (insert "  (let* (())")
   (newline)
@@ -528,8 +636,7 @@
   (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
   (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
   (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
-  (setq-local css-indent-offset n) ; css-mode
-  )
+  (setq-local css-indent-offset n)) ; css-mode
 
 (defun my-web-code-style ()
   (interactive)
@@ -540,10 +647,11 @@
 
 (add-hook 'web-mode-hook 'my-web-code-style)
 
-(setq-default web-mode-comment-formats
-	      '(("java"       . "/*")
-		("javascript" . "//")
-		("php"        . "/*")))
+;; this still doesn't work properly
+  (setq-default web-mode-comment-formats
+		'(("java"       . "/*")
+		  ("javascript" . "//")
+		  ("php"        . "/*")))
 
 (require 'prettier-js)
 (add-hook 'js2-mode-hook 'prettier-js-mode)
@@ -643,3 +751,10 @@
   :ensure t
   :config
   (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+
+;; Using vanilla emacs package loading
+(add-to-list 'load-path
+	     (expand-file-name "~/.emacs.d/eshell-syntax-highlighting"))
+(require 'eshell-syntax-highlighting)
+;; Use this to enable syntax highlighting by default
+(eshell-syntax-highlighting-enable)
