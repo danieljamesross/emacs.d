@@ -1,8 +1,13 @@
-;;;; Emacs Bookmark Format Version 1 ;;;; -*- coding: utf-8-emacs -*- 
+;;;; Emacs Bookmark Format Version 1 ;;;; -*- coding: utf-8-emacs -*-
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("djr-init.org"
+(("init"
+ (filename . "~/.emacs.d/README.org")
+ (front-context-string . "** Packages\n    ")
+ (rear-context-string . " or this text. \n")
+ (position . 215))
+("djr-init.org"
  (filename . "~/.emacs.d/djr-init.org")
  (front-context-string . "* PATH\n#+BEGIN_S")
  (rear-context-string)

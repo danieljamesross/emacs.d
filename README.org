@@ -4,6 +4,32 @@
   :END:
   This is my initialisation file for Emacs. Behold!, the code blocks will be
   compiled at startup, but not these titles or this text. 
+** Packages
+    #+BEGIN_SRC emacs-lisp
+      (defun ensure-package-installed (&rest packages)
+	"Assure every package is installed, ask for installation if it’s not.
+
+      Return a list of installed packages or nil for every skipped package."
+	(mapcar
+	 (lambda (package)
+	   ;; (package-installed-p 'evil)
+	   (if (package-installed-p package)
+	       nil
+	     (if (y-or-n-p (format "Package %s is missing. Install it? " package))
+		 (package-install package)
+	       package)))
+	 packages))
+
+      ;; make sure to have downloaded archive description.
+      ;; Or use package-archive-contents as suggested by Nicolas Dudebout
+      (or (file-exists-p package-user-dir)
+	  (package-refresh-contents))
+
+      (ensure-package-installed 'buffer-move 'zoom 'default-text-scale 'fast-scroll 'dimmer 'telephone-line 'unicode-fonts 'fira-code-mode 'auto-complete 'flycheck 'slime 'lisp-extra-font-lock 'rainbow-delimiters 'latex-pretty-symbols 'js-comint 'lsp-mode 'emmet-mode 'prettier-js 'ox-reveal 'org-bullets 'eshell-syntax-highlighting 'ac-slime 'slime-repl-ansi-color 'auctex 'latex-preview-pane)
+
+      ;; activate installed packages
+      (package-initialize)
+ #+END_SRC
 ** PATH
    #+BEGIN_SRC emacs-lisp
      (setenv "PATH" (concat "/Library/TeX/texbin:"
@@ -507,27 +533,31 @@
 ** Non Elpa/Melpa Package Modes
 *** Antescofo mode
     #+BEGIN_SRC emacs-lisp
-    ;; Antescofo text highlighting
-    ;; Thanks to Pierre Donat-Bouillud
-    ;; https://github.com/programLyrique/antesc-mode
-    (add-to-list 'load-path (expand-file-name "~/site-lisp/antesc-mode-master"))
-    (autoload 'antesc-mode "antesc-mode" "Major mode for editing Antescofo code" t)
+      (when (file-directory-p
+	     (expand-file-name "~/site-lisp/antesc-mode-master/"))
+	;; Antescofo text highlighting
+	;; Thanks to Pierre Donat-Bouillud
+	;; https://github.com/programLyrique/antesc-mode
+	(add-to-list 'load-path (expand-file-name "~/site-lisp/antesc-mode-master"))
+	(autoload 'antesc-mode "antesc-mode" "Major mode for editing Antescofo code" t)
 
-    ;; Extensions for antescofo mode
-    (setq auto-mode-alist
-	  (append '(("\\.\\(score\\|asco\\)\\.txt$" . antesc-mode))
-		  auto-mode-alist))
+	;; Extensions for antescofo mode
+	(setq auto-mode-alist
+	      (append '(("\\.\\(score\\|asco\\)\\.txt$" . antesc-mode))
+		      auto-mode-alist)))
     #+END_SRC
 *** Lilypond mode
     #+BEGIN_SRC emacs-lisp
-    ;; Antescofo text highlighting
-    ;; Thanks to Pierre Donat-Bouillud
-    ;; https://github.com/programLyrique/antesc-mode
-    ;; lilypond mode
-    (add-to-list 'load-path (expand-file-name "~/site-lisp"))
-    (load (expand-file-name "~/site-lisp/lilypond-init.el"))
+      (when (file-exists-p
+	     (expand-file-name "~/site-lisp/lilypond-init.el"))
+	;; Antescofo text highlighting
+	;; Thanks to Pierre Donat-Bouillud
+	;; https://github.com/programLyrique/antesc-mode
+	;; lilypond mode
+	(add-to-list 'load-path (expand-file-name "~/site-lisp"))
+	(load (expand-file-name "~/site-lisp/lilypond-init.el")))
     #+END_SRC
-** Auto Complete and Fly
+** Auto Complete Flyspell & FlyCheck
 *** Autocomplete
     #+BEGIN_SRC emacs-lisp
     (use-package auto-complete
@@ -545,6 +575,9 @@
       '(add-to-list 'ac-modes 'slime-repl-mode))
     #+END_SRC
 *** Flyspell
+Taken from [[https://stackoverflow.com/questions/17126951/emacs-cannot-find-flyspell-ispell][here]].
+You need to install the ASpell spell checker. You can install it with homebrew
+with `brew install aspell`.
     #+BEGIN_SRC emacs-lisp
     ;; flyspell
     (setq flyspell-mode t)
@@ -616,7 +649,7 @@
     (require 'slime)
     (require 'slime-autoloads)
     ;; Also setup the slime-fancy contrib
-    (add-to-list 'slime-contribs 'slime-fancy)
+;    (add-to-list 'slime-contribs 'slime-fancy)
     (add-hook 'slime-repl-mode-hook 'slime-repl-ansi-color-mode)
     (slime-setup)
     (with-eval-after-load 'slime-repl
@@ -712,7 +745,7 @@
     #+END_SRC
 *** emmet & web-mode
     #+BEGIN_SRC emacs-lisp
- (require 'emmet-mode)
+    (require 'emmet-mode)
  (setq web-mode-ac-sources-alist
    '(("css" . (ac-source-css-property))
      ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
@@ -803,11 +836,11 @@
     #+END_SRC
 ** iBuffer & Dired
    #+BEGIN_SRC emacs-lisp
-    (setq ibuffer-saved-filter-groups
-	  '(("home"
-	     ("emacs-config" (or (filename . ".emacs.d")
-				 (filename . "emacs-config")
-				 (filename . "djr-init")))
+     (setq ibuffer-saved-filter-groups
+	   '(("emacs-config" (or (filename . "emacs-config")
+				 (filename . "djr-init")
+				 (filename . "README.org")))
+	     ("Dot files" (filename . ".*"))
 	     ("Org" (or (mode . org-mode)
 			(filename . "OrgMode")))
 	     ("lisp" (or (filename . "*.lisp")
@@ -841,18 +874,18 @@
 			 (name . "\*Completions\*")
 			 (name . "\*info\*")))
 	     ("Misc" (or  (name . "untitled")
-			  (name . "\*scratch\*"))))))
-    (add-hook 'ibuffer-mode-hook
-	      '(lambda ()
-		 (ibuffer-switch-to-saved-filter-groups "home")))
-    (setq ibuffer-expert t)
-    (setq ibuffer-show-empty-filter-groups nil)
-    (add-hook 'ibuffer-mode-hook
-	      '(lambda ()
-		 (ibuffer-auto-mode 1)
-		 (ibuffer-switch-to-saved-filter-groups "home")))
-  (setq dired-auto-revert-buffer t
-	auto-revert-verbose nil)
+			  (name . "\*scratch\*")))))
+     (add-hook 'ibuffer-mode-hook
+	       '(lambda ()
+		  (ibuffer-switch-to-saved-filter-groups "home")))
+     (setq ibuffer-expert t)
+     (setq ibuffer-show-empty-filter-groups nil)
+     (add-hook 'ibuffer-mode-hook
+	       '(lambda ()
+		  (ibuffer-auto-mode 1)
+		  (ibuffer-switch-to-saved-filter-groups "home")))
+     (setq dired-auto-revert-buffer t
+	   auto-revert-verbose nil)
 
    #+END_SRC
 ** Org
@@ -880,7 +913,8 @@
     #+BEGIN_SRC emacs-lisp
   ;; Reveal.js + Org mode
   (require 'ox-reveal)
-  (setq Org-Reveal-root "file:///Users/danieljross/reveal.js")
+  (setq Org-Reveal-root (concatenate 'string "file://" (expand-file-name "~/reveal.js")))
+
   (setq Org-Reveal-title-slide nil)
     #+END_SRC
 *** org bullets
@@ -898,5 +932,6 @@
 		  (expand-file-name "~/.emacs.d/eshell-syntax-highlighting"))
      (require 'eshell-syntax-highlighting)
      ;; Use this to enable syntax highlighting by default
-     (eshell-syntax-highlighting-enable)
+     ;; (eshell-syntax-highlighting-enable)
+     (eshell-syntax-highlighting-global-mode)
    #+end_src
