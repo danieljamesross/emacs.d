@@ -6,11 +6,13 @@
   compiled at startup, but not these titles or this text. 
 ** PATH
    #+BEGIN_SRC emacs-lisp
- (setenv "PATH" (concat "/Library/TeX/texbin:"
-                      (getenv "PATH")))
- (add-to-list 'exec-path "/Library/TeX/texbin")
- (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
- (setq exec-path (append exec-path '("/usr/local/bin")))
+     (setenv "PATH" (concat "/Library/TeX/texbin:"
+			    (getenv "PATH")))
+     (add-to-list 'exec-path "/Library/TeX/texbin")
+     (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+     (setq exec-path (append exec-path '("/usr/local/bin")))
+     (package-install 'exec-path-from-shell)
+     (exec-path-from-shell-initialize)
    #+END_SRC
 ** Shortcuts
 *** Aliases
@@ -594,6 +596,7 @@
  ;; Enable eslint checker for web-mode
  (flycheck-add-mode 'javascript-eslint 'web-mode)
  (flycheck-add-mode 'javascript-eslint 'js2-mode)
+ (flycheck-add-mode 'javascript-eslint 'lisp-mode)
     #+END_SRC
 ** Lisp stuff
 *** slime & SBCL
@@ -648,13 +651,13 @@
     #+END_SRC
 *** lisp extra font lock
     #+BEGIN_SRC emacs-lisp
-    (require 'lisp-extra-font-lock)
-    (lisp-extra-font-lock-global-mode 1)
-    (font-lock-add-keywords
-     'emacs-lisp-mode
-     '(("(\\s-*\\(\\_<\\(?:\\sw\\|\\s_\\)+\\)\\_>"
-	1 'font-lock-func-face))
-     'append) ;; <-- Add after all other rules
+      (require 'lisp-extra-font-lock)
+      (lisp-extra-font-lock-global-mode 1)
+      (font-lock-add-keywords
+       'emacs-lisp-mode
+       '(("(\\s-*\\(\\_<\\(?:\\sw\\|\\s_\\)+\\)\\_>"
+	  1 'font-lock-func-face))
+       'append) ;; <-- Add after all other rules
 
     #+END_SRC
 *** rainbow delimiters
@@ -681,30 +684,30 @@
 ** Web Dev Stuff
 *** js-comint / js2
     #+BEGIN_SRC emacs-lisp
- (require 'js-comint)
- (setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
- (add-hook 'js2-mode-hook '(lambda ()
-			     (local-set-key "\C-x\C-e" 'js-send-last-sexp)
-			     (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
-			     (local-set-key "\C-cb" 'js-send-buffer)
-			     (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
-			     (local-set-key "\C-cl" 'js-load-file-and-go)
-			     ))
+      (require 'js-comint)
+      (setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
+      (add-hook 'js2-mode-hook 
+		'(lambda ()
+		   (local-set-key "\C-x\C-e" 'js-send-last-sexp)
+		   (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
+		   (local-set-key "\C-cb" 'js-send-buffer)
+		   (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
+		   (local-set-key "\C-cl" 'js-load-file-and-go)))
 
     #+END_SRC
 *** lsp-mode
     Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
     #+BEGIN_SRC  emacs-lisp
- ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
- (setq lsp-keymap-prefix "s-l")
+      ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+      (setq lsp-keymap-prefix "s-l")
 
- (use-package lsp-mode
-     :hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-             (js2-mode . lsp))
-     :commands lsp)
+      (use-package lsp-mode
+	:hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
+	       (js2-mode . lsp))
+	:commands lsp)
 
- ;; optionally
- (use-package lsp-ui :commands lsp-ui-mode)
+      ;; optionally
+      (use-package lsp-ui :commands lsp-ui-mode)
 
     #+END_SRC
 *** emmet & web-mode
@@ -766,11 +769,11 @@
 
 *** web comment style
     #+BEGIN_SRC emacs-lisp
-;; this still doesn't work properly
-  (setq-default web-mode-comment-formats
-		'(("java"       . "/*")
-		  ("javascript" . "//")
-		  ("php"        . "/*")))
+      ;; this still doesn't work properly
+      (setq-default web-mode-comment-formats
+		    '(("java"       . "/*")
+		      ("javascript" . "//")
+		      ("php"        . "/*")))
 
     #+END_SRC
 *** js-prettier-mode
@@ -870,8 +873,8 @@
     #+END_SRC
 *** Org tempo
     #+BEGIN_SRC emacs-lisp
-  (require 'org-tempo)
- (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+      (require 'org-tempo)
+      (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
     #+END_SRC
 *** org-reveal
     #+BEGIN_SRC emacs-lisp
@@ -888,7 +891,7 @@
       (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
     #+END_SRC
 ** Eshell syntax highlighting
-Taken from [https://github.com/akreisher/eshell-syntax-highlighting/](here).
+   Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
    #+begin_src emacs-lisp
      ;; Using vanilla emacs package loading
      (add-to-list 'load-path
