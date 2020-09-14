@@ -907,7 +907,8 @@
     #+BEGIN_SRC emacs-lisp
   ;; Reveal.js + Org mode
   (require 'ox-reveal)
-  (setq Org-Reveal-root "file:///Users/danieljross/reveal.js")
+  (setq Org-Reveal-root (concatenate 'string "file://" (expand-file-name "~/reveal.js")))
+
   (setq Org-Reveal-title-slide nil)
     #+END_SRC
 *** org bullets
