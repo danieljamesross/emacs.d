@@ -5,37 +5,41 @@
   This is my initialisation file for Emacs. Behold!, the code blocks will be
   compiled at startup, but not these titles or this text. 
 ** Packages
-    #+BEGIN_SRC emacs-lisp
-      (defun ensure-package-installed (&rest packages)
-	"Assure every package is installed, ask for installation if it’s not.
+   #+BEGIN_SRC emacs-lisp
+     (add-to-list 'package-archives
+		  '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
-      Return a list of installed packages or nil for every skipped package."
-	(mapcar
-	 (lambda (package)
-	   ;; (package-installed-p 'evil)
-	   (if (package-installed-p package)
-	       nil
-	     (if (y-or-n-p (format "Package %s is missing. Install it? " package))
-		 (package-install package)
-	       package)))
-	 packages))
+     (defun ensure-package-installed (&rest packages)
+       "Assure every package is installed, ask for installation if it’s not.
 
-      ;; make sure to have downloaded archive description.
-      ;; Or use package-archive-contents as suggested by Nicolas Dudebout
-      (or (file-exists-p package-user-dir)
-	  (package-refresh-contents))
+	Return a list of installed packages or nil for every skipped package."
+       (mapcar
+	(lambda (package)
+	  ;; (package-installed-p 'evil)
+	  (if (package-installed-p package)
+	      nil
+	    (if (y-or-n-p (format "Package %s is missing. Install it? " package))
+		(package-install package)
+	      package)))
+	packages))
 
-      (ensure-package-installed 'buffer-move 'zoom 'default-text-scale 'fast-scroll
-				'dimmer 'telephone-line 'unicode-fonts 'fira-code-mode
-				'auto-complete 'flycheck 'slime 'lisp-extra-font-lock
-				'rainbow-delimiters 'latex-pretty-symbols 'js-comint
-				'lsp-mode 'emmet-mode 'prettier-js 'ox-reveal
-				'org-bullets 'ac-slime 'slime-repl-ansi-color 'auctex
-				'latex-preview-pane)  
+     ;; make sure to have downloaded archive description.
+     ;; Or use package-archive-contents as suggested by Nicolas Dudebout
+     (or (file-exists-p package-user-dir)
+	 (package-refresh-contents))
 
-      ;; activate installed packages
-      (package-initialize)
- #+END_SRC
+     (ensure-package-installed 'buffer-move 'zoom 'default-text-scale 'fast-scroll
+			       'dimmer 'telephone-line 'unicode-fonts 'fira-code-mode
+			       'auto-complete 'flycheck 'slime 'lisp-extra-font-lock
+			       'rainbow-delimiters 'latex-pretty-symbols 'js-comint
+			       'lsp-mode 'emmet-mode 'prettier-js 'ox-reveal
+			       'org-bullets 'ac-slime 'slime-repl-ansi-color 'auctex
+			       'latex-preview-pane 'eshell-syntax-highlighting
+			       'ac-js2 'add-node-modules-path 'company)    
+
+     ;; activate installed packages
+     (package-initialize)
+   #+END_SRC
 ** PATH
    #+BEGIN_SRC emacs-lisp
      (setenv "PATH" (concat "/Library/TeX/texbin:"
@@ -46,6 +50,15 @@
      (package-install 'exec-path-from-shell)
      (exec-path-from-shell-initialize)
    #+END_SRC
+** Node
+   #+begin_src emacs-lisp
+     (eval-after-load 'js-mode
+       '(add-hook 'js-mode-hook #'add-node-modules-path))
+     (eval-after-load 'js2-mode
+       '(add-hook 'js2-mode-hook #'add-node-modules-path))
+     (eval-after-load 'web-mode
+       '(add-hook 'web-mode-hook #'add-node-modules-path))
+   #+end_src
 ** Shortcuts
 *** Aliases
     #+BEGIN_SRC emacs-lisp
@@ -364,6 +377,8 @@
 		   ("\\.ejs$"     . web-mode)
 		   ("\\.htm$"     . web-mode)
 		   ("\\.shtml$"   . web-mode)
+		   ("\\.tsx$"     . web-mode)
+		   ("\\.ts$"      . web-mode)
 		   ("\\.tex$"     . latex-mode)
 		   ("\\.cls$"     . latex-mode)
 		   ("\\.java$"    . java-mode)
@@ -563,23 +578,29 @@
 	(add-to-list 'load-path (expand-file-name "~/site-lisp"))
 	(load (expand-file-name "~/site-lisp/lilypond-init.el")))
     #+END_SRC
-** Auto Complete Flyspell & FlyCheck
+** Auto Complete, Company, Flyspell & FlyCheck
 *** Autocomplete
+Commenting out for now as trying out company instead
     #+BEGIN_SRC emacs-lisp
-    (use-package auto-complete
-      :ensure t
-      :init
-      (progn
-	(ac-config-default)
-	(setq ac-use-quick-help nil)
-	(setq ac-quick-help-delay 0.1)
-	(global-auto-complete-mode t)))
-    (require 'ac-slime)
-    (add-hook 'slime-mode-hook 'set-up-slime-ac)
-    (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
-    (eval-after-load "auto-complete"
-      '(add-to-list 'ac-modes 'slime-repl-mode))
+      ;; (use-package auto-complete
+      ;;   :ensure t
+      ;;   :init
+      ;;   (progn
+      ;;     (ac-config-default)
+      ;;     (setq ac-use-quick-help nil)
+      ;;     (setq ac-quick-help-delay 0.1)
+      ;;     (global-auto-complete-mode t)))
+      (require 'ac-slime)
+      (add-hook 'slime-mode-hook 'set-up-slime-ac)
+      (add-hook 'slime-repl-mode-hook 'set-up-slime-ac)
+      (eval-after-load "auto-complete"
+	'(add-to-list 'ac-modes 'slime-repl-mode))
     #+END_SRC
+*** Company
+    #+begin_src emacs-lisp
+    (add-hook 'after-init-hook 'global-company-mode)
+    (global-set-key "\t" 'company-complete-common)
+    #+end_src
 *** Flyspell
 Taken from [[https://stackoverflow.com/questions/17126951/emacs-cannot-find-flyspell-ispell][here]].
 You need to install the ASpell spell checker. You can install it with homebrew
@@ -628,14 +649,19 @@ with `brew install aspell`.
     #+END_SRC
 *** Flycheck
     #+BEGIN_SRC emacs-lisp
- (require 'flycheck)
- (setq-default flycheck-disabled-checkers
-               (append flycheck-disabled-checkers
-                       '(javascript-jshint json-jsonlist)))
- ;; Enable eslint checker for web-mode
- (flycheck-add-mode 'javascript-eslint 'web-mode)
- (flycheck-add-mode 'javascript-eslint 'js2-mode)
- (flycheck-add-mode 'javascript-eslint 'lisp-mode)
+      (require 'flycheck)
+      (setq-default flycheck-disabled-checkers
+		    (append flycheck-disabled-checkers
+			    '(javascript-jshint json-jsonlist)))
+      (add-hook 'after-init-hook #'global-flycheck-mode)
+      ;; Enable eslint checker for web-mode
+      (flycheck-add-mode 'javascript-eslint 'web-mode)
+      (flycheck-add-mode 'javascript-eslint 'js2-mode)
+      ;; https://github.com/purcell/exec-path-from-shell
+      ;; only need exec-path-from-shell on OSX
+      ;; this hopefully sets up path and other vars better
+      (when (memq window-system '(mac ns))
+	(exec-path-from-shell-initialize))
     #+END_SRC
 ** Lisp stuff
 *** slime & SBCL
@@ -732,7 +758,7 @@ with `brew install aspell`.
 		   (local-set-key "\C-cb" 'js-send-buffer)
 		   (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
 		   (local-set-key "\C-cl" 'js-load-file-and-go)))
-
+      (add-hook 'js2-mode-hook 'ac-js2-mode)
     #+END_SRC
 *** lsp-mode
     Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
@@ -749,36 +775,91 @@ with `brew install aspell`.
       (use-package lsp-ui :commands lsp-ui-mode)
 
     #+END_SRC
+*** typescript
+    #+begin_src emacs-lisp
+	    (defun setup-tide-mode ()
+	      (interactive)
+	      (tide-setup)
+	      (flycheck-mode +1)
+	      (setq flycheck-check-syntax-automatically '(save mode-enabled))
+	      (eldoc-mode +1)
+	      (tide-hl-identifier-mode +1)
+	      ;; company is an optional dependency. You have to
+	      ;; install it separately via package-install
+	      ;; `M-x package-install [ret] company`
+	      (company-mode +1))
+
+	    ;; aligns annotation to the right hand side
+	    (setq company-tooltip-align-annotations t)
+
+	    ;; formats the buffer before saving
+	    (add-hook 'before-save-hook 'tide-format-before-save)
+
+	    (add-hook 'typescript-mode-hook #'setup-tide-mode)
+      (setq tide-format-options
+	    '(:insertSpaceAfterFunctionKeywordForAnonymousFunctions
+	      t
+	      :placeOpenBraceOnNewLineForFunctions 
+	      nil
+	      :indentSize 2
+	      :tabSize 4
+	      :insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces
+	      t)) 
+    #+end_src
+*** tsx
+    #+begin_src emacs-lisp
+      (require 'web-mode)
+      (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
+      (add-hook 'web-mode-hook
+		(lambda ()
+		  (when (string-equal "tsx" (file-name-extension buffer-file-name))
+		    (setup-tide-mode))))
+      ;; enable typescript-tslint checker
+      (flycheck-add-mode 'typescript-tslint 'web-mode)
+    #+end_src
+*** jsx
+    #+begin_src emacs-lisp
+      (require 'web-mode)
+      (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+      (add-hook 'web-mode-hook
+		(lambda ()
+		  (when (string-equal "jsx" (file-name-extension buffer-file-name))
+		    (setup-tide-mode))))
+      ;; configure jsx-tide checker to run after your default jsx checker
+      (flycheck-add-mode 'javascript-eslint 'web-mode)
+      ;; dunno
+      ;; (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
+    #+end_src
 *** emmet & web-mode
     #+BEGIN_SRC emacs-lisp
-    (require 'emmet-mode)
- (setq web-mode-ac-sources-alist
-   '(("css" . (ac-source-css-property))
-     ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
- (setq web-mode-content-types-alist
-   '(("jsx" . "\\.js[x]?\\'")))
- (add-hook 'web-mode-hook  'emmet-mode)
- (setq web-mode-ac-sources-alist
-   '(("php" . (ac-source-yasnippet ac-source-php-auto-yasnippets))
-     ("html" . (ac-source-emmet-html-aliases ac-source-emmet-html-snippets))
-     ("css" . (ac-source-css-property ac-source-emmet-css-snippets))))
+      (require 'emmet-mode)
+      (setq web-mode-ac-sources-alist
+	    '(("css" . (ac-source-css-property))
+	      ("html" . (ac-source-words-in-buffer ac-source-abbrev))))
+      (setq web-mode-content-types-alist
+	    '(("jsx" . "\\.js[x]?\\'")))
+      (add-hook 'web-mode-hook  'emmet-mode)
+      (setq web-mode-ac-sources-alist
+	    '(("php" . (ac-source-yasnippet ac-source-php-auto-yasnippets))
+	      ("html" . (ac-source-emmet-html-aliases ac-source-emmet-html-snippets))
+	      ("css" . (ac-source-css-property ac-source-emmet-css-snippets))))
 
- (add-hook 'web-mode-before-auto-complete-hooks
-     '(lambda ()
-      (let ((web-mode-cur-language
-  	     (web-mode-language-at-pos)))
-		(if (string= web-mode-cur-language "php")
-    	    (yas-activate-extra-mode 'php-mode)
-      	  (yas-deactivate-extra-mode 'php-mode))
-		(if (string= web-mode-cur-language "css")
-    	    (setq emmet-use-css-transform t)
-      	  (setq emmet-use-css-transform nil)))))
- (setq emmet-expand-jsx-className? t)
+      (add-hook 'web-mode-before-auto-complete-hooks
+		'(lambda ()
+		   (let ((web-mode-cur-language
+			  (web-mode-language-at-pos)))
+		     (if (string= web-mode-cur-language "php")
+			 (yas-activate-extra-mode 'php-mode)
+		       (yas-deactivate-extra-mode 'php-mode))
+		     (if (string= web-mode-cur-language "css")
+			 (setq emmet-use-css-transform t)
+		       (setq emmet-use-css-transform nil)))))
+      (setq emmet-expand-jsx-className? t)
 
- (add-hook 'local-write-file-hooks
-             (lambda ()
-		(delete-trailing-whitespace)
-		nil))
+      (add-hook 'local-write-file-hooks
+		(lambda ()
+		  (delete-trailing-whitespace)
+		  nil))
     #+END_SRC
 *** web-mode-indent
     #+BEGIN_SRC emacs-lisp
@@ -800,46 +881,60 @@ with `brew install aspell`.
      ;; use tab instead of space
      (setq-local indent-tabs-mode t)
      ;; indent 4 spaces width
-     (my-setup-indent 4))
+     (my-setup-indent 2))
 
    (add-hook 'web-mode-hook 'my-web-code-style)
 
     #+END_SRC
-
-*** web comment style
-    #+BEGIN_SRC emacs-lisp
-      ;; this still doesn't work properly
-      (setq-default web-mode-comment-formats
-		    '(("java"       . "/*")
-		      ("javascript" . "//")
-		      ("php"        . "/*")))
-
-    #+END_SRC
+    
 *** js-prettier-mode
     #+BEGIN_SRC emacs-lisp
-   (require 'prettier-js)
-   (add-hook 'js2-mode-hook 'prettier-js-mode)
-   ;; (add-hook 'web-mode-hook 'prettier-js-mode)
-   (add-hook 'js-mode-hook 'prettier-js-mode)
-   (defun enable-minor-mode (my-pair)
-     "Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
-     (if (buffer-file-name)
-	 (if (string-match (car my-pair) buffer-file-name)
-	     (funcall (cdr my-pair)))))
-   (add-hook 'web-mode-hook #'(lambda ()
-				(enable-minor-mode
-				 '("\\.jsx?\\'" . prettier-js-mode))))
-   (setq prettier-js-args 
-	 '("--trailing-comma" "none"
-	   "--bracket-spacing" "true"
-	   "--single-quote" "true"
-	   "--jsx-single-quote" "true"
-	   "--jsx-bracket-same-line" "true"
-	   "--print-width" "80"
-	   "--use-tabs" "false"
-	   "--tab-width" "4"))
+      (require 'prettier-js)
+      (add-hook 'js2-mode-hook 'prettier-js-mode)
+      ;; (add-hook 'web-mode-hook 'prettier-js-mode)
+      (add-hook 'js-mode-hook 'prettier-js-mode)
+      (defun enable-minor-mode (my-pair)
+	"Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
+	(if (buffer-file-name)
+	    (if (string-match (car my-pair) buffer-file-name)
+		(funcall (cdr my-pair)))))
+      (add-hook 'web-mode-hook #'(lambda ()
+				   (enable-minor-mode
+				    '("\\.jsx?\\'" . prettier-js-mode))
+				   (enable-minor-mode
+				    '("\\.tsx?\\'" . prettier-js-mode))))
+      (setq prettier-js-args 
+	    '("--trailing-comma" "none"
+	      "--bracket-spacing" "true"
+	      "--single-quote" "true"
+	      "--jsx-single-quote" "true"
+	      "--jsx-bracket-same-line" "true"
+	      "--print-width" "80"
+	      "--use-tabs" "false"
+	      "--tab-width" "2"))
 
     #+END_SRC
+*** tide
+    #+begin_src emacs-lisp
+      (use-package tide
+	:ensure t
+	:after (typescript-mode company flycheck)
+	:hook ((typescript-mode . tide-setup)
+	       (typescript-mode . tide-hl-identifier-mode)
+	       (before-save . tide-format-before-save)))
+    #+end_src
+** VSCode Icons
+   #+begin_src emacs-lisp
+     (use-package vscode-icon
+       :ensure t
+       :commands (vscode-icon-for-file))
+   #+end_src
+** Projectile
+   #+begin_src emacs-lisp
+     (projectile-mode +1)
+     (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+     (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+   #+end_src
 ** iBuffer & Dired
    #+BEGIN_SRC emacs-lisp
      (setq ibuffer-saved-filter-groups
@@ -847,7 +942,6 @@ with `brew install aspell`.
 	      ("emacs-config" (or (filename . "emacs-config")
 				  (filename . "djr-init")
 				  (filename . "README.org")))
-	      ("Dot files" (filename . ".*"))
 	      ("Org" (or (mode . org-mode)
 			 (filename . "OrgMode")))
 	      ("lisp" (or (filename . "*.lisp")
@@ -895,6 +989,26 @@ with `brew install aspell`.
 	   auto-revert-verbose nil)
 
    #+END_SRC
+**** Dired-tree
+     #+begin_src emacs-lisp
+       (use-package dired-sidebar
+	 :bind (("C-x C-n" . dired-sidebar-toggle-sidebar))
+	 :ensure t
+	 :commands (dired-sidebar-toggle-sidebar)
+	 :init
+	 (add-hook 'dired-sidebar-mode-hook
+		   (lambda ()
+		     (unless (file-remote-p default-directory)
+		       (auto-revert-mode))))
+	 :config
+	 (push 'toggle-window-split dired-sidebar-toggle-hidden-commands)
+	 (push 'rotate-windows dired-sidebar-toggle-hidden-commands)
+
+	 (setq dired-sidebar-subtree-line-prefix "__")
+	 (setq dired-sidebar-theme 'vscode)
+	 (setq dired-sidebar-use-term-integration t)
+	 (setq dired-sidebar-use-custom-font t))
+     #+end_src
 ** Org
 *** org-mode dates
     #+BEGIN_SRC emacs-lisp
@@ -931,6 +1045,13 @@ with `brew install aspell`.
       :config
       (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
     #+END_SRC
+*** org capture
+    #+begin_src emacs-lisp
+      (custom-set-variables
+       '(org-directory (expand-file-name "~/org"))
+       '(org-agenda-files (list org-directory)))
+      (setq org-default-notes-file (concat org-directory "/notes.org"))
+    #+end_src
 ** Eshell syntax highlighting
    Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
    #+begin_src emacs-lisp
