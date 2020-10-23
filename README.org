@@ -4,52 +4,30 @@
   :END:
   This is my initialisation file for Emacs. Behold!, the code blocks will be
   compiled at startup, but not these titles or this text. 
-** Packages
-   #+BEGIN_SRC emacs-lisp
-     ;; (add-to-list 'package-archives
-     ;; 	     '("melpa" . "http://melpa.milkbox.net/packages/") t)
-
-     ;; (defun ensure-package-installed (&rest packages)
-     ;;   "Assure every package is installed, ask for installation if it’s not.
-
-     ;;    Return a list of installed packages or nil for every skipped package."
-     ;;   (mapcar
-     ;;    (lambda (package)
-     ;;      ;; (package-installed-p 'evil)
-     ;;      (if (package-installed-p package)
-     ;; 	 nil
-     ;;        (if (y-or-n-p (format "Package %s is missing. Install it? " package))
-     ;; 	   (package-install package)
-     ;; 	 package)))
-     ;;    packages))
-
-     ;; ;; make sure to have downloaded archive description.
-     ;; ;; Or use package-archive-contents as suggested by Nicolas Dudebout
-     ;; (or (file-exists-p package-user-dir)
-     ;;     (package-refresh-contents))
-
-     ;; (ensure-package-installed 'buffer-move 'zoom 'default-text-scale 'fast-scroll
-     ;; 			  'dimmer 'telephone-line 'unicode-fonts 'fira-code-mode
-     ;; 			  'auto-complete 'flycheck 'slime 'lisp-extra-font-lock
-     ;; 			  'rainbow-delimiters 'latex-pretty-symbols 'js-comint
-     ;; 			  'lsp-mode 'emmet-mode 'prettier-js 'ox-reveal
-     ;; 			  'org-bullets 'ac-slime 'slime-repl-ansi-color 'auctex
-     ;; 			  'latex-preview-pane 'eshell-syntax-highlighting
-     ;; 			  'add-node-modules-path 'company)    
-
-     ;; ;; activate installed packages
-     ;; (package-initialize)
-   #+END_SRC
+** Squash 'cl warnings
+   #+begin_src emacs-lisp
+   (setq byte-compile-warnings '(cl-functions))
+   #+end_src
 ** PATH
    #+BEGIN_SRC emacs-lisp
-     (setq default-directory (expand-file-name "~/"))
-     (setenv "PATH" (concat "/Library/TeX/texbin:"
-			    (getenv "PATH")))
-     (add-to-list 'exec-path "/Library/TeX/texbin")
-     (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-     (setq exec-path (append exec-path '("/usr/local/bin")))
-     (package-install 'exec-path-from-shell)
-     (exec-path-from-shell-initialize)
+     ;; (setq default-directory (expand-file-name "~/"))
+     ;; (setenv "PATH" (concat "/Library/TeX/texbin:"
+     ;; 		       (getenv "PATH")))
+     ;; (add-to-list 'exec-path "/Library/TeX/texbin")
+     ;; (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+     ;; (setq exec-path (append exec-path '("/usr/local/bin")))
+     ;;(package-install 'exec-path-from-shell)
+     ;;(exec-path-from-shell-initialize)
+     (use-package exec-path-from-shell
+       :ensure t
+       :config (setq default-directory (expand-file-name "~/"))
+       (setenv "PATH" (concat "/Library/TeX/texbin:"
+			      (getenv "PATH")))
+       (add-to-list 'exec-path "/Library/TeX/texbin")
+       (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+       (setq exec-path (append exec-path '("/usr/local/bin")))
+       (when (memq window-system '(mac ns x))
+	 (exec-path-from-shell-initialize)))
    #+END_SRC
 ** Node
    #+begin_src emacs-lisp
@@ -60,44 +38,6 @@
      (eval-after-load 'web-mode
        '(add-hook 'web-mode-hook #'add-node-modules-path))
    #+end_src
-** Shortcuts
-*** Aliases
-    #+BEGIN_SRC emacs-lisp
-    (defalias 'pi 'package-install)
-    (defalias 'pl 'package-list-packages)
-    (defalias 'pr 'package-refresh-contents)
-    (defalias 'wm 'web-mode)
-    (defalias 'j2 'js2-mode)
-    (defalias 'mt 'multi-term)
-    (defalias 'rb 'revert-buffer)
-    (defalias 'scd 'sc-deftest-template)
-    (defalias 'tf 'transpose-frame)
-    (defalias 'rbp 'react-boilerplate)
-    #+END_SRC
-*** Key bindings
-    #+BEGIN_SRC emacs-lisp
-      (global-set-key "\M-3" '(lambda() (interactive) (insert "#")))
-      (global-set-key (kbd "C-c n") #'djr-new-buffer-frame)
-      (global-set-key "\C-c\l" 'goto-line)
-      (global-set-key "\C-x\l" '(lambda () (interactive)
-				  (switch-to-buffer "*slime-repl sbcl*")))
-      (global-set-key (kbd "C-x C-b") 'ibuffer) ;; Use Ibuffer for Buffer List
-      (global-set-key "\C-c\ib" 'ibuffer)
-      ;; Becasue I just can't quite those MacOS bindings, and why should I?
-      (global-set-key (kbd "s-<right>") 'move-end-of-line)
-      (global-set-key (kbd "s-<left>") 'move-beginning-of-line)
-      (global-set-key (kbd "s-<up>") 'beginning-of-buffer)
-      (global-set-key (kbd "s-<down>") 'end-of-buffer)
-      (global-set-key (kbd "M-<up>") 'scroll-down-command)
-      (global-set-key (kbd "M-<down>") 'scroll-up-command)
-      (global-set-key (kbd "s-w") 'delete-frame)
-      (global-set-key (kbd "s-<backspace>") 'kill-whole-line)
-      ;; Resize Windows
-      (global-set-key (kbd "S-s-C-<down>") 'shrink-window-horizontally)
-      (global-set-key (kbd "S-s-C-<up>") 'enlarge-window-horizontally)
-      ;; (global-set-key (kbd "s-C-<down>") 'shrink-window)
-      ;; (global-set-key (kbd "s-C-<up>") 'enlarge-window)
-    #+END_SRC
 ** Buffers and Panes
 *** buffer-move
     #+BEGIN_SRC emacs-lisp
@@ -108,9 +48,6 @@
 	       ("s-C-<down>" . buf-move-down)
 	       ("s-C-<left>" . buf-move-left)
 	       ("s-C-<right>" . buf-move-right)))
-	;; (global-set-key (kbd "<s-C-down>")   'buf-move-down)
-	;; (global-set-key (kbd "<s-C-left>")   'buf-move-left)
-	;; (global-set-key (kbd "<s-C-right>")  'buf-move-right)
     #+END_SRC
 *** Panes
     #+BEGIN_SRC emacs-lisp
@@ -128,8 +65,8 @@
     #+END_SRC
 *** zoom mode
     #+BEGIN_SRC emacs-lisp
-(custom-set-variables
- '(zoom-mode t))
+      (custom-set-variables
+       '(zoom-mode t))
     #+END_SRC
 ** Cosmetic
 *** Text inc/dec
@@ -215,27 +152,27 @@
 		      '((accent . (telephone-line-vc-segment
 				   telephone-line-erc-modified-channels-segment
 				   telephone-line-process-segment))
-			(nil    . (telephone-line-minor-mode-segment
-				   telephone-line-buffer-segment)))
+			(nil    . (telephone-line-buffer-segment
+				   telephone-line-minor-mode-segment
+				   )))
 		      telephone-line-rhs
 		      '((nil    . (telephone-line-misc-info-segment))
 			(accent . (telephone-line-major-mode-segment)))))
-
-      ;; (require 'telephone-line)
-      ;; (setq telephone-line-lhs
-      ;; 	    '(;; (evil   . (telephone-line-evil-tag-segment))
-      ;; 	      (accent . (telephone-line-vc-segment
-      ;; 			 telephone-line-erc-modified-channels-segment
-      ;; 			 telephone-line-process-segment))
-      ;; 	      (nil    . (telephone-line-minor-mode-segment
-      ;; 			 telephone-line-buffer-segment))))
-      ;; (setq telephone-line-rhs
-      ;; 	    '((nil    . (telephone-line-misc-info-segment))
-      ;; 	      (accent . (telephone-line-major-mode-segment))
-      ;; 	      ;; (evil   . (telephone-line-airline-position-segment))
-      ;; 	      ))
       (telephone-line-mode t)
     #+END_SRC
+*** active buffer
+    #+begin_src emacs-lisp
+      (set-face-attribute  'mode-line
+			   nil 
+			   :foreground "black"
+			   :background "gray96";;"gray25" 
+			   :box '(:line-width 1 :style released-button))
+      (set-face-attribute  'mode-line-inactive
+			   nil 
+			   :foreground "gray96"
+			   ;; :background "white" 
+			   :box '(:line-width 1 :style released-button))
+    #+end_src
 *** transpose-frame
     #+begin_src emacs-lisp
       (use-package transpose-frame
@@ -269,16 +206,10 @@
 *** Fonts
     <<fonts>> 
     #+BEGIN_SRC emacs-lisp
-    ;; used to be my default, but now do ligatures
-    ;; (add-to-list 'default-frame-alist '(font . "Monaco"))
-    ;; I find Fira is prettier than Cascadia but leaving it in just in case
-    ;; (add-to-list 'default-frame-alist '(font . "Cascadia Code SemiLight"))
     (add-to-list 'default-frame-alist '(font . "Fira Code"))
     (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
-    ;; (add-to-list 'default-frame-alist '(font . "Fira Code Symbol"))
-    ;; (set-fontset-font t nil "Fira Code Symbol" nil 'append)
-    (set-face-attribute 'default nil :height 120)
-    #+END_SRC
+    (set-face-attribute 'default nil :height 120)    
+    #+end_src
 *** Ligatures
     #+begin_src emacs-lisp
       (use-package ligature
@@ -544,7 +475,7 @@
     #+begin_src emacs-lisp
       (use-package company
 	:ensure t
-	:init (add-hook 'after-init-hook 'global-company-mode)
+	:hook (after-init-hook . global-company-mode)
 	:bind (("C-." .  'company-complete-common))
 	:custom (company-idle-delay 0.4))
     #+end_src
@@ -652,9 +583,11 @@ with `brew install aspell`.
       ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
       (setq lsp-keymap-prefix "C-c l")
       (use-package lsp-mode
+      :ensure t
 	:hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
 	       (js2-mode . lsp)
-	       (web-mode . lsp))
+	       (web-mode . lsp)
+	       (css-mode . lsp))
 	:commands lsp)
 
       ;; optionally
@@ -807,7 +740,7 @@ with `brew install aspell`.
     #+BEGIN_SRC emacs-lisp
       (require 'prettier-js)
       (add-hook 'js2-mode-hook 'prettier-js-mode)
-      ;; (add-hook 'web-mode-hook 'prettier-js-mode)
+      (add-hook 'web-mode-hook 'prettier-js-mode)
       (add-hook 'js-mode-hook 'prettier-js-mode)
       (defun enable-minor-mode (my-pair)
 	"Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
@@ -823,15 +756,20 @@ with `brew install aspell`.
 				    '("\\.ts?\\'" . prettier-js-mode))
 				   (enable-minor-mode
 				    '("\\.tsx?\\'" . prettier-js-mode))))
-      (setq prettier-js-args 
-	    '("--trailing-comma" "none"
-	      "--bracket-spacing" "true"
-	      "--single-quote" "true"
-	      "--jsx-single-quote" "true"
-	      "--jsx-bracket-same-line" "true"
-	      "--print-width" "80"
-	      "--use-tabs" "false"
-	      "--tab-width" "2"))
+      ;; (setq prettier-js-args 
+      ;;       '("--trailing-comma" "none"
+      ;; 	"--bracket-spacing" "true"
+      ;; 	"--single-quote" "false"
+      ;; 	"--jsx-single-quote" "true"
+      ;; 	"--jsx-bracket-same-line" "true"
+      ;; 	"--print-width" "80"
+      ;; 	"--use-tabs" "false"
+      ;; 	"--tab-width" "2"))
+
+      (eval-after-load 'web-mode
+	'(progn
+	   (add-hook 'web-mode-hook #'add-node-modules-path)
+	   (add-hook 'web-mode-hook #'prettier-js-mode)))
 
     #+END_SRC
 *** tide
@@ -841,8 +779,16 @@ with `brew install aspell`.
 	      :after (typescript-mode company flycheck)
 	      :hook ((typescript-mode . tide-setup)
 		     (typescript-mode . tide-hl-identifier-mode)
-		     ;; (before-save . tide-format-before-save)
-      ))
+		     (web-mode . tide-setup)
+		     (web-mode . tide-hl-identifier-mode)
+		     (before-save . tide-format-before-save)))
+    #+end_src
+*** css
+    #+begin_src emacs-lisp
+      (setq css-electric-semi-behavior t
+	    css-indent-offset  2
+	    css-tab-mode 'auto)
+
     #+end_src
 ** Lisp stuff
 *** slime & SBCL
@@ -940,6 +886,7 @@ with `brew install aspell`.
      (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
    #+end_src
 ** iBuffer & Dired
+*** DIred
    #+BEGIN_SRC emacs-lisp
      (setq ibuffer-saved-filter-groups
 	   '(("home"
@@ -993,41 +940,43 @@ with `brew install aspell`.
 	   auto-revert-verbose nil)
 
    #+END_SRC
-**** Dired-tree
-     #+begin_src emacs-lisp
-       (use-package dired-sidebar
-	 ;; :bind (("C-x n" . dired-sidebar-toggle-sidebar))
-	 :ensure t
-	 :commands (dired-sidebar-toggle-sidebar)
-	 :init
-	 (add-hook 'dired-sidebar-mode-hook
-		   (lambda ()
-		     (unless (file-remote-p default-directory)
-		       (auto-revert-mode))))
-	 :config
-	 (push 'toggle-window-split dired-sidebar-toggle-hidden-commands)
-	 (push 'rotate-windows dired-sidebar-toggle-hidden-commands)
+*** Dired-tree
+    #+begin_src emacs-lisp
+      (use-package dired-sidebar
+	:ensure t
+	:commands (dired-sidebar-toggle-sidebar)
+	:bind ("C-x n" . dired-sidebar-toggle-sidebar)
+	:init
+	(add-hook 'dired-sidebar-mode-hook
+		  (lambda ()
+		    (unless (file-remote-p default-directory)
+		      (auto-revert-mode))))
+	:config
+	(push 'toggle-window-split dired-sidebar-toggle-hidden-commands)
+	(push 'rotate-windows dired-sidebar-toggle-hidden-commands)
 
-	 (setq dired-sidebar-subtree-line-prefix "__")
-	 (setq dired-sidebar-theme 'vscode)
-	 (setq dired-sidebar-use-term-integration t)
-	 (setq dired-sidebar-use-custom-font t))
-     #+end_src
+	(setq dired-sidebar-subtree-line-prefix "__")
+	(setq dired-sidebar-theme 'vscode)
+	(setq dired-sidebar-use-term-integration t)
+	(setq dired-sidebar-use-custom-font t))
+    #+end_src
 ** Org
 *** org-mode dates
     #+BEGIN_SRC emacs-lisp
-    (setq-default org-display-custom-times t)
-    (setq org-time-stamp-custom-formats '("<%e %B %Y>" . "<%a, %e %b %Y %H:%M>"))
-    (require 'ox)
-    (defun endless/filter-timestamp (trans back _comm)
-      "Remove <> around time-stamps."
-      (pcase back
-	((or `jekyll `html)
-	 (replace-regexp-in-string "&[lg]t;" "" trans))
-	(`latex
-	 (replace-regexp-in-string "[<>]" "" trans))))
-    (add-to-list 'org-export-filter-timestamp-functions
-		 #'endless/filter-timestamp)
+      (setq-default org-display-custom-times t)
+      (setq org-time-stamp-custom-formats '("<%e %B %Y>" . "<%a, %e %b %Y %H:%M>"))
+      ;; (use-package ox
+      ;;   :ensure t)
+      (require 'ox)
+      (defun endless/filter-timestamp (trans back _comm)
+	"Remove <> around time-stamps."
+	(pcase back
+	  ((or `jekyll `html)
+	   (replace-regexp-in-string "&[lg]t;" "" trans))
+	  (`latex
+	   (replace-regexp-in-string "[<>]" "" trans))))
+      (add-to-list 'org-export-filter-timestamp-functions
+		   #'endless/filter-timestamp)
     #+END_SRC
 *** Org tempo
     #+BEGIN_SRC emacs-lisp
@@ -1066,3 +1015,40 @@ with `brew install aspell`.
        ;; Enable in all Eshell buffers.
        (eshell-syntax-highlighting-global-mode +1))
    #+end_src
+** Shortcuts
+*** Aliases
+    #+BEGIN_SRC emacs-lisp
+    (defalias 'pi 'package-install)
+    (defalias 'pl 'package-list-packages)
+    (defalias 'pr 'package-refresh-contents)
+    (defalias 'wm 'web-mode)
+    (defalias 'j2 'js2-mode)
+    (defalias 'mt 'multi-term)
+    (defalias 'rb 'revert-buffer)
+    (defalias 'scd 'sc-deftest-template)
+    (defalias 'tf 'transpose-frame)
+    (defalias 'rbp 'react-boilerplate)
+    #+END_SRC
+*** Key bindings
+    #+BEGIN_SRC emacs-lisp
+      (global-set-key "\M-3" '(lambda() (interactive) (insert "#")))
+      (global-set-key (kbd "C-c n") #'djr-new-buffer-frame)
+      (global-set-key "\C-c\l" 'goto-line)
+      (global-set-key "\C-x\l" '(lambda () (interactive)
+				  (switch-to-buffer "*slime-repl sbcl*")))
+      (global-set-key (kbd "C-x C-b") 'ibuffer) ;; Use Ibuffer for Buffer List
+      (global-set-key "\C-c\ib" 'ibuffer)
+      ;; Becasue I just can't quite those MacOS bindings, and why should I?
+      (global-set-key (kbd "s-<right>") 'move-end-of-line)
+      (global-set-key (kbd "s-<left>") 'move-beginning-of-line)
+      (global-set-key (kbd "s-<up>") 'beginning-of-buffer)
+      (global-set-key (kbd "s-<down>") 'end-of-buffer)
+      (global-set-key (kbd "M-<up>") 'scroll-down-command)
+      (global-set-key (kbd "M-<down>") 'scroll-up-command)
+      (global-set-key (kbd "s-w") 'delete-frame)
+      (global-set-key (kbd "s-<backspace>") 'kill-whole-line)
+      ;; Resize Windows
+      (global-set-key (kbd "S-s-C-<down>") 'shrink-window-horizontally)
+      (global-set-key (kbd "S-s-C-<up>") 'enlarge-window-horizontally)
+      (global-set-key (kbd "C-x C-g") 'project-find-regexp)
+    #+END_SRC
