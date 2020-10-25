@@ -13,7 +13,7 @@
  '(inhibit-startup-buffer-menu t)
  '(inhibit-startup-screen t)
  '(initial-scratch-message nil)
- '(markdown-command "/usr/local/bin/pandoc")
+ '(markdown-command "/usr/local/bin/pandoc" t)
  '(org-agenda-files (list org-directory))
  '(org-directory (expand-file-name "~/org"))
  '(package-selected-packages
