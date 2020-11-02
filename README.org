@@ -4,10 +4,6 @@
   :END:
   This is my initialisation file for Emacs. Behold!, the code blocks will be
   compiled at startup, but not these titles or this text. 
-** Squash 'cl warnings
-   #+begin_src emacs-lisp
-   (setq byte-compile-warnings '(cl-functions))
-   #+end_src
 ** PATH
    #+BEGIN_SRC emacs-lisp
      ;; (setq default-directory (expand-file-name "~/"))
