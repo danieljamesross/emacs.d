@@ -175,9 +175,9 @@
     #+end_src
 ** Font & Encoding & Ligatures
 *** Font size
-OK blindy...
+    OK blindy...
     #+begin_src emacs-lisp
-    (set-face-attribute 'default nil :height 140)
+    (set-face-attribute 'default nil :height 150)
     #+end_src
 *** UTF-8
     #+BEGIN_SRC emacs-lisp
@@ -288,6 +288,18 @@ OK blindy...
      (require 'color)
    #+END_SRC
 ** Generate Code
+*** THREE box
+    #+begin_src emacs-lisp
+       (defun three-box ()
+	 (interactive)
+	 (insert "<mesh>")
+	 (newline)
+	 (insert "  <boxBufferGeometry attach='geometry' args={[1, 1, 1]} />")
+	 (newline)
+	 (insert "  <meshStandardMaterial attach='material' />")
+	 (newline)
+	 (insert "</mesh>"))
+    #+end_src
 *** Add sc-deftest
     #+BEGIN_SRC emacs-lisp
    (defun sc-deftest-template (test)
@@ -733,15 +745,17 @@ with `brew install aspell`.
 				    '("\\.ts?\\'" . prettier-js-mode))
 				   (enable-minor-mode
 				    '("\\.tsx?\\'" . prettier-js-mode))))
-      ;; (setq prettier-js-args 
-      ;;       '("--trailing-comma" "none"
-      ;; 	"--bracket-spacing" "true"
-      ;; 	"--single-quote" "false"
-      ;; 	"--jsx-single-quote" "true"
-      ;; 	"--jsx-bracket-same-line" "true"
-      ;; 	"--print-width" "80"
-      ;; 	"--use-tabs" "false"
-      ;; 	"--tab-width" "2"))
+      (setq prettier-js-args 
+	    '("--trailing-comma" "all"
+	      "--arrow-parens" "avoid"
+	      "--semi" "true"
+	      "--bracket-spacing" "true"
+	      "--single-quote" "true"
+	      "--jsx-single-quote" "true"
+	      "--jsx-bracket-same-line" "false"
+	      "--print-width" "80"
+	      "--use-tabs" "false"
+	      "--tab-width" "2"))
 
       (eval-after-load 'web-mode
 	'(progn
@@ -857,7 +871,6 @@ with `brew install aspell`.
 ** Projectile
    #+begin_src emacs-lisp
      (projectile-mode +1)
-     (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
      (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
    #+end_src
 ** iBuffer & Dired
@@ -865,6 +878,8 @@ with `brew install aspell`.
    #+BEGIN_SRC emacs-lisp
      (setq ibuffer-saved-filter-groups
 	   '(("home"
+	      ("find" (or (mode . xref-mode)
+			  (mode . dired-mode)))
 	      ("emacs-config" (or (filename . "emacs-config")
 				  (filename . "djr-init")
 				  (filename . "README.org")))
@@ -935,6 +950,32 @@ with `brew install aspell`.
 	(setq dired-sidebar-use-term-integration t)
 	(setq dired-sidebar-use-custom-font t))
     #+end_src
+*** Dired Rainbow
+    #+begin_src emacs-lisp
+      (use-package dired-rainbow
+	:defer 2
+	:config
+	(dired-rainbow-define-chmod directory "#6cb2eb" "d.*")
+	(dired-rainbow-define html "#eb5286" ("css" "less" "sass" "scss" "htm" "html" "jhtm" "mht" "eml" "mustache" "xhtml"))
+	(dired-rainbow-define xml "#f2d024" ("xml" "xsd" "xsl" "xslt" "wsdl" "bib" "json" "msg" "pgn" "rss" "yaml" "yml" "rdata"))
+	(dired-rainbow-define document "#9561e2" ("docm" "doc" "docx" "odb" "odt" "pdb" "pdf" "ps" "rtf" "djvu" "epub" "odp" "ppt" "pptx"))
+	(dired-rainbow-define markdown "#ffed4a" ("org" "etx" "info" "markdown" "md" "mkd" "nfo" "pod" "rst" "tex" "textfile" "txt"))
+	(dired-rainbow-define database "#6574cd" ("xlsx" "xls" "csv" "accdb" "db" "mdb" "sqlite" "nc"))
+	(dired-rainbow-define media "#de751f" ("mp3" "mp4" "mkv" "MP3" "MP4" "avi" "mpeg" "mpg" "flv" "ogg" "mov" "mid" "midi" "wav" "aiff" "flac"))
+	(dired-rainbow-define image "#f66d9b" ("tiff" "tif" "cdr" "gif" "ico" "jpeg" "jpg" "png" "psd" "eps" "svg"))
+	(dired-rainbow-define log "#c17d11" ("log"))
+	(dired-rainbow-define shell "#f6993f" ("awk" "bash" "bat" "sed" "sh" "zsh" "vim"))
+	(dired-rainbow-define interpreted "#38c172" ("py" "ipynb" "rb" "pl" "t" "msql" "mysql" "pgsql" "sql" "r" "clj" "cljs" "scala" "js"))
+	(dired-rainbow-define compiled "#4dc0b5" ("asm" "cl" "lisp" "el" "c" "h" "c++" "h++" "hpp" "hxx" "m" "cc" "cs" "cp" "cpp" "go" "f" "for" "ftn" "f90" "f95" "f03" "f08" "s" "rs" "hi" "hs" "pyc" ".java"))
+	(dired-rainbow-define executable "#8cc4ff" ("exe" "msi"))
+	(dired-rainbow-define compressed "#51d88a" ("7z" "zip" "bz2" "tgz" "txz" "gz" "xz" "z" "Z" "jar" "war" "ear" "rar" "sar" "xpi" "apk" "xz" "tar"))
+	(dired-rainbow-define packaged "#faad63" ("deb" "rpm" "apk" "jad" "jar" "cab" "pak" "pk3" "vdf" "vpk" "bsp"))
+	(dired-rainbow-define encrypted "#ffed4a" ("gpg" "pgp" "asc" "bfe" "enc" "signature" "sig" "p12" "pem"))
+	(dired-rainbow-define fonts "#6cb2eb" ("afm" "fon" "fnt" "pfb" "pfm" "ttf" "otf"))
+	(dired-rainbow-define partition "#e3342f" ("dmg" "iso" "bin" "nrg" "qcow" "toast" "vcd" "vmdk" "bak"))
+	(dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
+	(dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*"))
+    #+end_src
 ** Org
 *** org-mode dates
     #+BEGIN_SRC emacs-lisp
@@ -968,10 +1009,26 @@ with `brew install aspell`.
     #+END_SRC
 *** org bullets
     #+BEGIN_SRC emacs-lisp
-    (use-package org-bullets
-      :ensure t
-      :config
-      (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1))))
+      (use-package org-bullets
+	:after org
+	:hook (org-mode . org-bullets-mode)
+	:custom
+	(org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+      ;; Replace list hyphen with dot
+      (font-lock-add-keywords 'org-mode
+			      '(("^ *\\([-]\\) "
+				 (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+      (dolist (face '((org-level-1 . 1.2)
+		      (org-level-2 . 1.1)
+		      (org-level-3 . 1.05)
+		      (org-level-4 . 1.0)
+		      (org-level-5 . 1.1)
+		      (org-level-6 . 1.1)
+		      (org-level-7 . 1.1)
+		      (org-level-8 . 1.1)))
+	(set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
     #+END_SRC
 *** org capture
     #+begin_src emacs-lisp
@@ -1012,7 +1069,6 @@ with `brew install aspell`.
       (global-set-key "\C-x\l" '(lambda () (interactive)
 				  (switch-to-buffer "*slime-repl sbcl*")))
       (global-set-key (kbd "C-x C-b") 'ibuffer) ;; Use Ibuffer for Buffer List
-      (global-set-key "\C-c\ib" 'ibuffer)
       ;; Becasue I just can't quite those MacOS bindings, and why should I?
       (global-set-key (kbd "s-<right>") 'move-end-of-line)
       (global-set-key (kbd "s-<left>") 'move-beginning-of-line)
@@ -1027,3 +1083,8 @@ with `brew install aspell`.
       (global-set-key (kbd "S-s-C-<up>") 'enlarge-window-horizontally)
       (global-set-key (kbd "C-x C-g") 'project-find-regexp)
     #+END_SRC
+** Stackoverflow Search
+   #+begin_src emacs-lisp
+     (use-package sos
+       :ensure t)
+   #+end_src
