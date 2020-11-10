@@ -4,6 +4,11 @@
   :END:
   This is my initialisation file for Emacs. Behold!, the code blocks will be
   compiled at startup, but not these titles or this text. 
+** Squash dep cl warnings
+   #+begin_src emacs-lisp
+   (setq byte-compile-warnings '(cl-functions))
+   (setq byte-compile-warnings '(not obsolete))
+   #+end_src
 ** PATH
    #+BEGIN_SRC emacs-lisp
      ;; (setq default-directory (expand-file-name "~/"))
@@ -99,10 +104,10 @@
 *** autofill
     #+BEGIN_SRC emacs-lisp
       (setq-default fill-column 80)
-      (add-hook 'web-mode-hook
-		(lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
-      (add-hook 'js2-mode-hook
-		(lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
+      ;; (add-hook 'web-mode-hook
+      ;; 	  (lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
+      ;; (add-hook 'js2-mode-hook
+      ;; 	  (lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
       (toggle-text-mode-auto-fill)
       (add-hook 'lisp-mode-hook 'turn-on-auto-fill)
       (add-hook 'emacs-lisp-mode-hook 'turn-on-auto-fill)
@@ -174,11 +179,6 @@
 	:bind ("C-x tf" . transpose-frame))
     #+end_src
 ** Font & Encoding & Ligatures
-*** Font size
-    OK blindy...
-    #+begin_src emacs-lisp
-    (set-face-attribute 'default nil :height 150)
-    #+end_src
 *** UTF-8
     #+BEGIN_SRC emacs-lisp
   ;;; utf-8
@@ -207,7 +207,7 @@
     #+BEGIN_SRC emacs-lisp
     (add-to-list 'default-frame-alist '(font . "Fira Code"))
     (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
-    (set-face-attribute 'default nil :height 120)    
+    (set-face-attribute 'default nil :height 160)    
     #+end_src
 *** Ligatures
     #+begin_src emacs-lisp
@@ -281,11 +281,6 @@
 		   ("\\.sh$"      . shell-mode)
 		   ("\\.gnuplot$" . shell-mode))
 		 auto-mode-alist))
-   #+END_SRC
-** Colours
-   #+BEGIN_SRC emacs-lisp
-     (require 'cl-lib)
-     (require 'color)
    #+END_SRC
 ** Generate Code
 *** THREE box
@@ -488,7 +483,7 @@
 	:ensure t
 	:hook (after-init-hook . global-company-mode)
 	:bind (("C-." .  'company-complete-common))
-	:custom (company-idle-delay 0.4))
+	:custom (company-idle-delay 0.2))
     #+end_src
 *** Flyspell
 Taken from [[https://stackoverflow.com/questions/17126951/emacs-cannot-find-flyspell-ispell][here]].
@@ -549,7 +544,6 @@ with `brew install aspell`.
 	;; 	   ;; this hopefully sets up path and other vars better
 	;; 	   (when (memq window-system '(mac ns))
 	;; 	     (exec-path-from-shell-initialize)))
-	;; :hook ((js2-mode web-mode) . javascript-eslint)
 	:init (global-flycheck-mode))
     #+END_SRC
 ** Web Dev Stuff
@@ -781,28 +775,32 @@ with `brew install aspell`.
 	    css-tab-mode 'auto)
     #+end_src
 ** Lisp stuff
-*** slime & SBCL
+*** SBCL
     #+BEGIN_SRC emacs-lisp
-    ;; Set your lisp system and, optionally, some contribs
-    (setq inferior-lisp-program "/opt/sbcl/bin/sbcl")
-    (let ((sbcl-local (car (file-expand-wildcards
-			    "/usr/local/Cellar/sbcl/*/lib/sbcl/sbcl.core"))))
-      (setq slime-lisp-implementations
-	    `((sbcl ("/usr/local/bin/sbcl"
-		     "--core"
-		     ;; replace with correct path of sbcl
-		     ,sbcl-local
-		     "--dynamic-space-size" "2147")))))
-
-    ;; slime
-    (require 'slime)
-    (require 'slime-autoloads)
-    ;; Also setup the slime-fancy contrib
-;    (add-to-list 'slime-contribs 'slime-fancy)
-    (add-hook 'slime-repl-mode-hook 'slime-repl-ansi-color-mode)
-    (slime-setup)
-    (with-eval-after-load 'slime-repl
-      (require 'slime-repl-ansi-color))
+      ;; Set your lisp system and, optionally, some contribs
+      (setq inferior-lisp-program "/opt/sbcl/bin/sbcl")
+      (let ((sbcl-local (car (file-expand-wildcards
+			      "/usr/local/Cellar/sbcl/*/lib/sbcl/sbcl.core"))))
+	(setq slime-lisp-implementations
+	      `((sbcl ("/usr/local/bin/sbcl"
+		       "--core"
+		       ;; replace with correct path of sbcl
+		       ,sbcl-local
+		       "--dynamic-space-size" "2147")))))
+   #+end_src
+*** slime
+    #+begin_src emacs-lisp
+      ;; slime
+      (use-package slime
+	:ensure t
+	:hook (slime-repl-mode-hook . slime-repl-ansi-color-mode))
+   #+end_src
+*** slime-repl-ansi-color
+   #+begin_src emacs-lisp
+     (use-package slime-repl-ansi-color
+       :ensure t
+       :after slime-repl
+       :requires slime)
     #+END_SRC
 *** paredit
     Man, this is slow. Removing it for now.
@@ -833,26 +831,66 @@ with `brew install aspell`.
     #+END_SRC
 *** lisp extra font lock
     #+BEGIN_SRC emacs-lisp
-      (require 'lisp-extra-font-lock)
-      (lisp-extra-font-lock-global-mode 1)
-      (font-lock-add-keywords
-       'emacs-lisp-mode
-       '(("(\\s-*\\(\\_<\\(?:\\sw\\|\\s_\\)+\\)\\_>"
-	  1 'font-lock-func-face))
-       'append) ;; <-- Add after all other rules
+      (use-package lisp-extra-font-lock
+	:ensure t
+	:config (lisp-extra-font-lock-global-mode 1)
+	(font-lock-add-keywords
+	 'emacs-lisp-mode
+	 '(("(\\s-*\\(\\_<\\(?:\\sw\\|\\s_\\)+\\)\\_>"
+	    1 'font-lock-func-face))
+	 'append)) ;; <-- Add after all other rules
     #+END_SRC
-*** rainbow delimiters
-    #+BEGIN_SRC emacs-lisp
-    (require 'rainbow-delimiters)
-    (add-hook 'lisp-mode-hook 'rainbow-delimiters-mode)
-
-    (cl-loop for index from 1 to rainbow-delimiters-max-face-count
-	     do
-	     (let ((face
-		    (intern (format "rainbow-delimiters-depth-%d-face" index))))
-	       (cl-callf color-saturate-name (face-foreground face) 30)))
-    #+END_SRC
+** rainbow delimiters
+   #+BEGIN_SRC emacs-lisp
+     (use-package rainbow-delimiters
+       :ensure t
+       :hook (prog-mode-hook .  rainbow-delimiters-mode); (lisp-mode-hook . rainbow-delimiters-mode)
+       :config (cl-loop for index from 1 to rainbow-delimiters-max-face-count
+			do
+			(let ((face
+			       (intern (format "rainbow-delimiters-depth-%d-face" index))))
+			  (cl-callf color-saturate-name (face-foreground face) 30))))
+   #+END_SRC
 ** Word Processing
+*** auctex
+Taken from [[https://github.com/jwiegley/use-package/issues/379][this github issue]].
+    #+begin_src emacs-lisp
+      (use-package tex-site                   ; auctex
+	:defines (latex-help-cmd-alist latex-help-file)
+	:mode ("\\.tex\\'" . TeX-latex-mode)
+	:init
+	(setq reftex-plug-into-AUCTeX t)
+	(setenv "PATH" (concat "/Library/TeX/texbin:"
+			       (getenv "PATH")))
+	(add-to-list 'exec-path "/Library/TeX/texbin")
+	:config
+	(defun latex-help-get-cmd-alist ()    ;corrected version:
+	  "Scoop up the commands in the index of the latex info manual.
+       The values are saved in `latex-help-cmd-alist' for speed."
+	  ;; mm, does it contain any cached entries
+	  (if (not (assoc "\\begin" latex-help-cmd-alist))
+	      (save-window-excursion
+		(setq latex-help-cmd-alist nil)
+		(Info-goto-node (concat latex-help-file "Command Index"))
+		(goto-char (point-max))
+		(while (re-search-backward "^\\* \\(.+\\): *\\(.+\\)\\." nil t)
+		  (let ((key (buffer-substring (match-beginning 1) (match-end 1)))
+			(value (buffer-substring (match-beginning 2)
+						 (match-end 2))))
+		    (add-to-list 'latex-help-cmd-alist (cons key value))))))
+	  latex-help-cmd-alist)
+
+	(use-package latex
+	  :defer t
+	  :config
+	  (use-package preview)
+	  (add-hook 'LaTeX-mode-hook 'reftex-mode)
+	  (info-lookup-add-help :mode 'LaTeX-mode
+				:regexp ".*"
+				:parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
+				:doc-spec '(("(latex2e)Concept Index" )
+					    ("(latex2e)Command Index")))))
+    #+end_src
 *** markdown pandoc
     #+BEGIN_SRC emacs-lisp
   (setq markdown-command "pandoc")
@@ -1001,11 +1039,16 @@ with `brew install aspell`.
     #+END_SRC
 *** org-reveal
     #+BEGIN_SRC emacs-lisp
-  ;; Reveal.js + Org mode
-  (require 'ox-reveal)
-  (setq Org-Reveal-root (concatenate 'string "file://" (expand-file-name "~/reveal.js")))
+      ;; Reveal.js + Org mode
+      (use-package ox-reveal
+	:ensure t
+	:config (setq Org-Reveal-root (concatenate 'string "file://" (expand-file-name "~/reveal.js")))
+	(setq Org-Reveal-title-slide nil))
 
-  (setq Org-Reveal-title-slide nil)
+      ;; (require 'ox-reveal)
+      ;; (setq Org-Reveal-root (concatenate 'string "file://" (expand-file-name "~/reveal.js")))
+
+      ;; (setq Org-Reveal-title-slide nil)
     #+END_SRC
 *** org bullets
     #+BEGIN_SRC emacs-lisp
@@ -1036,6 +1079,16 @@ with `brew install aspell`.
        '(org-directory (expand-file-name "~/org"))
        '(org-agenda-files (list org-directory)))
       (setq org-default-notes-file (concat org-directory "/notes.org"))
+    #+end_src
+*** custom TODOs
+    #+begin_src emacs-lisp
+      (setq org-todo-keyword-faces
+	    '(("IN_PROGRESS" . "orange")
+	      ("DELAYED" . "blue")
+	      ("CANCELLED" . "grey")))
+      (setq org-todo-keywords
+	    '((sequence "TODO(t)" "|" "IN_PROGRESS(i)" "DELAYED(d)"
+			"|" "DONE(d)" "CANCELLED(c)")))
     #+end_src
 ** Eshell syntax highlighting
    Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
