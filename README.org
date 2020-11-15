@@ -4,11 +4,6 @@
   :END:
   This is my initialisation file for Emacs. Behold!, the code blocks will be
   compiled at startup, but not these titles or this text. 
-** Squash dep cl warnings
-   #+begin_src emacs-lisp
-   (setq byte-compile-warnings '(cl-functions))
-   (setq byte-compile-warnings '(not obsolete))
-   #+end_src
 ** PATH
    #+BEGIN_SRC emacs-lisp
      ;; (setq default-directory (expand-file-name "~/"))
@@ -30,6 +25,21 @@
        (when (memq window-system '(mac ns x))
 	 (exec-path-from-shell-initialize)))
    #+END_SRC
+** Quelpa
+  #+begin_src emacs-lisp
+  (use-package quelpa
+    :ensure t)
+
+  (use-package quelpa-use-package
+    :ensure t
+    :after quelpa)
+   #+end_src
+** too-long-mode
+   #+begin_src emacs-lisp
+   (use-package so-long
+    :quelpa (so-long :url "https://raw.githubusercontent.com/emacs-mirror/emacs/master/lisp/so-long.el" :fetcher url)
+    :config (global-so-long-mode 1))
+   #+end_src
 ** Node
    #+begin_src emacs-lisp
      (eval-after-load 'js-mode
@@ -97,6 +107,8 @@
   (setq make-backup-files nil)
   (setq debug-on-error t)
   (setq case-fold-search t)
+  ;; ignore case when switching buffers with C-x b
+  (setq read-buffer-completion-ignore-case t)
   (fset 'yes-or-no-p 'y-or-n-p)
   (delete-selection-mode 1)
   (setq ead-buffer-completion-ignore-case t)
@@ -104,14 +116,10 @@
 *** autofill
     #+BEGIN_SRC emacs-lisp
       (setq-default fill-column 80)
-      ;; (add-hook 'web-mode-hook
-      ;; 	  (lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
-      ;; (add-hook 'js2-mode-hook
-      ;; 	  (lambda () (set (make-local-variable 'comment-auto-fill-only-comments) t)))
       (toggle-text-mode-auto-fill)
-      (add-hook 'lisp-mode-hook 'turn-on-auto-fill)
-      (add-hook 'emacs-lisp-mode-hook 'turn-on-auto-fill)
+      (add-hook 'prog-mode-hook 'turn-on-auto-fill)
       (remove-hook 'nxml-mode-hook #'turn-on-auto-fill)
+      (display-fill-column-indicator-mode t)
     #+End_SRC
 *** new UNTITLED file
     #+BEGIN_SRC emacs-lisp
@@ -202,13 +210,6 @@
 	:custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
 	:hook prog-mode)  
     #+end_src
-*** Fonts
-    <<fonts>> 
-    #+BEGIN_SRC emacs-lisp
-    (add-to-list 'default-frame-alist '(font . "Fira Code"))
-    (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
-    (set-face-attribute 'default nil :height 160)    
-    #+end_src
 *** Ligatures
     #+begin_src emacs-lisp
       (use-package ligature
@@ -238,6 +239,13 @@
 	;; Enables ligature checks globally in all buffers. You can also do it
 	;; per mode with `ligature-mode'.
 	(global-ligature-mode t))
+    #+end_src
+*** Fonts
+    <<fonts>> 
+    #+BEGIN_SRC emacs-lisp
+    (add-to-list 'default-frame-alist '(font . "Fira Code"))
+    (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
+    (set-face-attribute 'default nil :height 160)    
     #+end_src
 ** File Types & modes
    #+BEGIN_SRC emacs-lisp
@@ -486,9 +494,9 @@
 	:custom (company-idle-delay 0.2))
     #+end_src
 *** Flyspell
-Taken from [[https://stackoverflow.com/questions/17126951/emacs-cannot-find-flyspell-ispell][here]].
-You need to install the ASpell spell checker. You can install it with homebrew
-with `brew install aspell`.
+    Taken from [[https://stackoverflow.com/questions/17126951/emacs-cannot-find-flyspell-ispell][here]].
+    You need to install the ASpell spell checker. You can install it with homebrew
+    with `brew install aspell`.
     #+BEGIN_SRC emacs-lisp
       ;; flyspell
       (dolist (hook '(text-mode-hook markdown-mode-hook))
@@ -787,16 +795,16 @@ with `brew install aspell`.
 		       ;; replace with correct path of sbcl
 		       ,sbcl-local
 		       "--dynamic-space-size" "2147")))))
-   #+end_src
+    #+end_src
 *** slime
     #+begin_src emacs-lisp
       ;; slime
       (use-package slime
 	:ensure t
 	:hook (slime-repl-mode-hook . slime-repl-ansi-color-mode))
-   #+end_src
+    #+end_src
 *** slime-repl-ansi-color
-   #+begin_src emacs-lisp
+    #+begin_src emacs-lisp
      (use-package slime-repl-ansi-color
        :ensure t
        :after slime-repl
@@ -853,7 +861,7 @@ with `brew install aspell`.
    #+END_SRC
 ** Word Processing
 *** auctex
-Taken from [[https://github.com/jwiegley/use-package/issues/379][this github issue]].
+    Taken from [[https://github.com/jwiegley/use-package/issues/379][this github issue]].
     #+begin_src emacs-lisp
       (use-package tex-site                   ; auctex
 	:defines (latex-help-cmd-alist latex-help-file)
@@ -913,7 +921,7 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
    #+end_src
 ** iBuffer & Dired
 *** Dired
-   #+BEGIN_SRC emacs-lisp
+    #+BEGIN_SRC emacs-lisp
      (setq ibuffer-saved-filter-groups
 	   '(("home"
 	      ("find" (or (mode . xref-mode)
@@ -967,7 +975,7 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
      (setq dired-auto-revert-buffer t
 	   auto-revert-verbose nil)
 
-   #+END_SRC
+    #+END_SRC
 *** Dired-tree
     #+begin_src emacs-lisp
       (use-package dired-sidebar
@@ -1084,10 +1092,10 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
     #+begin_src emacs-lisp
       (setq org-todo-keyword-faces
 	    '(("IN_PROGRESS" . "orange")
-	      ("DELAYED" . "blue")
+	      ("POSTPONED" . "blue")
 	      ("CANCELLED" . "grey")))
       (setq org-todo-keywords
-	    '((sequence "TODO(t)" "|" "IN_PROGRESS(i)" "DELAYED(d)"
+	    '((sequence "TODO(t)" "|" "IN_PROGRESS(i)" "POSTPONED(p)"
 			"|" "DONE(d)" "CANCELLED(c)")))
     #+end_src
 ** Eshell syntax highlighting
