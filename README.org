@@ -25,30 +25,21 @@
        (when (memq window-system '(mac ns x))
 	 (exec-path-from-shell-initialize)))
    #+END_SRC
-** Quelpa
-  #+begin_src emacs-lisp
-  (use-package quelpa
-    :ensure t)
+** Package Managers
+*** Quelpa
+    #+begin_src emacs-lisp
+    (use-package quelpa
+      :ensure t)
 
-  (use-package quelpa-use-package
-    :ensure t
-    :after quelpa)
-   #+end_src
-** too-long-mode
-   #+begin_src emacs-lisp
-   (use-package so-long
-    :quelpa (so-long :url "https://raw.githubusercontent.com/emacs-mirror/emacs/master/lisp/so-long.el" :fetcher url)
-    :config (global-so-long-mode 1))
-   #+end_src
-** Node
-   #+begin_src emacs-lisp
-     (eval-after-load 'js-mode
-       '(add-hook 'js-mode-hook #'add-node-modules-path))
-     (eval-after-load 'js2-mode
-       '(add-hook 'js2-mode-hook #'add-node-modules-path))
-     (eval-after-load 'web-mode
-       '(add-hook 'web-mode-hook #'add-node-modules-path))
-   #+end_src
+    (use-package quelpa-use-package
+      :ensure t
+      :after quelpa)
+     #+end_src
+*** Melpa
+    #+begin_src emacs-lisp
+    (add-to-list 'package-archives
+             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+    #+end_src
 ** Buffers and Panes
 *** buffer-move
     #+BEGIN_SRC emacs-lisp
@@ -185,67 +176,6 @@
       (use-package transpose-frame
 	:ensure t
 	:bind ("C-x tf" . transpose-frame))
-    #+end_src
-** Font & Encoding & Ligatures
-*** UTF-8
-    #+BEGIN_SRC emacs-lisp
-  ;;; utf-8
-  (setq locale-coding-system 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (set-selection-coding-system 'utf-8)
-  (prefer-coding-system 'utf-8)
-    #+END_SRC
-*** Unicode
-    #+begin_src emacs-lisp
-      (use-package unicode-fonts
-	:ensure t
-	:config
-	(unicode-fonts-setup))
-    #+end_src
-*** fira-code-mode
-    Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emulation-in-emacs/post.md#appendix-b-update-1-firacode-integration][here]]
-    #+begin_src emacs-lisp
-      (use-package fira-code-mode
-	:custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
-	:hook prog-mode)  
-    #+end_src
-*** Ligatures
-    #+begin_src emacs-lisp
-      (use-package ligature
-	:load-path "~/.emacs.d/ligature/"
-	:config
-	;; Enable the "www" ligature in every possible major mode
-	(ligature-set-ligatures 't '("www"))
-	;; Enable traditional ligature support in eww-mode, if the
-	;; `variable-pitch' face supports it
-	(ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
-	;; Enable all Cascadia Code ligatures in programming modes
-	(ligature-set-ligatures
-	 'prog-mode
-	 '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
-	   ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
-	   "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
-	   "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
-	   "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
-	   "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
-	   "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
-	   "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
-	   ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
-	   "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
-	   "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
-	   "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
-	   "\\" "://"))
-	;; Enables ligature checks globally in all buffers. You can also do it
-	;; per mode with `ligature-mode'.
-	(global-ligature-mode t))
-    #+end_src
-*** Fonts
-    <<fonts>> 
-    #+BEGIN_SRC emacs-lisp
-    (add-to-list 'default-frame-alist '(font . "Fira Code"))
-    (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
-    (set-face-attribute 'default nil :height 160)    
     #+end_src
 ** File Types & modes
    #+BEGIN_SRC emacs-lisp
@@ -457,6 +387,15 @@
       (insert ";;; ")
       (newline))
     #+END_SRC
+** Node
+   #+begin_src emacs-lisp
+     (eval-after-load 'js-mode
+       '(add-hook 'js-mode-hook #'add-node-modules-path))
+     (eval-after-load 'js2-mode
+       '(add-hook 'js2-mode-hook #'add-node-modules-path))
+     (eval-after-load 'web-mode
+       '(add-hook 'web-mode-hook #'add-node-modules-path))
+   #+end_src
 ** Non Elpa/Melpa Package Modes
 *** Antescofo mode
     #+BEGIN_SRC emacs-lisp
@@ -1098,16 +1037,6 @@
 	    '((sequence "TODO(t)" "|" "IN_PROGRESS(i)" "POSTPONED(p)"
 			"|" "DONE(d)" "CANCELLED(c)")))
     #+end_src
-** Eshell syntax highlighting
-   Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
-   #+begin_src emacs-lisp
-     (use-package eshell-syntax-highlighting
-       :after esh-mode
-       :demand t ;; Install if not already installed.
-       :config
-       ;; Enable in all Eshell buffers.
-       (eshell-syntax-highlighting-global-mode +1))
-   #+end_src
 ** Shortcuts
 *** Aliases
     #+BEGIN_SRC emacs-lisp
@@ -1144,6 +1073,91 @@
       (global-set-key (kbd "S-s-C-<up>") 'enlarge-window-horizontally)
       (global-set-key (kbd "C-x C-g") 'project-find-regexp)
     #+END_SRC
+** too-long-mode
+   #+begin_src emacs-lisp
+   (use-package so-long
+    :quelpa (so-long :url "https://raw.githubusercontent.com/emacs-mirror/emacs/master/lisp/so-long.el" :fetcher url)
+    :config (global-so-long-mode 1))
+   #+end_src
+** Eshell syntax highlighting
+   Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
+   #+begin_src emacs-lisp
+     (use-package eshell-syntax-highlighting
+       :after esh-mode
+       :demand t ;; Install if not already installed.
+       :config
+       ;; Enable in all Eshell buffers.
+       (eshell-syntax-highlighting-global-mode +1))
+   #+end_src
+** Font & Encoding & Ligatures & Tabs
+*** UTF-8
+    #+BEGIN_SRC emacs-lisp
+  ;;; utf-8
+  (setq locale-coding-system 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+    #+END_SRC
+*** Unicode
+    #+begin_src emacs-lisp
+      (use-package unicode-fonts
+	:ensure t
+	:config
+	(unicode-fonts-setup))
+    #+end_src
+*** fira-code-mode
+    Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emulation-in-emacs/post.md#appendix-b-update-1-firacode-integration][here]]
+    #+begin_src emacs-lisp
+      (use-package fira-code-mode
+	:custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
+	:hook prog-mode)  
+    #+end_src
+*** Ligatures
+    #+begin_src emacs-lisp
+      (use-package ligature
+	:load-path "~/.emacs.d/ligature/"
+	:config
+	;; Enable the "www" ligature in every possible major mode
+	(ligature-set-ligatures 't '("www"))
+	;; Enable traditional ligature support in eww-mode, if the
+	;; `variable-pitch' face supports it
+	(ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
+	;; Enable all Cascadia Code ligatures in programming modes
+	(ligature-set-ligatures
+	 'prog-mode
+	 '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
+	   ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+	   "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+	   "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+	   "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+	   "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+	   "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+	   "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+	   ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+	   "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+	   "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+	   "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+	   "\\" "://"))
+	;; Enables ligature checks globally in all buffers. You can also do it
+	;; per mode with `ligature-mode'.
+	(global-ligature-mode t))
+    #+end_src
+*** Fonts
+    <<fonts>> 
+    #+BEGIN_SRC emacs-lisp
+    (add-to-list 'default-frame-alist '(font . "Fira Code"))
+    (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
+    (set-face-attribute 'default nil :height 150)    
+    (set-frame-font "Fira Code 15" nil t)
+    #+end_src
+*** highlight-indent-guides
+    #+begin_src emacs-lisp
+      (use-package highlight-indent-guides-mode
+	:ensure t
+	:config (highlight-indent-guides-method 'character)
+	:hook (prog-mode . highlight-indent-guides-mode))
+    #+end_src
 ** Stackoverflow Search
    #+begin_src emacs-lisp
      (use-package sos
