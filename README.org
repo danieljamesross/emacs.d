@@ -52,17 +52,19 @@
     #+END_SRC
 *** Panes
     #+BEGIN_SRC emacs-lisp
-  (setq default-frame-alist
-      (add-to-list 'default-frame-alist '(width . 100)))
-  (setq default-frame-alist
-      (add-to-list 'default-frame-alist '(height . 200)))
+	;; (setq default-frame-alist
+	;;     (add-to-list 'default-frame-alist '(width . 100)))
+	;; (setq default-frame-alist
+	;;     (add-to-list 'default-frame-alist '(height . 200)))
+      (add-to-list 'initial-frame-alist '(fullscreen . maximized))
+      (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
-  ;;; Use the commands "control+x" followed by an arrow to
-  ;;; navigate between panes
-  (global-set-key (kbd "C-x <up>") 'windmove-up)
-  (global-set-key (kbd "C-x <down>") 'windmove-down)
-  (global-set-key (kbd "C-x <left>") 'windmove-left)
-  (global-set-key (kbd "C-x <right>") 'windmove-right)
+	;;; Use the commands "control+x" followed by an arrow to
+	;;; navigate between panes
+	(global-set-key (kbd "C-x <up>") 'windmove-up)
+	(global-set-key (kbd "C-x <down>") 'windmove-down)
+	(global-set-key (kbd "C-x <left>") 'windmove-left)
+	(global-set-key (kbd "C-x <right>") 'windmove-right)
     #+END_SRC
 *** zoom mode
     #+BEGIN_SRC emacs-lisp
@@ -961,6 +963,42 @@
 	(dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
 	(dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*"))
     #+end_src
+** Shortcuts
+*** Aliases
+    #+BEGIN_SRC emacs-lisp
+    (defalias 'pi 'package-install)
+    (defalias 'pl 'package-list-packages)
+    (defalias 'pr 'package-refresh-contents)
+    (defalias 'wm 'web-mode)
+    (defalias 'j2 'js2-mode)
+    (defalias 'mt 'multi-term)
+    (defalias 'rb 'revert-buffer)
+    (defalias 'scd 'sc-deftest-template)
+    (defalias 'tf 'transpose-frame)
+    (defalias 'rbp 'react-boilerplate)
+    #+END_SRC
+*** Key bindings
+    #+BEGIN_SRC emacs-lisp
+      (global-set-key "\M-3" '(lambda() (interactive) (insert "#")))
+      (global-set-key (kbd "C-c n") #'djr-new-buffer-frame)
+      (global-set-key "\C-c\l" 'goto-line)
+      (global-set-key "\C-x\l" '(lambda () (interactive)
+				  (switch-to-buffer "*slime-repl sbcl*")))
+      (global-set-key (kbd "C-x C-b") 'ibuffer) ;; Use Ibuffer for Buffer List
+      ;; Becasue I just can't quite those MacOS bindings, and why should I?
+      (global-set-key (kbd "s-<right>") 'move-end-of-line)
+      (global-set-key (kbd "s-<left>") 'move-beginning-of-line)
+      (global-set-key (kbd "s-<up>") 'beginning-of-buffer)
+      (global-set-key (kbd "s-<down>") 'end-of-buffer)
+      (global-set-key (kbd "M-<up>") 'scroll-down-command)
+      (global-set-key (kbd "M-<down>") 'scroll-up-command)
+      (global-set-key (kbd "s-w") 'delete-frame)
+      (global-set-key (kbd "s-<backspace>") 'kill-whole-line)
+      ;; Resize Windows
+      (global-set-key (kbd "S-s-C-<down>") 'shrink-window-horizontally)
+      (global-set-key (kbd "S-s-C-<up>") 'enlarge-window-horizontally)
+      (global-set-key (kbd "C-x C-g") 'project-find-regexp)
+    #+END_SRC
 ** Org
 *** org-mode dates
     #+BEGIN_SRC emacs-lisp
@@ -1018,7 +1056,7 @@
 		      (org-level-6 . 1.1)
 		      (org-level-7 . 1.1)
 		      (org-level-8 . 1.1)))
-	(set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face)))
+	(set-face-attribute (car face) nil :font "IBM Plex Sans" :weight 'extra-light :height (cdr face)))
     #+END_SRC
 *** org capture
     #+begin_src emacs-lisp
@@ -1037,42 +1075,6 @@
 	    '((sequence "TODO(t)" "|" "IN_PROGRESS(i)" "POSTPONED(p)"
 			"|" "DONE(d)" "CANCELLED(c)")))
     #+end_src
-** Shortcuts
-*** Aliases
-    #+BEGIN_SRC emacs-lisp
-    (defalias 'pi 'package-install)
-    (defalias 'pl 'package-list-packages)
-    (defalias 'pr 'package-refresh-contents)
-    (defalias 'wm 'web-mode)
-    (defalias 'j2 'js2-mode)
-    (defalias 'mt 'multi-term)
-    (defalias 'rb 'revert-buffer)
-    (defalias 'scd 'sc-deftest-template)
-    (defalias 'tf 'transpose-frame)
-    (defalias 'rbp 'react-boilerplate)
-    #+END_SRC
-*** Key bindings
-    #+BEGIN_SRC emacs-lisp
-      (global-set-key "\M-3" '(lambda() (interactive) (insert "#")))
-      (global-set-key (kbd "C-c n") #'djr-new-buffer-frame)
-      (global-set-key "\C-c\l" 'goto-line)
-      (global-set-key "\C-x\l" '(lambda () (interactive)
-				  (switch-to-buffer "*slime-repl sbcl*")))
-      (global-set-key (kbd "C-x C-b") 'ibuffer) ;; Use Ibuffer for Buffer List
-      ;; Becasue I just can't quite those MacOS bindings, and why should I?
-      (global-set-key (kbd "s-<right>") 'move-end-of-line)
-      (global-set-key (kbd "s-<left>") 'move-beginning-of-line)
-      (global-set-key (kbd "s-<up>") 'beginning-of-buffer)
-      (global-set-key (kbd "s-<down>") 'end-of-buffer)
-      (global-set-key (kbd "M-<up>") 'scroll-down-command)
-      (global-set-key (kbd "M-<down>") 'scroll-up-command)
-      (global-set-key (kbd "s-w") 'delete-frame)
-      (global-set-key (kbd "s-<backspace>") 'kill-whole-line)
-      ;; Resize Windows
-      (global-set-key (kbd "S-s-C-<down>") 'shrink-window-horizontally)
-      (global-set-key (kbd "S-s-C-<up>") 'enlarge-window-horizontally)
-      (global-set-key (kbd "C-x C-g") 'project-find-regexp)
-    #+END_SRC
 ** too-long-mode
    #+begin_src emacs-lisp
    (use-package so-long
@@ -1089,7 +1091,7 @@
        ;; Enable in all Eshell buffers.
        (eshell-syntax-highlighting-global-mode +1))
    #+end_src
-** Font & Encoding & Ligatures & Tabs
+** Font & Encoding & Ligatures & Guides
 *** UTF-8
     #+BEGIN_SRC emacs-lisp
   ;;; utf-8
@@ -1152,10 +1154,12 @@
     (set-frame-font "Fira Code 15" nil t)
     #+end_src
 *** highlight-indent-guides
+Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
     #+begin_src emacs-lisp
-      (use-package highlight-indent-guides-mode
+      (use-package highlight-indent-guides
 	:ensure t
-	:config (highlight-indent-guides-method 'character)
+	:config (highlight-indent-guides-character-face "Fira Code") 
+	(highlight-indent-guides-method 'character)
 	:hook (prog-mode . highlight-indent-guides-mode))
     #+end_src
 ** Stackoverflow Search
