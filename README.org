@@ -1156,11 +1156,11 @@
 *** highlight-indent-guides
 Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
     #+begin_src emacs-lisp
-      (use-package highlight-indent-guides
-	:ensure t
-	:config (highlight-indent-guides-character-face "Fira Code") 
-	(highlight-indent-guides-method 'character)
-	:hook (prog-mode . highlight-indent-guides-mode))
+	    (use-package highlight-indent-guides
+	      :ensure t
+	      :config (setq highlight-indent-guides-character-face "Fira Code"
+			    highlight-indent-guides-method 'character)
+	      :hook (prog-mode . highlight-indent-guides-mode))
     #+end_src
 ** Stackoverflow Search
    #+begin_src emacs-lisp
