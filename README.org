@@ -6,14 +6,6 @@
   compiled at startup, but not these titles or this text. 
 ** PATH
    #+BEGIN_SRC emacs-lisp
-     ;; (setq default-directory (expand-file-name "~/"))
-     ;; (setenv "PATH" (concat "/Library/TeX/texbin:"
-     ;; 		       (getenv "PATH")))
-     ;; (add-to-list 'exec-path "/Library/TeX/texbin")
-     ;; (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-     ;; (setq exec-path (append exec-path '("/usr/local/bin")))
-     ;;(package-install 'exec-path-from-shell)
-     ;;(exec-path-from-shell-initialize)
      (use-package exec-path-from-shell
        :ensure t
        :config (setq default-directory (expand-file-name "~/"))
@@ -28,12 +20,14 @@
 ** Package Managers
 *** Quelpa
     #+begin_src emacs-lisp
-    (use-package quelpa
-      :ensure t)
+      (use-package quelpa
+	:requires display-graphic-p
+	:ensure t)
 
-    (use-package quelpa-use-package
-      :ensure t
-      :after quelpa)
+      (use-package quelpa-use-package
+	:requires display-graphic-p
+	:ensure t
+	:after quelpa)
      #+end_src
 *** Melpa
     #+begin_src emacs-lisp
@@ -44,6 +38,7 @@
 *** buffer-move
     #+BEGIN_SRC emacs-lisp
       (use-package buffer-move
+  	:requires display-graphic-p
 	:ensure t
 	:bind (("s-C-<up>" . buf-move-up)
 	       ("s-C-<down>" . buf-move-down)
@@ -52,19 +47,15 @@
     #+END_SRC
 *** Panes
     #+BEGIN_SRC emacs-lisp
-	;; (setq default-frame-alist
-	;;     (add-to-list 'default-frame-alist '(width . 100)))
-	;; (setq default-frame-alist
-	;;     (add-to-list 'default-frame-alist '(height . 200)))
-      (add-to-list 'initial-frame-alist '(fullscreen . maximized))
-      (add-to-list 'default-frame-alist '(fullscreen . maximized))
-
-	;;; Use the commands "control+x" followed by an arrow to
-	;;; navigate between panes
-	(global-set-key (kbd "C-x <up>") 'windmove-up)
-	(global-set-key (kbd "C-x <down>") 'windmove-down)
-	(global-set-key (kbd "C-x <left>") 'windmove-left)
-	(global-set-key (kbd "C-x <right>") 'windmove-right)
+      (when (display-graphic-p)
+	(add-to-list 'initial-frame-alist '(fullscreen . maximized))
+	(add-to-list 'default-frame-alist '(fullscreen . maximized)))
+      ;;; Use the commands "control+x" followed by an arrow to
+      ;;; navigate between panes
+      (global-set-key (kbd "C-x <up>") 'windmove-up)
+      (global-set-key (kbd "C-x <down>") 'windmove-down)
+      (global-set-key (kbd "C-x <left>") 'windmove-left)
+      (global-set-key (kbd "C-x <right>") 'windmove-right)
     #+END_SRC
 *** zoom mode
     #+BEGIN_SRC emacs-lisp
@@ -74,37 +65,38 @@
 ** Cosmetic
 *** Text inc/dec
     #+BEGIN_SRC emacs-lisp
-   ;; font scaling
-   (use-package default-text-scale
-     :ensure t
-     :config
-     (global-set-key (kbd "s-=") 'default-text-scale-increase)
-     (global-set-key (kbd "s--") 'default-text-scale-decrease))
+      ;; font scaling
+      (use-package default-text-scale
+  	:requires display-graphic-p
+	:ensure t
+	:config
+	(global-set-key (kbd "s-=") 'default-text-scale-increase)
+	(global-set-key (kbd "s--") 'default-text-scale-decrease))
     #+END_SRC
 *** Custom file
     #+BEGIN_SRC emacs-lisp
-  (defadvice en/disable-command (around put-in-custom-file activate)
-	"Put declarations in `custom-file'."
-	(let ((user-init-file custom-file))
-          ad-do-it))
+      ;; (defadvice en/disable-command (around put-in-custom-file activate)
+      ;;       "Put declarations in `custom-file'."
+      ;;       (let ((user-init-file custom-file))
+      ;;         ad-do-it))
 
-  (setq custom-file (expand-file-name "~/.emacs.d/djr-custom.el"))
-  (load custom-file)
+      ;; (setq custom-file (expand-file-name "~/.emacs.d/djr-custom.el"))
+      ;; (load custom-file)
     #+END_SRC
 *** Customise
     #+BEGIN_SRC emacs-lisp
-  (set-variable 'meta-flag 't)
-  (define-key esc-map "?" 'describe-key-briefly)
-  (require 'saveplace)
-  (setq-default save-place t)
-  (setq make-backup-files nil)
-  (setq debug-on-error t)
-  (setq case-fold-search t)
-  ;; ignore case when switching buffers with C-x b
-  (setq read-buffer-completion-ignore-case t)
-  (fset 'yes-or-no-p 'y-or-n-p)
-  (delete-selection-mode 1)
-  (setq ead-buffer-completion-ignore-case t)
+      ;; (set-variable 'meta-flag 't)
+      ;; (define-key esc-map "?" 'describe-key-briefly)
+      ;; (require 'saveplace)
+      ;; (setq-default save-place t)
+      ;; (setq make-backup-files nil)
+      ;; (setq debug-on-error t)
+      ;; (setq case-fold-search t)
+      ;; ;; ignore case when switching buffers with C-x b
+      ;; (setq read-buffer-completion-ignore-case t)
+      ;; (fset 'yes-or-no-p 'y-or-n-p)
+      ;; (delete-selection-mode 1)
+      ;; (setq ead-buffer-completion-ignore-case t)
     #+END_SRC
 *** autofill
     #+BEGIN_SRC emacs-lisp
@@ -133,6 +125,7 @@
 *** dimmer-mode
     #+BEGIN_SRC emacs-lisp
       (use-package dimmer
+  	:requires display-graphic-p
 	:defer 1
 	:config
 	(setq dimmer-exclusion-predicates
@@ -147,6 +140,7 @@
 *** telephone-line
     #+BEGIN_SRC emacs-lisp
       (use-package telephone-line
+  	:requires display-graphic-p
 	:ensure t
 	:config (setq telephone-line-lhs
 		      '((accent . (telephone-line-vc-segment
@@ -162,20 +156,22 @@
     #+END_SRC
 *** active buffer
     #+begin_src emacs-lisp
-      (set-face-attribute  'mode-line
-			   nil 
-			   :foreground "black"
-			   :background "gray96";;"gray25" 
-			   :box '(:line-width 1 :style released-button))
-      (set-face-attribute  'mode-line-inactive
-			   nil 
-			   :foreground "gray96"
-			   ;; :background "white" 
-			   :box '(:line-width 1 :style released-button))
+      (when (display-graphic-p)
+	(set-face-attribute  'mode-line
+			     nil 
+			     :foreground "black"
+			     :background "gray96";;"gray25" 
+			     :box '(:line-width 1 :style released-button))
+	(set-face-attribute  'mode-line-inactive
+			     nil 
+			     :foreground "gray96"
+			     ;; :background "white" 
+			     :box '(:line-width 1 :style released-button)))
     #+end_src
 *** transpose-frame
     #+begin_src emacs-lisp
       (use-package transpose-frame
+  	:requires display-graphic-p
 	:ensure t
 	:bind ("C-x tf" . transpose-frame))
     #+end_src
@@ -204,7 +200,7 @@
 		   ("\\.js$"      . js2-mode)
 		   ("\\.json$"    . json-mode)
 		   ("\\.jsx$"     . web-mode)
-		   ("\\.html$"    . web-mode)
+		   ("\\.html$"    . html-mode)
 		   ("\\.ejs$"     . web-mode)
 		   ("\\.htm$"     . web-mode)
 		   ("\\.shtml$"   . web-mode)
@@ -515,7 +511,8 @@
       ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
       (setq lsp-keymap-prefix "C-c l")
       (use-package lsp-mode
-      :ensure t
+	:requires display-graphic-p
+	:ensure t
 	:hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
 	       (js2-mode . lsp)
 	       (web-mode . lsp)
@@ -524,7 +521,6 @@
 
       ;; optionally
       (use-package lsp-ui :commands lsp-ui-mode :ensure t)
-
     #+END_SRC
 *** typescript
     #+begin_src emacs-lisp
@@ -583,28 +579,8 @@
     #+BEGIN_SRC emacs-lisp
       (use-package emmet-mode
 	:ensure t
-	;; :config ((setq web-mode-ac-sources-alist
-	;; 		 '(("css" . (ac-source-css-property))
-	;; 		   ("html" . (ac-source-words-in-buffer ac-source-abbrev)))
-	;; 		 web-mode-content-types-alist
-	;; 		 '(("jsx" . "\\.js[x]?\\'"))
-	;; 		 emmet-expand-jsx-className? t
-	;; 		 web-mode-ac-sources-alist
-	;; 		 '(("php" . (ac-source-yasnippet ac-source-php-auto-yasnippets))
-	;; 		   ("html" . (ac-source-emmet-html-aliases ac-source-emmet-html-snippets))
-	;; 		   ("css" . (ac-source-css-property ac-source-emmet-css-snippets)))))
 	:hook ((web-mode . (lambda () (emmet-mode)))
 	       (css-mode . (lambda () (emmet-mode)))
-	       ;; (web-mode-before-auto-complete-hooks
-	       ;;  . (lambda ()
-	       ;;      (let ((web-mode-cur-language
-	       ;; 	     (web-mode-language-at-pos)))
-	       ;; 	(if (string= web-mode-cur-language "php")
-	       ;; 	    (yas-activate-extra-mode 'php-mode)
-	       ;; 	  (yas-deactivate-extra-mode 'php-mode))
-	       ;; 	(if (string= web-mode-cur-language "css")
-	       ;; 	    (setq emmet-use-css-transform t)
-	       ;; 	  (setq emmet-use-css-transform nil)))))
 	       local-write-file-hooks . (lambda () (delete-trailing-whitespace) nil)))
 
       (use-package web-mode
@@ -612,35 +588,6 @@
 	:mode (("\\.html\\'"	. web-mode))
 	:hook ((setup-tide-mode))
 	:config (setq web-mode-enable-auto-quoting nil))
-
-      ;; (require 'emmet-mode)			
-      ;; (setq web-mode-ac-sources-alist
-      ;;       '(("css" . (ac-source-css-property))
-      ;; 	("html" . (ac-source-words-in-buffer ac-source-abbrev))))
-      ;; (setq web-mode-content-types-alist
-      ;;       '(("jsx" . "\\.js[x]?\\'")))
-      ;; (add-hook 'web-mode-hook  'emmet-mode)
-      ;; (setq web-mode-ac-sources-alist
-      ;;       '(("php" . (ac-source-yasnippet ac-source-php-auto-yasnippets))
-      ;; 	("html" . (ac-source-emmet-html-aliases ac-source-emmet-html-snippets))
-      ;; 	("css" . (ac-source-css-property ac-source-emmet-css-snippets))))
-
-      ;; (add-hook 'web-mode-before-auto-complete-hooks
-      ;; 	  '(lambda ()
-      ;; 	     (let ((web-mode-cur-language
-      ;; 		    (web-mode-language-at-pos)))
-      ;; 	       (if (string= web-mode-cur-language "php")
-      ;; 		   (yas-activate-extra-mode 'php-mode)
-      ;; 		 (yas-deactivate-extra-mode 'php-mode))
-      ;; 	       (if (string= web-mode-cur-language "css")
-      ;; 		   (setq emmet-use-css-transform t)
-      ;; 		 (setq emmet-use-css-transform nil)))))
-      ;; (setq emmet-expand-jsx-className? t)
-
-      ;; (add-hook 'local-write-file-hooks
-      ;; 	  (lambda ()
-      ;; 	    (delete-trailing-whitespace)
-      ;; 	    nil))
     #+END_SRC
 *** web-mode-indent
     #+BEGIN_SRC emacs-lisp
@@ -708,14 +655,14 @@
     #+END_SRC
 *** tide
     #+begin_src emacs-lisp
-	    (use-package tide
-	      :ensure t
-	      :after (typescript-mode company flycheck)
-	      :hook ((typescript-mode . tide-setup)
-		     (typescript-mode . tide-hl-identifier-mode)
-		     (web-mode . tide-setup)
-		     (web-mode . tide-hl-identifier-mode)
-		     (before-save . tide-format-before-save)))
+      (use-package tide
+	  :ensure t
+	  :after (typescript-mode company flycheck)
+	  :hook ((typescript-mode . tide-setup)
+		 (typescript-mode . tide-hl-identifier-mode)
+		 (web-mode . tide-setup)
+		 (web-mode . tide-hl-identifier-mode)
+		 (before-save . tide-format-before-save)))
     #+end_src
 *** css
     #+begin_src emacs-lisp
@@ -846,12 +793,14 @@
     #+END_SRC
 *** LaTeX
     #+BEGIN_SRC emacs-lisp
-  (latex-preview-pane-enable)
-  (require 'latex-pretty-symbols)
+      (when (display-graphic-p)
+	(latex-preview-pane-enable)
+	(require 'latex-pretty-symbols))
     #+END_SRC
 ** VSCode Icons
    #+begin_src emacs-lisp
      (use-package vscode-icon
+       :requires display-graphic-p
        :ensure t
        :commands (vscode-icon-for-file))
    #+end_src
@@ -920,6 +869,7 @@
 *** Dired-tree
     #+begin_src emacs-lisp
       (use-package dired-sidebar
+  	:requires display-graphic-p
 	:ensure t
 	:commands (dired-sidebar-toggle-sidebar)
 	:bind ("C-x n" . dired-sidebar-toggle-sidebar)
@@ -940,6 +890,7 @@
 *** Dired Rainbow
     #+begin_src emacs-lisp
       (use-package dired-rainbow
+  	:requires display-graphic-p
 	:defer 2
 	:config
 	(dired-rainbow-define-chmod directory "#6cb2eb" "d.*")
@@ -1038,6 +989,7 @@
 *** org bullets
     #+BEGIN_SRC emacs-lisp
       (use-package org-bullets
+  	:requires display-graphic-p
 	:after org
 	:hook (org-mode . org-bullets-mode)
 	:custom
@@ -1077,14 +1029,13 @@
     #+end_src
 ** too-long-mode
    #+begin_src emacs-lisp
-   (use-package so-long
-    :quelpa (so-long :url "https://raw.githubusercontent.com/emacs-mirror/emacs/master/lisp/so-long.el" :fetcher url)
-    :config (global-so-long-mode 1))
+     (global-so-long-mode 1)
    #+end_src
 ** Eshell syntax highlighting
    Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
    #+begin_src emacs-lisp
      (use-package eshell-syntax-highlighting
+       :requires display-graphic-p
        :after esh-mode
        :demand t ;; Install if not already installed.
        :config
@@ -1112,12 +1063,14 @@
     Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emulation-in-emacs/post.md#appendix-b-update-1-firacode-integration][here]]
     #+begin_src emacs-lisp
       (use-package fira-code-mode
-	:custom (when (display-graphic-p) (fira-code-mode-disabled-ligatures '("[]" "x")))  ; ligatures you don't want
-	:hook prog-mode)  
+	:requires display-graphic-p
+	:custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
+	:hook prog-mode)
     #+end_src
 *** Ligatures
     #+begin_src emacs-lisp
       (use-package ligature
+	:requires display-graphic-p
 	:load-path "~/.emacs.d/ligature/"
 	:config
 	;; Enable the "www" ligature in every possible major mode
@@ -1148,10 +1101,11 @@
 *** Fonts
     <<fonts>> 
     #+BEGIN_SRC emacs-lisp
-    (add-to-list 'default-frame-alist '(font . "Fira Code"))
-    (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
-    (set-face-attribute 'default nil :height 150)    
-    (set-frame-font "Fira Code 15" nil t)
+(when (display-graphic-p)
+      (add-to-list 'default-frame-alist '(font . "Fira Code"))
+      (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
+      (set-face-attribute 'default nil :height 150)    
+      (set-frame-font "Fira Code 15" nil t))
     #+end_src
 *** highlight-indent-guides
 Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
@@ -1165,5 +1119,6 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 ** Stackoverflow Search
    #+begin_src emacs-lisp
      (use-package sos
+       :requires display-graphic-p
        :ensure t)
    #+end_src
