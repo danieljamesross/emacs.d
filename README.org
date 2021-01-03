@@ -63,41 +63,6 @@
        '(zoom-mode t))
     #+END_SRC
 ** Cosmetic
-*** Text inc/dec
-    #+BEGIN_SRC emacs-lisp
-      ;; font scaling
-      (use-package default-text-scale
-  	:requires display-graphic-p
-	:ensure t
-	:config
-	(global-set-key (kbd "s-=") 'default-text-scale-increase)
-	(global-set-key (kbd "s--") 'default-text-scale-decrease))
-    #+END_SRC
-*** Custom file
-    #+BEGIN_SRC emacs-lisp
-      ;; (defadvice en/disable-command (around put-in-custom-file activate)
-      ;;       "Put declarations in `custom-file'."
-      ;;       (let ((user-init-file custom-file))
-      ;;         ad-do-it))
-
-      ;; (setq custom-file (expand-file-name "~/.emacs.d/djr-custom.el"))
-      ;; (load custom-file)
-    #+END_SRC
-*** Customise
-    #+BEGIN_SRC emacs-lisp
-      ;; (set-variable 'meta-flag 't)
-      ;; (define-key esc-map "?" 'describe-key-briefly)
-      ;; (require 'saveplace)
-      ;; (setq-default save-place t)
-      ;; (setq make-backup-files nil)
-      ;; (setq debug-on-error t)
-      ;; (setq case-fold-search t)
-      ;; ;; ignore case when switching buffers with C-x b
-      ;; (setq read-buffer-completion-ignore-case t)
-      ;; (fset 'yes-or-no-p 'y-or-n-p)
-      ;; (delete-selection-mode 1)
-      ;; (setq ead-buffer-completion-ignore-case t)
-    #+END_SRC
 *** autofill
     #+BEGIN_SRC emacs-lisp
       (setq-default fill-column 80)
@@ -421,7 +386,7 @@
 	(add-to-list 'load-path (expand-file-name "~/site-lisp"))
 	(load (expand-file-name "~/site-lisp/lilypond-init.el")))
     #+END_SRC
-** Auto Complete, Company, Flyspell & FlyCheck
+** Completions: Company, Flyspell, FlyCheck, Minibuffer auto-complete, Fido
 *** Company
     #+begin_src emacs-lisp
       (use-package company
@@ -478,19 +443,17 @@
     #+BEGIN_SRC emacs-lisp
       (use-package flycheck
 	:ensure t
-	;; :config (;(append flycheck-disabled-checkers
-	;; 	  ;		       '(javascript-jshint json-jsonlist))
-	;; 	   (flycheck-global-modes '((not org-mode)(not nxml-mode)))
-	;; 	   ;; Enable eslint checker for web-mode
-	;; 	   ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
-	;; 	   ;; (flycheck-add-mode 'javascript-eslint 'js2-mode)
-	;; 	   ;; https://github.com/purcell/exec-path-from-shell
-	;; 	   ;; only need exec-path-from-shell on OSX
-	;; 	   ;; this hopefully sets up path and other vars better
-	;; 	   (when (memq window-system '(mac ns))
-	;; 	     (exec-path-from-shell-initialize)))
 	:init (global-flycheck-mode))
     #+END_SRC
+*** Minibuffer auto-complete
+    #+begin_src emacs-lisp
+      (setq completion-styles '(initials partial-completion flex)) ; > Emacs 27.1
+      (setq completion-cycle-threshold 10)
+    #+end_src
+*** Fido
+    #+begin_src emacs-lisp
+      (setq fido-mode t)
+    #+end_src
 ** Web Dev Stuff
 *** js-comint / js2
     #+BEGIN_SRC emacs-lisp
