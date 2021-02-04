@@ -21,11 +21,11 @@
 *** Quelpa
     #+begin_src emacs-lisp
       (use-package quelpa
-	:requires display-graphic-p
+	 :if window-system
 	:ensure t)
 
       (use-package quelpa-use-package
-	:requires display-graphic-p
+	 :if window-system
 	:ensure t
 	:after quelpa)
      #+end_src
@@ -38,7 +38,7 @@
 *** buffer-move
     #+BEGIN_SRC emacs-lisp
       (use-package buffer-move
-  	:requires display-graphic-p
+  	 :if window-system
 	:ensure t
 	:bind (("s-C-<up>" . buf-move-up)
 	       ("s-C-<down>" . buf-move-down)
@@ -90,7 +90,7 @@
 *** dimmer-mode
     #+BEGIN_SRC emacs-lisp
       (use-package dimmer
-  	:requires display-graphic-p
+  	 :if window-system
 	:defer 1
 	:config
 	(setq dimmer-exclusion-predicates
@@ -105,7 +105,7 @@
 *** telephone-line
     #+BEGIN_SRC emacs-lisp
       (use-package telephone-line
-  	:requires display-graphic-p
+  	 :if window-system
 	:ensure t
 	:config (setq telephone-line-lhs
 		      '((accent . (telephone-line-vc-segment
@@ -136,10 +136,18 @@
 *** transpose-frame
     #+begin_src emacs-lisp
       (use-package transpose-frame
-  	:requires display-graphic-p
+  	 :if window-system
 	:ensure t
 	:bind ("C-x tf" . transpose-frame))
     #+end_src
+** Code wrap
+   #+begin_src emacs-lisp
+   (global-set-key (kbd "M-[") 'insert-pair)
+   (global-set-key (kbd "M-{") 'insert-pair)
+   (global-set-key (kbd "M-\"") 'insert-pair)
+   (global-set-key (kbd "M-'") 'insert-pair)
+   (global-set-key (kbd "M-<backspace>") 'delete-pair)
+   #+end_src
 ** File Types & modes
    #+BEGIN_SRC emacs-lisp
    (setq auto-mode-alist
@@ -402,7 +410,7 @@
     #+BEGIN_SRC emacs-lisp
       ;; flyspell
       (dolist (hook '(text-mode-hook markdown-mode-hook))
-	  (add-hook hook (lambda () (flyspell-mode 1))))
+	(add-hook hook (lambda () (flyspell-mode 1))))
       (dolist (hook '(lisp-mode-hook web-mode-hook js2-mode-hook))
 	(add-hook hook (lambda () (flyspell-prog-mode))))
       (setq flyspell-issue-message-flag nil)
@@ -438,6 +446,14 @@
       (eval-after-load "flyspell"
 	'(progn
 	   (fset 'flyspell-emacs-popup 'flyspell-emacs-popup-textual)))
+
+      ;; two-finger clicks for mac
+      (eval-after-load "flyspell"
+	'(progn
+	   (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
+	   (define-key flyspell-mouse-map [mouse-3] #'undefined)))
+
+
     #+END_SRC
 *** Flycheck
     #+BEGIN_SRC emacs-lisp
@@ -454,6 +470,23 @@
     #+begin_src emacs-lisp
       (setq fido-mode t)
     #+end_src
+** lsp-mode
+   Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
+   #+BEGIN_SRC  emacs-lisp
+     ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
+     (setq lsp-keymap-prefix "C-c l")
+     (use-package lsp-mode
+       :init (dolist (lsp '(css-ls js-ts) (lsp-install-server lsp nil)))
+       :if window-system
+       :ensure t
+       :hook ((js2-mode . lsp)
+	      (web-mode . lsp)
+	      (css-mode . lsp))
+       :commands lsp)
+
+     ;; optionally
+     (use-package lsp-ui :commands lsp-ui-mode :ensure t)
+   #+END_SRC
 ** Web Dev Stuff
 *** js-comint / js2
     #+BEGIN_SRC emacs-lisp
@@ -467,23 +500,6 @@
 		   (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
 		   (local-set-key "\C-cl" 'js-load-file-and-go)))
       (add-hook 'js2-mode-hook 'ac-js2-mode)
-    #+END_SRC
-*** lsp-mode
-    Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
-    #+BEGIN_SRC  emacs-lisp
-      ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
-      (setq lsp-keymap-prefix "C-c l")
-      (use-package lsp-mode
-	:requires display-graphic-p
-	:ensure t
-	:hook (;; replace XXX-mode with concrete major-mode(e. g. python-mode)
-	       (js2-mode . lsp)
-	       (web-mode . lsp)
-	       (css-mode . lsp))
-	:commands lsp)
-
-      ;; optionally
-      (use-package lsp-ui :commands lsp-ui-mode :ensure t)
     #+END_SRC
 *** typescript
     #+begin_src emacs-lisp
@@ -528,11 +544,15 @@
     #+end_src
 *** jsx
     #+begin_src emacs-lisp
-      (add-to-list 'auto-mode-alist '("\\.jsx\\'" . web-mode))
+    (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))
       (add-hook 'web-mode-hook
 		(lambda ()
 		  (when (string-equal "jsx" (file-name-extension buffer-file-name))
 		    (setup-tide-mode))))
+	    (add-hook 'web-mode-hook
+		      (lambda ()
+			(when (string-equal "js" (file-name-extension buffer-file-name))
+			  (setup-tide-mode))))
       ;; configure jsx-tide checker to run after your default jsx checker
       (flycheck-add-mode 'javascript-eslint 'web-mode)
       ;; dunno
@@ -603,7 +623,7 @@
 	      "--arrow-parens" "avoid"
 	      "--semi" "true"
 	      "--bracket-spacing" "true"
-	      "--single-quote" "true"
+	      "--single-quote" "false"
 	      "--jsx-single-quote" "true"
 	      "--jsx-bracket-same-line" "false"
 	      "--print-width" "80"
@@ -632,6 +652,24 @@
       (setq css-electric-semi-behavior t
 	    css-indent-offset  2
 	    css-tab-mode 'auto)
+
+
+    #+end_src
+*** eslint
+    #+begin_src emacs-lisp
+      (use-package eslint-fix
+	:ensure t
+	:load-path
+	"https://raw.githubusercontent.com/codesuki/eslint-fix/master/eslint-fix.el"
+	:config (eval-after-load 'js-mode
+		  '(add-hook 'js-mode-hook
+			     (lambda ()
+			       (add-hook 'after-save-hook
+					 'eslint-fix nil t))))
+	(eval-after-load 'web-mode
+	  '(add-hook 'web-mode-hook
+		     (lambda ()
+		       (add-hook 'after-save-hook 'eslint-fix nil t)))))
     #+end_src
 ** Lisp stuff
 *** SBCL
@@ -756,14 +794,14 @@
     #+END_SRC
 *** LaTeX
     #+BEGIN_SRC emacs-lisp
-      (when (display-graphic-p)
+      (when (window-system)
 	(latex-preview-pane-enable)
 	(require 'latex-pretty-symbols))
     #+END_SRC
 ** VSCode Icons
    #+begin_src emacs-lisp
      (use-package vscode-icon
-       :requires display-graphic-p
+        :if window-system
        :ensure t
        :commands (vscode-icon-for-file))
    #+end_src
@@ -832,7 +870,7 @@
 *** Dired-tree
     #+begin_src emacs-lisp
       (use-package dired-sidebar
-  	:requires display-graphic-p
+  	 :if window-system
 	:ensure t
 	:commands (dired-sidebar-toggle-sidebar)
 	:bind ("C-x n" . dired-sidebar-toggle-sidebar)
@@ -853,7 +891,7 @@
 *** Dired Rainbow
     #+begin_src emacs-lisp
       (use-package dired-rainbow
-  	:requires display-graphic-p
+  	 :if window-system
 	:defer 2
 	:config
 	(dired-rainbow-define-chmod directory "#6cb2eb" "d.*")
@@ -952,7 +990,7 @@
 *** org bullets
     #+BEGIN_SRC emacs-lisp
       (use-package org-bullets
-  	:requires display-graphic-p
+	 :if window-system
 	:after org
 	:hook (org-mode . org-bullets-mode)
 	:custom
@@ -963,15 +1001,15 @@
 			      '(("^ *\\([-]\\) "
 				 (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
 
-      (dolist (face '((org-level-1 . 1.2)
-		      (org-level-2 . 1.1)
-		      (org-level-3 . 1.05)
-		      (org-level-4 . 1.0)
-		      (org-level-5 . 1.1)
-		      (org-level-6 . 1.1)
-		      (org-level-7 . 1.1)
-		      (org-level-8 . 1.1)))
-	(set-face-attribute (car face) nil :font "IBM Plex Sans" :weight 'extra-light :height (cdr face)))
+      ;; (dolist (face '((org-level-1 . 1.2)
+      ;; 		(org-level-2 . 1.1)
+      ;; 		(org-level-3 . 1.05)
+      ;; 		(org-level-4 . 1.0)
+      ;; 		(org-level-5 . 1.1)
+      ;; 		(org-level-6 . 1.1)
+      ;; 		(org-level-7 . 1.1)
+      ;; 		(org-level-8 . 1.1)))
+      ;;   (set-face-attribute (car face) nil :font "IBM Plex Sans" :weight 'extra-light :height (cdr face)))
     #+END_SRC
 *** org capture
     #+begin_src emacs-lisp
@@ -998,7 +1036,7 @@
    Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
    #+begin_src emacs-lisp
      (use-package eshell-syntax-highlighting
-       :requires display-graphic-p
+        :if window-system
        :after esh-mode
        :demand t ;; Install if not already installed.
        :config
@@ -1026,14 +1064,14 @@
     Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emulation-in-emacs/post.md#appendix-b-update-1-firacode-integration][here]]
     #+begin_src emacs-lisp
       (use-package fira-code-mode
-	:requires display-graphic-p
+	 :if window-system
 	:custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
 	:hook prog-mode)
     #+end_src
 *** Ligatures
     #+begin_src emacs-lisp
       (use-package ligature
-	:requires display-graphic-p
+	 :if window-system
 	:load-path "~/.emacs.d/ligature/"
 	:config
 	;; Enable the "www" ligature in every possible major mode
@@ -1073,15 +1111,16 @@
 *** highlight-indent-guides
 Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
     #+begin_src emacs-lisp
-	    (use-package highlight-indent-guides
-	      :ensure t
-	      :config (setq highlight-indent-guides-character-face "Fira Code"
-			    highlight-indent-guides-method 'character)
-	      :hook (prog-mode . highlight-indent-guides-mode))
+      (use-package highlight-indent-guides
+	:if window-system
+	:ensure t
+	:config (setq highlight-indent-guides-character-face "Fira Code Symbol"
+		      highlight-indent-guides-method 'character)
+	:hook (prog-mode . highlight-indent-guides-mode))
     #+end_src
 ** Stackoverflow Search
    #+begin_src emacs-lisp
      (use-package sos
-       :requires display-graphic-p
+        :if window-system
        :ensure t)
    #+end_src
