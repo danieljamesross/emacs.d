@@ -470,13 +470,42 @@
     #+begin_src emacs-lisp
       (setq fido-mode t)
     #+end_src
+*** Ido
+    #+begin_src emacs-lisp
+      (progn
+	;; make buffer switch command do suggestions, also for find-file command
+	(require 'ido)
+	(ido-mode 1)
+
+	;; show choices vertically
+	(if (version< emacs-version "25")
+	    (progn
+	      (make-local-variable 'ido-separator)
+	      (setq ido-separator "\n"))
+	  (progn
+	    (make-local-variable 'ido-decorations)
+	    (setf (nth 2 ido-decorations) "\n")))
+
+	;; show any name that has the chars you typed
+	(setq ido-enable-flex-matching t)
+
+	;; use current pane for newly opened file
+	(setq ido-default-file-method 'selected-window)
+
+	;; use current pane for newly switched buffer
+	(setq ido-default-buffer-method 'selected-window)
+      d
+	;; stop ido from suggesting when naming new file
+	(define-key (cdr ido-minor-mode-map-entry) [remap write-file] nil)))
+    #+end_src
 ** lsp-mode
    Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
    #+BEGIN_SRC  emacs-lisp
      ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
      (setq lsp-keymap-prefix "C-c l")
      (use-package lsp-mode
-       :init (dolist (lsp '(css-ls js-ts) (lsp-install-server lsp nil)))
+;; lsp-install server only takes nil as argument and needs interactive output...?
+;;       :init (dolist (lsp (list css-ls js-ts) (lsp-install-server lsp nil)))
        :if window-system
        :ensure t
        :hook ((js2-mode . lsp)
@@ -652,8 +681,6 @@
       (setq css-electric-semi-behavior t
 	    css-indent-offset  2
 	    css-tab-mode 'auto)
-
-
     #+end_src
 *** eslint
     #+begin_src emacs-lisp
@@ -990,7 +1017,7 @@
 *** org bullets
     #+BEGIN_SRC emacs-lisp
       (use-package org-bullets
-	 :if window-system
+	:if window-system
 	:after org
 	:hook (org-mode . org-bullets-mode)
 	:custom
@@ -1000,16 +1027,16 @@
       (font-lock-add-keywords 'org-mode
 			      '(("^ *\\([-]\\) "
 				 (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-
-      ;; (dolist (face '((org-level-1 . 1.2)
-      ;; 		(org-level-2 . 1.1)
-      ;; 		(org-level-3 . 1.05)
-      ;; 		(org-level-4 . 1.0)
-      ;; 		(org-level-5 . 1.1)
-      ;; 		(org-level-6 . 1.1)
-      ;; 		(org-level-7 . 1.1)
-      ;; 		(org-level-8 . 1.1)))
-      ;;   (set-face-attribute (car face) nil :font "IBM Plex Sans" :weight 'extra-light :height (cdr face)))
+      (when (member "IBM Plex Sans" (print (font-family-list))
+	(dolist (face '((org-level-1 . 1.2)
+			(org-level-2 . 1.1)
+			(org-level-3 . 1.05)
+			(org-level-4 . 1.0)
+			(org-level-5 . 1.1)
+			(org-level-6 . 1.1)
+			(org-level-7 . 1.1)
+			(org-level-8 . 1.1)))
+	  (set-face-attribute (car face) nil :font "IBM Plex Sans" :weight 'extra-light :height (cdr face))))
     #+END_SRC
 *** org capture
     #+begin_src emacs-lisp
@@ -1124,3 +1151,46 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
         :if window-system
        :ensure t)
    #+end_src
+
+** Xah customisations
+*** Move beginning/end of line
+    #+begin_src emacs-lisp
+      (defun xah-beginning-of-line-or-block ()
+	"Move cursor to beginning of line or previous paragraph.
+
+      • When called first time, move cursor to beginning of char in current line. (if already, move to beginning of line.)
+      • When called again, move cursor backward by jumping over any sequence of whitespaces containing 2 blank lines.
+
+      URL `http://ergoemacs.org/emacs/emacs_keybinding_design_beginning-of-line-or-block.html'
+      Version 2017-05-13"
+	(interactive)
+	(let (($p (point)))
+	  (if (or (equal (point) (line-beginning-position))
+		  (equal last-command this-command ))
+	      (if (re-search-backward "\n[\t\n ]*\n+" nil "NOERROR")
+		  (progn
+		    (skip-chars-backward "\n\t ")
+		    (forward-char ))
+		(goto-char (point-min)))
+	    (progn
+	      (back-to-indentation)
+	      (when (eq $p (point))
+		(beginning-of-line))))))
+
+      (defun xah-end-of-line-or-block ()
+	"Move cursor to end of line or next paragraph.
+
+      • When called first time, move cursor to end of line.
+      • When called again, move cursor forward by jumping over any sequence of whitespaces containing 2 blank lines.
+
+      URL `http://ergoemacs.org/emacs/emacs_keybinding_design_beginning-of-line-or-block.html'
+      Version 2017-05-30"
+	(interactive)
+	(if (or (equal (point) (line-end-position))
+		(equal last-command this-command ))
+	    (progn
+	      (re-search-forward "\n[\t\n ]*\n+" nil "NOERROR" ))
+	  (end-of-line)))
+      (global-set-key (kbd "C-a") 'xah-beginning-of-line-or-block)
+      (global-set-key (kbd "C-e") 'xah-end-of-line-or-block)
+    #+end_src
