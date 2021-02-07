@@ -494,9 +494,9 @@
 
 	;; use current pane for newly switched buffer
 	(setq ido-default-buffer-method 'selected-window)
-      d
+
 	;; stop ido from suggesting when naming new file
-	(define-key (cdr ido-minor-mode-map-entry) [remap write-file] nil)))
+	(define-key (cdr ido-minor-mode-map-entry) [remap write-file] nil))
     #+end_src
 ** lsp-mode
    Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
@@ -1191,6 +1191,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 	    (progn
 	      (re-search-forward "\n[\t\n ]*\n+" nil "NOERROR" ))
 	  (end-of-line)))
+
       (global-set-key (kbd "C-a") 'xah-beginning-of-line-or-block)
       (global-set-key (kbd "C-e") 'xah-end-of-line-or-block)
     #+end_src
