@@ -999,7 +999,7 @@
       (font-lock-add-keywords 'org-mode
 			      '(("^ *\\([-]\\) "
 				 (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-      (when (member "IBM Plex Sans" (print (font-family-list))
+      (when (member "IBM Plex Sans" (font-family-list))
 	(dolist (face '((org-level-1 . 1.2)
 			(org-level-2 . 1.1)
 			(org-level-3 . 1.05)
