@@ -670,6 +670,22 @@
 		     (lambda ()
 		       (add-hook 'after-save-hook 'eslint-fix nil t)))))
     #+end_src
+*** scss-mode
+    #+begin_src emacs-lisp
+      ;; should be where node installed sass...
+      (setq exec-path (cons (expand-file-name "~/.nvm/versions/node/v12.3.1/bin/") exec-path))
+    #+end_src
+*** scss-format
+    #+begin_src emacs-lisp
+      ;;https://github.com/rl-king/scss-format
+      (when (require 'reformatter nil 'noerror)
+	(reformatter-define scss-format
+	  :program "scss-format"
+	  :args '("--stdin")
+	  :lighter " SCSSF")
+	(add-hook 'scss-mode-hook 'scss-format-on-save-mode))
+      ;; curl -sSL https://get.haskellstack.org/ | sh
+    #+end_src
 ** Lisp stuff
 *** SBCL
     #+BEGIN_SRC emacs-lisp
@@ -1167,3 +1183,9 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
       (global-set-key (kbd "C-a") 'xah-beginning-of-line-or-block)
       (global-set-key (kbd "C-e") 'xah-end-of-line-or-block)
     #+end_src
+
+** reformatter
+   #+begin_src emacs-lisp
+     (use-package reformatter
+       :ensure t)
+   #+end_src
