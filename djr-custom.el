@@ -4,7 +4,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(column-number-mode t)
- '(css-indent-offset 2 t)
+ '(css-indent-offset 2)
  '(custom-enabled-themes '(deeper-blue))
  '(debug-on-error t)
  '(dired-sidebar-icon-scale 0.1)
@@ -21,12 +21,12 @@
  '(inhibit-startup-screen t)
  '(initial-scratch-message nil)
  '(js-indent-level 2)
- '(markdown-command "/usr/local/bin/pandoc" t)
+ '(markdown-command "/usr/local/bin/pandoc")
  '(org-agenda-files (list org-directory))
  '(org-directory (expand-file-name "~/org"))
  '(org-log-into-drawer nil)
  '(package-selected-packages
-   '(cl-lib emacs-sos projectile vscode-icon dired-sidebar add-node-modules-path company eshell-syntax-highlighting tide fira-code-mode unicode-fonts auto-indent-mode org-bullets xkcd zoom prettier-js sos paredit js-auto-beautify csv-mode default-text-scale lsp-ui lsp-mode json-mode js2-mode transpose-frame flycheck emmet-mode js-comint fast-scroll buffer-move whitespace-cleanup-mode magit multi-term telephone-line exec-path-from-shell latex-pretty-symbols latex-preview-pane markdown-mode ac-slime tabbar auctex ox-reveal dimmer slime-repl-ansi-color rainbow-delimiters smartparens lisp-extra-font-lock web-mode auto-complete slime))
+   '(scss-mode lorem-ipsum yaml-mode jinja2-mode cl-lib emacs-sos projectile vscode-icon dired-sidebar add-node-modules-path company eshell-syntax-highlighting tide fira-code-mode unicode-fonts auto-indent-mode org-bullets xkcd zoom prettier-js sos paredit js-auto-beautify csv-mode default-text-scale lsp-ui lsp-mode json-mode js2-mode transpose-frame flycheck emmet-mode js-comint fast-scroll buffer-move whitespace-cleanup-mode magit multi-term telephone-line exec-path-from-shell latex-pretty-symbols latex-preview-pane markdown-mode ac-slime tabbar auctex ox-reveal dimmer slime-repl-ansi-color rainbow-delimiters smartparens lisp-extra-font-lock web-mode auto-complete slime))
  '(safe-local-variable-values '((base . 10) (package . clm) (syntax . common-lisp)))
  '(show-paren-mode t)
  '(telephone-line-mode t)
