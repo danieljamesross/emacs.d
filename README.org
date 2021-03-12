@@ -3,7 +3,7 @@
   :header-args: :results silent :tangle yes
   :END:
   This is my initialisation file for Emacs. Behold!, the code blocks will be
-  compiled at startup, but not these titles or this text. 
+  compiled at startup, but not these titles or this text.
 ** PATH
    #+BEGIN_SRC emacs-lisp
      (use-package exec-path-from-shell
@@ -14,6 +14,7 @@
        (add-to-list 'exec-path "/Library/TeX/texbin")
        (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
        (setq exec-path (append exec-path '("/usr/local/bin")))
+       (add-to-list 'exec-path "~/.local/bin")
        (when (memq window-system '(mac ns x))
 	 (exec-path-from-shell-initialize)))
    #+END_SRC
@@ -32,13 +33,13 @@
 *** Melpa
     #+begin_src emacs-lisp
     (add-to-list 'package-archives
-             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+	     '("melpa-stable" . "https://stable.melpa.org/packages/") t)
     #+end_src
 ** Buffers and Panes
 *** buffer-move
     #+BEGIN_SRC emacs-lisp
       (use-package buffer-move
-  	 :if window-system
+	 :if window-system
 	:ensure t
 	:bind (("s-C-<up>" . buf-move-up)
 	       ("s-C-<down>" . buf-move-down)
@@ -69,7 +70,12 @@
       (toggle-text-mode-auto-fill)
       (add-hook 'prog-mode-hook 'turn-on-auto-fill)
       (remove-hook 'nxml-mode-hook #'turn-on-auto-fill)
+      (remove-hook 'jinja2-mode-hook #'turn-on-auto-fill)
       (display-fill-column-indicator-mode t)
+      (use-package fill-column-indicator
+	:ensure t
+	:hook (web-mode . fci-mode)
+	:config (setq-default fci-rule-column 80))
     #+End_SRC
 *** new UNTITLED file
     #+BEGIN_SRC emacs-lisp
@@ -90,7 +96,7 @@
 *** dimmer-mode
     #+BEGIN_SRC emacs-lisp
       (use-package dimmer
-  	 :if window-system
+	 :if window-system
 	:defer 1
 	:config
 	(setq dimmer-exclusion-predicates
@@ -105,7 +111,7 @@
 *** telephone-line
     #+BEGIN_SRC emacs-lisp
       (use-package telephone-line
-  	 :if window-system
+	 :if window-system
 	:ensure t
 	:config (setq telephone-line-lhs
 		      '((accent . (telephone-line-vc-segment
@@ -123,22 +129,27 @@
     #+begin_src emacs-lisp
       (when (display-graphic-p)
 	(set-face-attribute  'mode-line
-			     nil 
+			     nil
 			     :foreground "black"
-			     :background "gray96";;"gray25" 
+			     :background "gray96";;"gray25"
 			     :box '(:line-width 1 :style released-button))
 	(set-face-attribute  'mode-line-inactive
-			     nil 
+			     nil
 			     :foreground "gray96"
-			     ;; :background "white" 
+			     ;; :background "white"
 			     :box '(:line-width 1 :style released-button)))
     #+end_src
 *** transpose-frame
     #+begin_src emacs-lisp
       (use-package transpose-frame
-  	 :if window-system
+	 :if window-system
 	:ensure t
 	:bind ("C-x tf" . transpose-frame))
+    #+end_src
+*** tabs
+    #+begin_src emacs-lisp
+    (setq-default indent-tabs-mode nil)
+    (setq-default tab-always-indent 'complete)
     #+end_src
 ** Code wrap
    #+begin_src emacs-lisp
@@ -173,7 +184,7 @@
 		     ("\\.ly$"      . lilypond-mode)
 		     ("\\.js$"      . js2-mode)
 		     ("\\.json$"    . json-mode)
-		     
+
 		     ("\\.jinja$"   . jinja2-mode)
 		     ("\\.tex$"     . latex-mode)
 		     ("\\.cls$"     . latex-mode)
@@ -235,7 +246,7 @@
      (newline)
      (newline)
      (insert "function ")
-     (insert name) 
+     (insert name)
      (insert "() {")
      (newline)
      (newline)
@@ -292,7 +303,7 @@
 	(let* ((beg (point))
 	       (end (progn (forward-sexp) (point)))
 	       (name (buffer-substring beg end))
-	       (buffer (elisp-depend-filename (buffer-file-name))) 
+	       (buffer (elisp-depend-filename (buffer-file-name)))
 	       ;; (buffer-name))
 	       ;; is this defun or defmethod
 	       (letter (progn
@@ -489,7 +500,7 @@
     #+BEGIN_SRC emacs-lisp
       (require 'js-comint)
       (setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
-      (add-hook 'js2-mode-hook 
+      (add-hook 'js2-mode-hook
 		'(lambda ()
 		   (local-set-key "\C-x\C-e" 'js-send-last-sexp)
 		   (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
@@ -522,12 +533,12 @@
       (setq tide-format-options
 	    '(:insertSpaceAfterFunctionKeywordForAnonymousFunctions
 	      t
-	      :placeOpenBraceOnNewLineForFunctions 
+	      :placeOpenBraceOnNewLineForFunctions
 	      nil
 	      :indentSize 2
 	      :tabSize 2
 	      :insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces
-	      t)) 
+	      t))
     #+end_src
 *** tsx
     #+begin_src emacs-lisp
@@ -564,7 +575,19 @@
 	       local-write-file-hooks . (lambda () (delete-trailing-whitespace) nil)))
 	       #+end_src
 *** web-mode
-    #+begin_src emacs-lisp	       
+    #+begin_src emacs-lisp
+      ;; (use-package web-mode
+      ;;   :ensure t
+      ;;   :mode (("\\.jsx$"     . web-mode)
+      ;;	 ("\\.html$"    . web-mode)
+      ;;	 ("\\.ejs$"     . web-mode)
+      ;;	 ("\\.htm$"     . web-mode)
+      ;;	 ("\\.shtml$"   . web-mode)
+      ;;	 ("\\.tsx$"     . web-mode)
+      ;;	 ("\\.ts$"      . web-mode))
+      ;;   ;;	:hook (setup-tide-mode))
+      ;;   :config (setq web-mode-enable-auto-quoting nil))
+
       (use-package web-mode
 	:ensure t
 	:mode (("\\.jsx$"     . web-mode)
@@ -574,170 +597,121 @@
 	       ("\\.shtml$"   . web-mode)
 	       ("\\.tsx$"     . web-mode)
 	       ("\\.ts$"      . web-mode))
-;;	:hook (setup-tide-mode))
+	:hook (find-file-hook . (lambda (elm)
+				  (when (or (string-match-p "\\.tsx$" (buffer-file-name))
+					    (string-match-p "\\.ts$" (buffer-file-name)))
+				    (setup-my-minor-mode))))
 	:config (setq web-mode-enable-auto-quoting nil))
+
     #+END_SRC
-**** web-mode-indent
-     #+BEGIN_SRC emacs-lisp
-    (defun my-setup-indent (n)
-      ;; java/c/c++
-      (setq-local c-basic-offset n)
-      ;; web development
-      ;; (setq-local coffee-tab-width n) ; coffeescript
-      ;; (setq-local javascript-indent-level n) ; javascript-mode
-      ;; (setq-local js-indent-level n) ; js-mode
-      ;; (setq-local js2-basic-offset n) ; js2-mode, in latest js2-mode, it's alias of js-indent-level
-      (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
-      (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
-      (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
-      (setq-local css-indent-offset n)) ; css-mode
+*** web-mode-indent
+    #+BEGIN_SRC emacs-lisp
+   (defun my-setup-indent (n)
+     ;; java/c/c++
+     (setq-local c-basic-offset n)
+     ;; web development
+     ;; (setq-local coffee-tab-width n) ; coffeescript
+     ;; (setq-local javascript-indent-level n) ; javascript-mode
+     ;; (setq-local js-indent-level n) ; js-mode
+     ;; (setq-local js2-basic-offset n) ; js2-mode, in latest js2-mode, it's alias of js-indent-level
+     (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
+     (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
+     (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
+     (setq-local css-indent-offset n)) ; css-mode
 
-    (defun my-web-code-style ()
-      (interactive)
-      ;; use tab instead of space
-      (setq-local indent-tabs-mode t)
-      ;; indent 4 spaces width
-      (my-setup-indent 2))
+   (defun my-web-code-style ()
+     (interactive)
+     ;; use tab instead of space
+     (setq-local indent-tabs-mode t)
+     ;; indent 4 spaces width
+     (my-setup-indent 2))
 
-    (add-hook 'web-mode-hook 'my-web-code-style)
+   (add-hook 'web-mode-hook 'my-web-code-style)
 
-     #+END_SRC
-    
-**** js-prettier-mode
-     #+BEGIN_SRC emacs-lisp
-       (require 'prettier-js)
-       (add-hook 'js2-mode-hook 'prettier-js-mode)
-       (add-hook 'web-mode-hook 'prettier-js-mode)
-       (add-hook 'js-mode-hook 'prettier-js-mode)
-       (defun enable-minor-mode (my-pair)
-	 "Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
-	 (if (buffer-file-name)
-	     (if (string-match (car my-pair) buffer-file-name)
-		 (funcall (cdr my-pair)))))
-       (add-hook 'web-mode-hook #'(lambda ()
-				    (enable-minor-mode
-				     '("\\.jsx?\\'" . prettier-js-mode))
-				    (enable-minor-mode
-				     '("\\.js?\\'" . prettier-js-mode))
-				    (enable-minor-mode
-				     '("\\.ts?\\'" . prettier-js-mode))
-				    (enable-minor-mode
-				     '("\\.tsx?\\'" . prettier-js-mode))))
-       (setq prettier-js-args 
-	     '("--trailing-comma" "all"
-	       "--arrow-parens" "avoid"
-	       "--semi" "true"
-	       "--bracket-spacing" "true"
-	       "--single-quote" "true"
-	       "--jsx-single-quote" "true"
-	       "--jsx-bracket-same-line" "false"
-	       "--print-width" "80"
-	       "--use-tabs" "false"
-	       "--tab-width" "2"))
+    #+END_SRC
 
-       (eval-after-load 'web-mode
-	 '(progn
-	    (add-hook 'web-mode-hook #'add-node-modules-path)
-	    (add-hook 'web-mode-hook #'prettier-js-mode)))
+*** js-prettier-mode
+    #+BEGIN_SRC emacs-lisp
+      (require 'prettier-js)
+      (add-hook 'js2-mode-hook 'prettier-js-mode)
+      (add-hook 'web-mode-hook 'prettier-js-mode)
+      (add-hook 'js-mode-hook 'prettier-js-mode)
+      (defun enable-minor-mode (my-pair)
+	"Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
+	(if (buffer-file-name)
+	    (if (string-match (car my-pair) buffer-file-name)
+		(funcall (cdr my-pair)))))
+      (add-hook 'web-mode-hook #'(lambda ()
+				   (enable-minor-mode
+				    '("\\.jsx?\\'" . prettier-js-mode))
+				   (enable-minor-mode
+				    '("\\.js?\\'" . prettier-js-mode))
+				   (enable-minor-mode
+				    '("\\.ts?\\'" . prettier-js-mode))
+				   (enable-minor-mode
+				    '("\\.tsx?\\'" . prettier-js-mode))))
+      (setq prettier-js-args
+	    '("--trailing-comma" "none"
+	      "--arrow-parens" "avoid"
+	      "--semi" "true"
+	      "--bracket-spacing" "true"
+	      "--single-quote" "true"
+	      "--jsx-single-quote" "true"
+	      "--jsx-bracket-same-line" "falsetrue"
+	      "--print-width" "80"
+	      "--use-tabs" "false"
+	      "--tab-width" "2"))
 
-     #+END_SRC
-**** tide
-     #+begin_src emacs-lisp
-       (use-package tide
-	 :ensure t
-	 :after (typescript-mode company flycheck web-mode)
-	 :hook ((typescript-mode . tide-setup)
-		(typescript-mode . tide-hl-identifier-mode)
-		(web-mode . tide-setup)
-		(web-mode . tide-hl-identifier-mode)
-		(before-save . tide-format-before-save)))
-     #+end_src
-**** css
-     #+begin_src emacs-lisp
-       (setq css-electric-semi-behavior t
-	     css-indent-offset  2
-	     css-tab-mode 'auto)
-     #+end_src
-**** eslint
-     #+begin_src emacs-lisp
-       (use-package eslint-fix
-	 :ensure t
-	 :load-path
-	 "https://raw.githubusercontent.com/codesuki/eslint-fix/master/eslint-fix.el"
-	 :config (eval-after-load 'js-mode
-		   '(add-hook 'js-mode-hook
-			      (lambda ()
-				(add-hook 'after-save-hook
-					  'eslint-fix nil t))))
-	 (eval-after-load 'web-mode
-	   '(add-hook 'web-mode-hook
-		      (lambda ()
-			(add-hook 'after-save-hook 'eslint-fix nil t)))))
-     #+end_src
-**** jinja
-     #+begin_src emacs-lisp
-       (use-package jinja2-mode
-	 :ensure t)
-     #+end_src
-**** yaml
-     #+begin_src emacs-lisp
-     (use-package yaml-mode
-     :ensure t)
-     #+end_src
-*** scss-mode
+      (eval-after-load 'web-mode
+	'(progn
+	   (add-hook 'web-mode-hook #'add-node-modules-path)
+	   (add-hook 'web-mode-hook #'prettier-js-mode)))
+
+    #+END_SRC
+*** tide
     #+begin_src emacs-lisp
-      ;; http://ergoemacs.org/emacs/elisp_buffer_string.html
-      ;; Thanks Xah
-
-      ;; (defun select-css ()
-      ;;   "Select css attributes between curly braces"
-      ;;   (interactive)
-      ;;   (let (p1 p2)
-      ;;     (skip-chars-backward "^{")
-      ;;     (setq p1 (point))
-      ;;     (skip-chars-forward "^}")
-      ;;     (setq p2 (point))
-
-      ;;     (goto-char p1)
-      ;;     (push-mark p2)
-      ;;     (setq mark-active t)))
-
-      ;; (defun scss-format-before-save ()
-      ;;   "Before save hook to format the buffer before each save."
-      ;;   (interactive)
-      ;;   (when (bound-and-true-p tide-mode)
-      ;;     (scss-format)))
-
-      ;; (defun scss-format ()
-      ;;   "Format the current region or buffer."
-      ;;   (interactive)
-      ;;   (if (use-region-p)
-      ;;       (sort-css (region-beginning) (region-end))
-      ;;     (sort-css (point-min) (point-max))))
-
-      ;;     (defun sort-css (beg end) )
-
-
-      ;; (use-package scss-mode 
-      ;;     :ensure t
-      ;;     :config (scss-format-before-save ()))
+      (use-package tide
+	:ensure t
+	:after (typescript-mode company flycheck web-mode)
+	:hook ((typescript-mode . tide-setup)
+	       (typescript-mode . tide-hl-identifier-mode)
+	       (web-mode . tide-setup)
+	       (web-mode . tide-hl-identifier-mode)
+	       (before-save . tide-format-before-save)))
     #+end_src
-*** scss-mode
+*** eslint
     #+begin_src emacs-lisp
-      ;; should be where node installed sass...
-      (setq exec-path (cons (expand-file-name "~/.nvm/versions/node/v12.3.1/bin/") exec-path))
+      (use-package eslint-fix
+	:ensure t
+	:load-path
+	"https://raw.githubusercontent.com/codesuki/eslint-fix/master/eslint-fix.el"
+	:config (eval-after-load 'js-mode
+		  '(add-hook 'js-mode-hook
+			     (lambda ()
+			       (add-hook 'after-save-hook
+					 'eslint-fix nil t))))
+	(eval-after-load 'web-mode
+	  '(add-hook 'web-mode-hook
+		     (lambda ()
+		       (add-hook 'after-save-hook 'eslint-fix nil t)))))
     #+end_src
-*** scss-format
+*** jinja
     #+begin_src emacs-lisp
-      ;;https://github.com/rl-king/scss-format
-      (when (require 'reformatter nil 'noerror)
-	(reformatter-define scss-format
-	  :program "scss-format"
-	  :args '("--stdin")
-	  :lighter " SCSSF")
-	(add-hook 'scss-mode-hook 'scss-format-on-save-mode))
-      ;; curl -sSL https://get.haskellstack.org/ | sh
+      (use-package jinja2-mode
+	:ensure t)
     #+end_src
+*** yaml
+    #+begin_src emacs-lisp
+    (use-package yaml-mode
+    :ensure t)
+    #+end_src
+** css
+   #+begin_src emacs-lisp
+     (setq css-electric-semi-behavior t
+           css-indent-offset  2
+           css-tab-mode 'auto)
+     (add-hook 'css-mode-hook #'prettier-js-mode)
+   #+end_src
 ** Lisp stuff
 *** SBCL
     #+BEGIN_SRC emacs-lisp
@@ -868,7 +842,7 @@
 ** VSCode Icons
    #+begin_src emacs-lisp
      (use-package vscode-icon
-        :if window-system
+	:if window-system
        :ensure t
        :commands (vscode-icon-for-file))
    #+end_src
@@ -938,7 +912,7 @@
 *** Dired-tree
     #+begin_src emacs-lisp
       (use-package dired-sidebar
-  	 :if window-system
+	 :if window-system
 	:ensure t
 	:commands (dired-sidebar-toggle-sidebar)
 	:bind ("C-x n" . dired-sidebar-toggle-sidebar)
@@ -959,7 +933,7 @@
 *** Dired Rainbow
     #+begin_src emacs-lisp
       (use-package dired-rainbow
-  	 :if window-system
+	 :if window-system
 	:defer 2
 	:config
 	(dired-rainbow-define-chmod directory "#6cb2eb" "d.*")
@@ -1104,7 +1078,7 @@
    Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
    #+begin_src emacs-lisp
      (use-package eshell-syntax-highlighting
-        :if window-system
+	:if window-system
        :after esh-mode
        :demand t ;; Install if not already installed.
        :config
@@ -1168,12 +1142,12 @@
 	(global-ligature-mode t))
     #+end_src
 *** Fonts
-    <<fonts>> 
+    <<fonts>>
     #+BEGIN_SRC emacs-lisp
       ;; (when (display-graphic-p)
       ;;       (add-to-list 'default-frame-alist '(font . "Fira Code"))
       ;;       (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
-      ;;       (set-face-attribute 'default nil :height 150)    
+      ;;       (set-face-attribute 'default nil :height 150)
       ;;       (set-frame-font "Fira Code 15" nil t))
     #+end_src
 *** highlight-indent-guides
@@ -1189,7 +1163,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 ** Stackoverflow Search
    #+begin_src emacs-lisp
      (use-package sos
-        :if window-system
+	:if window-system
        :ensure t)
    #+end_src
 
@@ -1245,4 +1219,25 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
    #+begin_src emacs-lisp
      (use-package reformatter
        :ensure t)
+   #+end_src
+** whitespace
+   #+begin_src emacs-lisp
+(progn
+ ;; Make whitespace-mode with very basic background coloring for whitespaces.
+  ;; http://ergoemacs.org/emacs/whitespace-mode.html
+  (setq whitespace-style (quote (face spaces tabs newline space-mark tab-mark newline-mark )))
+
+  ;; Make whitespace-mode and whitespace-newline-mode use “¶” for end of line char and “▷” for tab.
+  (setq whitespace-display-mappings
+        ;; all numbers are unicode codepoint in decimal. e.g. (insert-char 182 1)
+        '(
+          (space-mark 32 [183] [46]) ; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
+          (newline-mark 10 [182 10]) ; LINE FEED,
+          (tab-mark 9 [9655 9] [92 9]) ; tab
+          )))
+     (global-whitespace-mode)
+     ;; (use-package whitespace-cleanup-mode
+     ;;   :ensure t
+     ;;   :config (setq 'whitespace-cleanup-mode t)
+     ;;   :hook (prog-mode . whitespace-cleanup))
    #+end_src
