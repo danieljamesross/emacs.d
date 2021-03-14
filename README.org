@@ -4,6 +4,14 @@
   :END:
   This is my initialisation file for Emacs. Behold!, the code blocks will be
   compiled at startup, but not these titles or this text.
+** update
+   #+begin_src emacs-lisp
+   (use-package auto-package-update
+   :config
+   (setq auto-package-update-delete-old-versions t)
+   (setq auto-package-update-hide-results t)
+   (auto-package-update-maybe))
+   #+end_src
 ** PATH
    #+BEGIN_SRC emacs-lisp
      (use-package exec-path-from-shell
@@ -682,18 +690,18 @@
 *** eslint
     #+begin_src emacs-lisp
       (use-package eslint-fix
-	:ensure t
-	:load-path
-	"https://raw.githubusercontent.com/codesuki/eslint-fix/master/eslint-fix.el"
-	:config (eval-after-load 'js-mode
-		  '(add-hook 'js-mode-hook
-			     (lambda ()
-			       (add-hook 'after-save-hook
-					 'eslint-fix nil t))))
-	(eval-after-load 'web-mode
-	  '(add-hook 'web-mode-hook
-		     (lambda ()
-		       (add-hook 'after-save-hook 'eslint-fix nil t)))))
+        :ensure t
+        ;; :load-path
+        ;; "https://raw.githubusercontent.com/codesuki/eslint-fix/master/eslint-fix.el"
+        :config (eval-after-load 'js-mode
+                  '(add-hook 'js-mode-hook
+                             (lambda ()
+                               (add-hook 'after-save-hook
+                                         'eslint-fix nil t))))
+        (eval-after-load 'web-mode
+          '(add-hook 'web-mode-hook
+                     (lambda ()
+                       (add-hook 'after-save-hook 'eslint-fix nil t)))))
     #+end_src
 *** jinja
     #+begin_src emacs-lisp
@@ -1240,4 +1248,11 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
      ;;   :ensure t
      ;;   :config (setq 'whitespace-cleanup-mode t)
      ;;   :hook (prog-mode . whitespace-cleanup))
+   #+end_src
+** kintaro-mode
+   #+begin_src emacs-lisp
+     (use-package kintaro
+       :ensure t
+       :load-path "~/kintaro.el"y
+       :mode "\\.ksdl\\'")
    #+end_src
