@@ -6,11 +6,11 @@
   compiled at startup, but not these titles or this text.
 ** update
    #+begin_src emacs-lisp
-   (use-package auto-package-update
-   :config
-   (setq auto-package-update-delete-old-versions t)
-   (setq auto-package-update-hide-results t)
-   (auto-package-update-maybe))
+     ;; (use-package auto-package-update
+     ;;   :config
+     ;;   (setq auto-package-update-delete-old-versions t)
+     ;;   (setq auto-package-update-hide-results t)
+     ;;   (auto-package-update-maybe))
    #+end_src
 ** PATH
    #+BEGIN_SRC emacs-lisp
@@ -170,41 +170,41 @@
 ** File Types & modes
    #+BEGIN_SRC emacs-lisp
      (setq auto-mode-alist
-	   (append '(("\\.c$"       . c-mode)
-		     ("\\.cs$"      . csharp-mode)
-		     ("\\.txt$"     . text-mode)
-		     ("\\.md$"      . markdown-mode)
-		     ("\\.cpp$"     . c++-mode)
-		     ("\\.CPP$"     . c++-mode)
-		     ("\\.h$"       . c-mode)
-		     ("\\.lsp$"     . lisp-mode)
-		     ("\\.cl$"      . lisp-mode)
-		     ("\\.cm$"      . lisp-mode)
-		     ("\\.lisp$"    . lisp-mode)
-		     ("\\.clm$"     . lisp-mode)
-		     ("\\.ins$"     . lisp-mode)
-		     ("\\.el$"      . lisp-mode)
-		     ("\\.el.gz$"   . lisp-mode)
-		     ("\\.ws$"      . lisp-mode)
-		     ("\\.asd$"     . lisp-mode)
-		     ("\\.yaml$"     . yaml-mode)
-		     ;; ("\\.py$"      . python-mode)
-		     ("\\.ly$"      . lilypond-mode)
-		     ("\\.js$"      . js2-mode)
-		     ("\\.json$"    . json-mode)
+           (append '(("\\.c\\'"       . c-mode)
+                     ("\\.cs\\'"      . csharp-mode)
+                     ("\\.txt\\'"     . text-mode)
+                     ("\\.md\\'"      . markdown-mode)
+                     ("\\.cpp\\'"     . c++-mode)
+                     ("\\.CPP\\'"     . c++-mode)
+                     ("\\.h\\'"       . c-mode)
+                     ("\\.lsp\\'"     . lisp-mode)
+                     ("\\.cl\\'"      . lisp-mode)
+                     ("\\.cm\\'"      . lisp-mode)
+                     ("\\.lisp\\'"    . lisp-mode)
+                     ("\\.clm\\'"     . lisp-mode)
+                     ("\\.ins\\'"     . lisp-mode)
+                     ("\\.el\\'"      . lisp-mode)
+                     ("\\.el.gz\\'"   . lisp-mode)
+                     ("\\.ws\\'"      . lisp-mode)
+                     ("\\.asd\\'"     . lisp-mode)
+                     ("\\.yaml\\'"     . yaml-mode)
+                     ("\\.py\\'"      . python-mode)
+                     ("\\.ly\\'"      . lilypond-mode)
+                     ("\\.js\\'"      . js2-mode)
+                     ("\\.json\\'"    . json-mode)
 
-		     ("\\.jinja$"   . jinja2-mode)
-		     ("\\.tex$"     . latex-mode)
-		     ("\\.cls$"     . latex-mode)
-		     ("\\.java$"    . java-mode)
-		     ("\\.ascii$"   . text-mode)
-		     ("\\.sql$"     . sql-mode)
-		     ("\\.pl$"      . perl-mode)
-		     ("\\.php$"     . php-mode)
-		     ("\\.jxs$"     . shader-mode)
-		     ("\\.sh$"      . shell-mode)
-		     ("\\.gnuplot$" . shell-mode))
-		   auto-mode-alist))
+                     ("\\.jinja\\'"   . jinja2-mode)
+                     ("\\.tex\\'"     . latex-mode)
+                     ("\\.cls\\'"     . latex-mode)
+                     ("\\.java\\'"    . java-mode)
+                     ("\\.ascii\\'"   . text-mode)
+                     ("\\.sql\\'"     . sql-mode)
+                     ("\\.pl\\'"      . perl-mode)
+                     ("\\.php\\'"     . php-mode)
+                     ("\\.jxs\\'"     . shader-mode)
+                     ("\\.sh\\'"      . shell-mode)
+                     ("\\.gnuplot\\'" . shell-mode))
+                   auto-mode-alist))
    #+END_SRC
 ** Generate Code
 *** THREE box
@@ -638,12 +638,11 @@
 
     #+END_SRC
 
-*** js-prettier-mode
+*** prettier-js-mode
     #+BEGIN_SRC emacs-lisp
       (require 'prettier-js)
       (add-hook 'js2-mode-hook 'prettier-js-mode)
       (add-hook 'web-mode-hook 'prettier-js-mode)
-      (add-hook 'js-mode-hook 'prettier-js-mode)
       (defun enable-minor-mode (my-pair)
 	"Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
 	(if (buffer-file-name)
@@ -660,15 +659,15 @@
 				    '("\\.tsx?\\'" . prettier-js-mode))))
       (setq prettier-js-args
 	    '("--trailing-comma" "none"
-	      "--arrow-parens" "avoid"
 	      "--semi" "true"
 	      "--bracket-spacing" "true"
 	      "--single-quote" "true"
 	      "--jsx-single-quote" "true"
-	      "--jsx-bracket-same-line" "falsetrue"
+	      "--jsx-bracket-same-line" "true"
 	      "--print-width" "80"
 	      "--use-tabs" "false"
-	      "--tab-width" "2"))
+	      "--tab-width" "2"
+              "--arrow-parens" "always"))
 
       (eval-after-load 'web-mode
 	'(progn
@@ -783,7 +782,7 @@
 	(font-lock-add-keywords
 	 'emacs-lisp-mode
 	 '(("(\\s-*\\(\\_<\\(?:\\sw\\|\\s_\\)+\\)\\_>"
-	    1 'font-lock-func-face))
+	    1 'font-lock-function--face))
 	 'append)) ;; <-- Add after all other rules
     #+END_SRC
 ** rainbow delimiters
@@ -1233,7 +1232,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 (progn
  ;; Make whitespace-mode with very basic background coloring for whitespaces.
   ;; http://ergoemacs.org/emacs/whitespace-mode.html
-  (setq whitespace-style (quote (face spaces tabs newline space-mark tab-mark newline-mark )))
+  (setq whitespace-style (quote (face spaces tabs newline space-mark tab-mark )))
 
   ;; Make whitespace-mode and whitespace-newline-mode use “¶” for end of line char and “▷” for tab.
   (setq whitespace-display-mappings
@@ -1251,8 +1250,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
    #+end_src
 ** kintaro-mode
    #+begin_src emacs-lisp
-     (use-package kintaro
-       :ensure t
-       :load-path "~/kintaro.el"y
-       :mode "\\.ksdl\\'")
+     (setq load-path (cons (expand-file-name "~/.emacs.d/kintaro") load-path))
+     (require 'kintaro-mode)
+     (add-to-list 'auto-mode-alist '("\\.ksdl\\'" . kintaro-mode))
    #+end_src
