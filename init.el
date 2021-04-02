@@ -37,9 +37,10 @@
 (delete-selection-mode 1)
 (setq ead-buffer-completion-ignore-case t)
 
-(when (display-graphic-p)
-  (org-babel-load-file (expand-file-name "~/.emacs.d/README.org")))
+;;(when (display-graphic-p)
+  (org-babel-load-file (expand-file-name "~/.emacs.d/README.org"));)
 (put 'upcase-region 'disabled nil)
 
+(server-start)
 ;; Make gc pauses faster by decreasing the threshold.
 (setq gc-cons-threshold (* 2 1000 1000))
