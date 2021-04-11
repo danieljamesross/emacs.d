@@ -1078,8 +1078,7 @@
                         (org-level-6 . 1.1)
                         (org-level-7 . 1.1)
                         (org-level-8 . 1.1)))
-          (set-face-attribute (car face) nil :font "IBM Plex Sans
-      " :weight 'extra-light :height (cdr face))))
+          (set-face-attribute (car face) nil :font "IBM Plex Sans" :weight 'extra-light :height (cdr face))))
     #+END_SRC
 *** org capture
     #+begin_src emacs-lisp
