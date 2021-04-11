@@ -21,7 +21,7 @@
  '(display-line-numbers t)
  '(fringe-mode '(nil . 0) nil (fringe))
  '(global-hl-line-mode t)
- '(global-linum-mode t)
+ '(global-linum-mode nil)
  '(indicate-buffer-boundaries 'left)
  '(inhibit-startup-buffer-menu t)
  '(inhibit-startup-screen t)
@@ -35,7 +35,7 @@
  '(org-directory (expand-file-name "~/org"))
  '(org-log-into-drawer nil)
  '(package-selected-packages
-   '(reformatter highlight-indent-guides eslint-fix fill-column-indicator quelpa-use-package quelpa use-package dracula-theme kintaro kintaro-mode scss-mode lorem-ipsum yaml-mode jinja2-mode cl-lib emacs-sos projectile vscode-icon dired-sidebar add-node-modules-path company eshell-syntax-highlighting tide fira-code-mode unicode-fonts auto-indent-mode org-bullets xkcd zoom prettier-js sos paredit js-auto-beautify csv-mode default-text-scale lsp-ui lsp-mode json-mode js2-mode transpose-frame flycheck emmet-mode js-comint fast-scroll buffer-move whitespace-cleanup-mode magit multi-term telephone-line exec-path-from-shell latex-pretty-symbols latex-preview-pane markdown-mode ac-slime tabbar auctex ox-reveal dimmer slime-repl-ansi-color rainbow-delimiters smartparens lisp-extra-font-lock web-mode auto-complete slime))
+   '(org-jira command-log-mode auto-package-update reformatter highlight-indent-guides eslint-fix fill-column-indicator quelpa-use-package quelpa use-package dracula-theme kintaro kintaro-mode scss-mode lorem-ipsum yaml-mode jinja2-mode cl-lib emacs-sos projectile vscode-icon dired-sidebar add-node-modules-path company eshell-syntax-highlighting tide fira-code-mode unicode-fonts auto-indent-mode org-bullets xkcd zoom prettier-js sos paredit js-auto-beautify csv-mode default-text-scale lsp-ui lsp-mode json-mode js2-mode transpose-frame flycheck emmet-mode js-comint fast-scroll buffer-move whitespace-cleanup-mode magit multi-term telephone-line exec-path-from-shell latex-pretty-symbols latex-preview-pane markdown-mode ac-slime tabbar auctex ox-reveal dimmer slime-repl-ansi-color rainbow-delimiters smartparens lisp-extra-font-lock web-mode auto-complete slime))
  '(safe-local-variable-values '((base . 10) (package . clm) (syntax . common-lisp)))
  '(show-paren-mode t)
  '(tabbar-mode t)

@@ -37,8 +37,7 @@
 (delete-selection-mode 1)
 (setq ead-buffer-completion-ignore-case t)
 
-;;(when (display-graphic-p)
-  (org-babel-load-file (expand-file-name "~/.emacs.d/README.org"));)
+(org-babel-load-file (expand-file-name "~/.emacs.d/README.org"))
 (put 'upcase-region 'disabled nil)
 
 (server-start)
