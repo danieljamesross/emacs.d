@@ -4,29 +4,6 @@
   :END:
   This is my initialisation file for Emacs. Behold!, the code blocks will be
   compiled at startup, but not these titles or this text.
-** update
-   #+begin_src emacs-lisp
-     (use-package auto-package-update
-       :ensure t
-       :config
-       (setq auto-package-update-delete-old-versions t)
-       (setq auto-package-update-hide-results t)
-       (auto-package-update-maybe))
-   #+end_src
-** PATH
-   #+BEGIN_SRC emacs-lisp
-     (use-package exec-path-from-shell
-       :ensure t
-       :config (setq default-directory (expand-file-name "~/"))
-       (setenv "PATH" (concat "/Library/TeX/texbin:"
-                              (getenv "PATH")))
-       (add-to-list 'exec-path "/Library/TeX/texbin")
-       (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-       (setq exec-path (append exec-path '("/usr/local/bin")))
-       (add-to-list 'exec-path "~/.local/bin")
-       (when (memq window-system '(mac ns x))
-         (exec-path-from-shell-initialize)))
-   #+END_SRC
 ** Package Managers
 *** Quelpa
     #+begin_src emacs-lisp
@@ -41,14 +18,50 @@
     #+end_src
 *** Melpa
     #+begin_src emacs-lisp
-      (add-to-list 'package-archives
-                   '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+                                              ;     (add-to-list 'package-archives
+                                              ;                 '("melpa-stable" . "https://stable.melpa.org/packages/") t)
     #+end_src
+** Update
+   #+begin_src emacs-lisp
+     (use-package auto-package-update
+       :ensure t
+       :config
+       (setq auto-package-update-delete-old-versions t)
+       (setq auto-package-update-hide-results t)
+       (auto-package-update-maybe))
+   #+end_src
+** Optimisations
+   #+begin_src emacs-lisp
+     (setq gc-cons-threshold (* 100 1024 1024)
+           read-process-output-max (* 1024 1024)
+           create-lockfiles nil) ;; lock files will kill `npm start'
+   #+end_src
+** enable-minor-mode
+   #+begin_src emacs-lisp
+     (defun enable-minor-mode (my-pair)
+       "Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
+       (if (buffer-file-name)
+           (if (string-match (car my-pair) buffer-file-name)
+               (funcall (cdr my-pair)))))
+   #+end_src
+** PATH
+   #+BEGIN_SRC emacs-lisp
+     (use-package exec-path-from-shell
+       :ensure t
+       :if (memq window-system '(mac ns x))
+       :config (setq default-directory (expand-file-name "~/"))
+       (when (file-exists-p (expand-file-name  "/Library/TeX/texbin"))
+         (setenv "PATH" (concat "/Library/TeX/texbin:"
+                                (getenv "PATH")))
+         (add-to-list 'exec-path "/Library/TeX/texbin"))
+       (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+       (setq exec-path (append exec-path '("/usr/local/bin")))
+       (add-to-list 'exec-path (expand-file-name "~/.local/bin")))
+   #+END_SRC
 ** Buffers and Panes
 *** buffer-move
     #+BEGIN_SRC emacs-lisp
       (use-package buffer-move
-        :if window-system
         :ensure t
         :bind (("s-C-<up>" . buf-move-up)
                ("s-C-<down>" . buf-move-down)
@@ -80,11 +93,7 @@
       (add-hook 'prog-mode-hook 'turn-on-auto-fill)
       (remove-hook 'nxml-mode-hook #'turn-on-auto-fill)
       (remove-hook 'jinja2-mode-hook #'turn-on-auto-fill)
-      (display-fill-column-indicator-mode t)
-      (use-package fill-column-indicator
-        :ensure t
-        :hook (web-mode . fci-mode)
-        :config (setq-default fci-rule-column 80))
+      (display-fill-column-indicator-mode nil)
     #+End_SRC
 *** new UNTITLED file
     #+BEGIN_SRC emacs-lisp
@@ -159,6 +168,7 @@
     #+begin_src emacs-lisp
       (setq-default indent-tabs-mode nil)
       (setq-default tab-always-indent 'complete)
+      (global-set-key (kbd "S-M-t") 'indent-rigidly-left)
     #+end_src
 ** Code wrap
    #+begin_src emacs-lisp
@@ -415,9 +425,10 @@
     #+begin_src emacs-lisp
       (use-package company
         :ensure t
-        :hook (after-init-hook . global-company-mode)
-        :bind (("C-." .  'company-complete-common))
-        :custom (company-idle-delay 0.2))
+        :bind ("C-`" . 'company-complete-common)
+        :custom ((company-idle-delay 0.0)
+                 (company-minimum-prefix-length 1))
+        :init (add-hook 'after-init-hook 'global-company-mode))
     #+end_src
 *** Flyspell
     Taken from [[https://stackoverflow.com/questions/17126951/emacs-cannot-find-flyspell-ispell][here]].
@@ -489,20 +500,19 @@
 ** lsp-mode
    Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
    #+BEGIN_SRC  emacs-lisp
-     ;; set prefix for lsp-command-keymap (few alternatives - "C-l", "C-c l")
      (use-package lsp-mode
-       ;; lsp-install server only takes nil as argument and needs interactive output...?
-       ;;       :init (dolist (lsp (list css-ls js-ts) (lsp-install-server lsp nil)))
        :if window-system
        :ensure t
-       :hook ((js2-mode . lsp)
-              (web-mode . lsp)
-              (css-mode . lsp))
-       :commands lsp
-       :config (setq lsp-keymap-prefix "C-c l"))
+       :hook ((js2-mode . lsp-deferred)
+              (web-mode . lsp-deferred)
+              (css-mode . lsp-deferred))
+       :commands (lsp lsp-deferred)
+       :config (setq lsp-keymap-prefix "C-c l"
+                     lsp-headerline-breadcrumb-mode t))
 
-     ;; optionally
-     (use-package lsp-ui :commands lsp-ui-mode :ensure t)
+     (use-package lsp-ui
+       :commands lsp-ui-mode
+       :ensure t)
    #+END_SRC
 ** Web Dev Stuff
 *** js-comint / js2
@@ -585,18 +595,6 @@
     #+end_src
 *** web-mode
     #+begin_src emacs-lisp
-      ;; (use-package web-mode
-      ;;   :ensure t
-      ;;   :mode (("\\.jsx$"     . web-mode)
-      ;;	 ("\\.html$"    . web-mode)
-      ;;	 ("\\.ejs$"     . web-mode)
-      ;;	 ("\\.htm$"     . web-mode)
-      ;;	 ("\\.shtml$"   . web-mode)
-      ;;	 ("\\.tsx$"     . web-mode)
-      ;;	 ("\\.ts$"      . web-mode))
-      ;;   ;;	:hook (setup-tide-mode))
-      ;;   :config (setq web-mode-enable-auto-quoting nil))
-
       (use-package web-mode
         :ensure t
         :mode (("\\.jsx$"     . web-mode)
@@ -605,13 +603,7 @@
                ("\\.htm$"     . web-mode)
                ("\\.shtml$"   . web-mode)
                ("\\.tsx$"     . web-mode)
-               ("\\.ts$"      . web-mode))
-        :hook (find-file-hook . (lambda (elm)
-                                  (when (or (string-match-p "\\.tsx$" (buffer-file-name))
-                                            (string-match-p "\\.ts$" (buffer-file-name)))
-                                    (setup-my-minor-mode))))
-        :config (setq web-mode-enable-auto-quoting nil))
-
+               ("\\.ts$"      . web-mode)))
     #+END_SRC
 *** web-mode-indent
     #+BEGIN_SRC emacs-lisp
@@ -619,10 +611,6 @@
         ;; java/c/c++
         (setq-local c-basic-offset n)
         ;; web development
-        ;; (setq-local coffee-tab-width n) ; coffeescript
-        ;; (setq-local javascript-indent-level n) ; javascript-mode
-        ;; (setq-local js-indent-level n) ; js-mode
-        ;; (setq-local js2-basic-offset n) ; js2-mode, in latest js2-mode, it's alias of js-indent-level
         (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
         (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
         (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
@@ -635,29 +623,23 @@
         ;; indent 4 spaces width
         (my-setup-indent 2))
 
-      (add-hook 'web-mode-hook 'my-web-code-style)
-
+      ;; (add-hook 'web-mode-hook 'my-web-code-style)
     #+END_SRC
 
 *** prettier-js-mode
     #+BEGIN_SRC emacs-lisp
       (require 'prettier-js)
-      (add-hook 'js2-mode-hook 'prettier-js-mode)
-      (add-hook 'web-mode-hook 'prettier-js-mode)
-      (defun enable-minor-mode (my-pair)
-        "Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
-        (if (buffer-file-name)
-            (if (string-match (car my-pair) buffer-file-name)
-                (funcall (cdr my-pair)))))
-      (add-hook 'web-mode-hook #'(lambda ()
-                                   (enable-minor-mode
-                                    '("\\.jsx?\\'" . prettier-js-mode))
-                                   (enable-minor-mode
-                                    '("\\.js?\\'" . prettier-js-mode))
-                                   (enable-minor-mode
-                                    '("\\.ts?\\'" . prettier-js-mode))
-                                   (enable-minor-mode
-                                    '("\\.tsx?\\'" . prettier-js-mode))))
+      (add-hook 'web-mode-hook
+                #'(lambda ()
+                    (enable-minor-mode
+                     '("\\.jsx?\\'" . prettier-js-mode))
+                    (enable-minor-mode
+                     '("\\.js?\\'" . prettier-js-mode))
+                    (enable-minor-mode
+                     '("\\.ts?\\'" . prettier-js-mode))
+                    (enable-minor-mode
+                     '("\\.tsx?\\'" . prettier-js-mode))))
+
       (setq prettier-js-args
             '("--trailing-comma" "none"
               "--semi" "true"
@@ -672,20 +654,34 @@
 
       (eval-after-load 'web-mode
         '(progn
-           (add-hook 'web-mode-hook #'add-node-modules-path)
-           (add-hook 'web-mode-hook #'prettier-js-mode)))
-
+           (add-hook 'web-mode-hook 'add-node-modules-path)))
     #+END_SRC
 *** tide
     #+begin_src emacs-lisp
       (use-package tide
         :ensure t
         :after (typescript-mode company flycheck web-mode)
-        :hook ((typescript-mode . tide-setup)
-               (typescript-mode . tide-hl-identifier-mode)
-               (web-mode . tide-setup)
-               (web-mode . tide-hl-identifier-mode)
-               (before-save . tide-format-before-save)))
+        :hook ((before-save . tide-format-before-save))
+        :config (add-hook 'web-mode-hook
+                          #'(lambda ()
+                              (enable-minor-mode
+                               '("\\.ts?\\'" . tide-setup))
+                              (enable-minor-mode
+                               '("\\.tsx?\\'" . tide-setup))
+                              (enable-minor-mode
+                               '("\\.js?\\'" . tide-setup))
+                              (enable-minor-mode
+                               '("\\.jsx?\\'" . tide-setup))))
+        (add-hook 'web-mode-hook
+                  #'(lambda ()
+                      (enable-minor-mode
+                       '("\\.ts?\\'" . tide-hl-identifier-mode))
+                      (enable-minor-mode
+                       '("\\.tsx?\\'" . tide-hl-identifier-mode))
+                      (enable-minor-mode
+                       '("\\.js?\\'" . tide-hl-identifier-mode))
+                      (enable-minor-mode
+                       '("\\.jsx?\\'" . tide-hl-identifier-mode)))))
     #+end_src
 *** eslint
     #+begin_src emacs-lisp
@@ -713,7 +709,7 @@
       (use-package yaml-mode
         :ensure t)
     #+end_src
-** css
+** CSS
    #+begin_src emacs-lisp
      (setq css-electric-semi-behavior t
            css-indent-offset  2
@@ -786,7 +782,7 @@
             1 'font-lock-function--face))
          'append)) ;; <-- Add after all other rules
     #+END_SRC
-** rainbow delimiters
+** Rainbow delimiters
    #+BEGIN_SRC emacs-lisp
      (use-package rainbow-delimiters
        :ensure t
@@ -877,9 +873,7 @@
                             (filename . "*.ts")
                             (filename . "*.tsx")))
                ("Web Dev" (or (mode . html-mode)
-                              (mode . web-mode)
-                              (mode . js2-mode)
-                              (mode . jsx-mode)
+                              (filename . "*.html")
                               (mode . jinja2-mode)))
                ("CSS" (or (mode . css-mode)
                           (mode . scss-mode)
@@ -887,53 +881,54 @@
                           (filename . "*.scss")))
                ("Python" (or (mode . python-mode)
                              (filename . "*.py")))
-               ("Config" (or (mode . json-mode)
-                             (filename . "*.json")
-                             (mode . kintaro-mode)
-                             (filename . "*.ksdl")))
+               ("JSON/Config" (or (mode . json-mode)
+                                  (filename . "*.json")
+                                  (mode . kintaro-mode)
+                                  (filename . "*.ksdl")))
                ("SVG" (filename . "*.svg"))
                ("ERC" (mode . erc-mode))
                ("find" (or (mode . xref-mode)
                            (mode . dired-mode)))
                ("emacs-config" (or (filename . "emacs-config")
                                    (filename . "djr-init")
-                                   (filename . "README.org")))
-               ("Org" (or (mode . org-mode)
-                          (filename . "OrgMode")))
-               ("lisp" (or (filename . "*.lisp")
-                           (filename . "*.lsp")
-                           (filename . "*.el")
-                           (filename . "*.asd")
-                           (filename . "*.clm")
-                           (mode . lisp-mode)))
-               ("Shells/Terminals/REPLs" (or (name . "\*eshell\*")
-                                             (name . "\*terminal\*")
-                                             (name . "\*slime-repl sbcl\*")
-                                             (name . "\*shell\*")))
-               ("Logs" (or (name . "\*Messages\*")
-                           (name . "\*slime-events\*")
-                           (name . "\*inferior-lisp\*")
-                           (name . "\*lsp-log\*")
-                           (name . "\*jsts-ls\*")
-                           (name . "\*jsts-log\*")
-                           (name . "\*jsts-ls::stderr\*")))
-               ("Help" (or (name . "\*Help\*")
-                           (name . "\*Apropos\*")
-                           (name . "\*Completions\*")
-                           (name . "\*info\*")))
-               ("Misc" (or  (name . "untitled")
-                            (name . "\*scratch\*"))))))
-      (add-hook 'ibuffer-mode-hook
-                '(lambda ()
-                   (ibuffer-switch-to-saved-filter-groups "home")))
-      (setq ibuffer-expert t)
-      (setq ibuffer-show-empty-filter-groups nil)
-      (add-hook 'ibuffer-mode-hook
-                '(lambda ()
-                   (ibuffer-auto-mode 1)
-                   (ibuffer-switch-to-saved-filter-groups "home")))
-      (setq dired-auto-revert-buffer t
-            auto-revert-verbose nil)
+                                   (filename . "README.org")
+                                   (filename . "init.el")))
+                ("Org" (or (mode . org-mode)
+                           (filename . "OrgMode")))
+                ("lisp" (or (filename . "*.lisp")
+                            (filename . "*.lsp")
+                            (filename . "*.el")
+                            (filename . "*.asd")
+                            (filename . "*.clm")
+                            (mode . lisp-mode)))
+                ("Shells/Terminals/REPLs" (or (name . "\*eshell\*")
+                                              (name . "\*terminal\*")
+                                              (name . "\*slime-repl sbcl\*")
+                                              (name . "\*shell\*")))
+                ("Logs" (or (name . "\*Messages\*")
+                            (name . "\*slime-events\*")
+                            (name . "\*inferior-lisp\*")
+                            (name . "\*lsp-log\*")
+                            (name . "\*jsts-ls\*")
+                            (name . "\*jsts-log\*")
+                            (name . "\*jsts-ls::stderr\*")))
+                ("Help" (or (name . "\*Help\*")
+                            (name . "\*Apropos\*")
+                            (name . "\*Completions\*")
+                            (name . "\*info\*")))
+                ("Misc" (or  (name . "untitled")
+                             (name . "\*scratch\*"))))))
+            (add-hook 'ibuffer-mode-hook
+                      '(lambda ()
+                         (ibuffer-switch-to-saved-filter-groups "home")))
+            (setq ibuffer-expert t)
+            (setq ibuffer-show-empty-filter-groups nil)
+            (add-hook 'ibuffer-mode-hook
+                      '(lambda ()
+                         (ibuffer-auto-mode 1)
+                         (ibuffer-switch-to-saved-filter-groups "home")))
+            (setq dired-auto-revert-buffer t
+                  auto-revert-verbose nil)
 
     #+END_SRC
 *** Dired-tree
@@ -984,6 +979,11 @@
         (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
         (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*"))
     #+end_src
+** ls
+   #+begin_src emacs-lisp
+     (when (string= system-type "darwin")
+       (setq dired-use-ls-dired nil))
+   #+end_src
 ** Shortcuts
 *** Aliases
     #+BEGIN_SRC emacs-lisp
@@ -1002,7 +1002,6 @@
     #+BEGIN_SRC emacs-lisp
       (global-set-key "\M-3" '(lambda() (interactive) (insert "#")))
       (global-set-key (kbd "C-c n") #'djr-new-buffer-frame)
-      (global-set-key "\C-c\l" 'goto-line)
       (global-set-key "\C-x\l" '(lambda () (interactive)
                                   (switch-to-buffer "*slime-repl sbcl*")))
       (global-set-key (kbd "C-x C-b") 'ibuffer) ;; Use Ibuffer for Buffer List
@@ -1078,7 +1077,7 @@
                         (org-level-6 . 1.1)
                         (org-level-7 . 1.1)
                         (org-level-8 . 1.1)))
-          (set-face-attribute (car face) nil :font "IBM Plex Sans" :weight 'extra-light :height (cdr face))))
+          (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face))))
     #+END_SRC
 *** org capture
     #+begin_src emacs-lisp
@@ -1091,12 +1090,46 @@
     #+begin_src emacs-lisp
       (setq org-todo-keyword-faces
             '(("IN_PROGRESS" . "orange")
+              ("BLOCKED" . "blue")
+              ("CR" . "orange")
+              ("QA" . "green")
               ("POSTPONED" . "blue")
               ("CANCELLED" . "grey")))
       (setq org-todo-keywords
             '((sequence "TODO(t)" "|" "IN_PROGRESS(i)" "POSTPONED(p)"
-                        "|" "DONE(d)" "CANCELLED(c)")))
+                        "|" "DONE(d)" "CR(r)" "QA(q)" "CANCELLED(c)" "BLOCKED(b)")))
     #+end_src
+*** org-jira
+    This relies on their being auth credentials in the file [[~/.authinfo]]
+    Details here: [[https://github.com/ahungry/org-jira]]
+    #+begin_src emacs-lisp
+      (use-package org-jira
+        :ensure t
+        :if window-system
+        :config (unless (file-exists-p "~/.org-jira")
+                  (make-directory "~/.org-jira"))
+        (setq jiralib-url "https://phantomstudios.atlassian.net/")
+        (setq org-jira-done-states '("Merged" "Done" "Closed"))
+        (setq org-jira-jira-status-to-org-keyword-alist
+              '(("In Progress" . "IN_PROGRESS")
+                ("To Do" . "TODO")
+                ("Reopened" . "TODO")
+                ("Blocked" . "BLOCKED")
+                ("In Review" . "CR")
+                ("Merged" . "+2")
+                ("Ready for QA" . "QA")
+                ("In QA" . "QA")
+                ("Done" . "DONE")
+                ("Ready for Deployment" . "DONE")
+                ("Closed" . "DONE")))
+        (setq org-jira-progress-issue-flow
+              '(("To Do" . "In Progress")
+                ("Reopened/Blocked" . "In Progress")
+                ("In CR" . "Merged")
+                ("Ready for QA" . "Done")
+                ("Ready for Deployment" . "Closed"))))
+    #+end_src
+
 ** too-long-mode
    #+begin_src emacs-lisp
      (global-so-long-mode 1)
@@ -1184,7 +1217,8 @@
         :if window-system
         :ensure t
         :config (setq highlight-indent-guides-character-face "Fira Code Symbol"
-                      highlight-indent-guides-method 'character)
+                      highlight-indent-guides-method 'character
+                      highlight-indent-guides-auto-character-face-perc 15)
         :hook (prog-mode . highlight-indent-guides-mode))
     #+end_src
 ** Stackoverflow Search
@@ -1273,4 +1307,52 @@
      (setq load-path (cons (expand-file-name "~/.emacs.d/kintaro") load-path))
      (require 'kintaro-mode)
      (add-to-list 'auto-mode-alist '("\\.ksdl\\'" . kintaro-mode))
+   #+end_src
+
+** backups
+   #+begin_src emacs-lisp
+     (setq backup-directory-alist
+           `(("." . ,(concat user-emacs-directory "backups"))))
+   #+end_src
+
+** open in another App
+   #+begin_src emacs-lisp
+     (defun xah-open-in-external-app (&optional @fname)
+       "Open the current file or dired marked files in external app.
+        When called in emacs lisp, if @fname is given, open that.
+        URL `http://ergoemacs.org/emacs/emacs_dired_open_file_in_ext_apps.html'
+        Version 2019-11-04 2021-02-16"
+       (interactive)
+       (let* (
+              ($file-list
+               (if @fname
+                   (progn (list @fname))
+                 (if (string-equal major-mode "dired-mode")
+                     (dired-get-marked-files)
+                   (list (buffer-file-name)))))
+              ($do-it-p (if (<= (length $file-list) 5)
+                            t
+                          (y-or-n-p "Open more than 5 files? "))))
+         (when $do-it-p
+           (cond
+            ((string-equal system-type "windows-nt")
+             (mapc
+              (lambda ($fpath)
+                (shell-command
+                 (concat "PowerShell -Command \"Invoke-Item -LiteralPath\" "
+                         "'"
+                         (shell-quote-argument (expand-file-name $fpath )) "'")))
+              $file-list))
+            ((string-equal system-type "darwin")
+             (mapc
+              (lambda ($fpath)
+                (shell-command
+                 (concat "open " (shell-quote-argument $fpath))))
+              $file-list))
+            ((string-equal system-type "gnu/linux")
+             (mapc
+              (lambda ($fpath) (let ((process-connection-type nil))
+                            (start-process "" nil "xdg-open" $fpath)))
+              $file-list))))))
+     (global-set-key (kbd "C-s-o") 'xah-open-in-external-app)
    #+end_src
