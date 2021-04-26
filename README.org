@@ -31,14 +31,15 @@
            read-process-output-max (* 1024 1024)
            create-lockfiles nil) ;; lock files will kill `npm start'
    #+end_src
-** enable-minor-mode
-   #+begin_src emacs-lisp
-     (defun enable-minor-mode (my-pair)
-       "Enable minor mode if filename match the regexp.  MY-PAIR is a cons cell (regexp . minor-mode)."
-       (if (buffer-file-name)
-           (if (string-match (car my-pair) buffer-file-name)
-               (funcall (cdr my-pair)))))
-   #+end_src
+** Custom functions
+*** enable-minor-mode
+    #+begin_src emacs-lisp
+      (defun enable-minor-mode (my-pair)
+        "Enable minor mode if filename match the regexp. MY-PAIR is a cons cell (regexp . minor-mode)."
+        (if (buffer-file-name)
+            (if (string-match (car my-pair) buffer-file-name)
+                (funcall (cdr my-pair)))))
+    #+end_src
 ** PATH
    #+BEGIN_SRC emacs-lisp
      (use-package exec-path-from-shell
@@ -705,12 +706,31 @@
         :ensure t)
     #+end_src
 ** CSS
+*** Indenting & brackets
    #+begin_src emacs-lisp
      (setq css-electric-semi-behavior t
            css-indent-offset  2
            css-tab-mode 'auto)
-     ;; (add-hook 'css-mode-hook #'prettier-js-mode)
    #+end_src
+*** Prettier CSS
+    #+begin_src emacs-lisp
+     (add-hook 'css-mode-hook #'prettier-js-mode)
+    #+end_src
+*** Remove leading zeros
+This undoes the formatting by `prettier` to conform with Google's style guide.
+i.e. `.3s` becomes `.3s`
+    #+begin_src emacs-lisp
+      (defun remove-decimal-zero ()
+        (replace-regexp "0\\." "."))
+
+      (add-hook 'css-mode-hook 
+                (lambda () 
+                  (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
+      (add-hook 'scss-mode-hook 
+                (lambda () 
+                  (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
+    #+end_src
+
 ** Lisp stuff
 *** SBCL
     #+BEGIN_SRC emacs-lisp
@@ -971,11 +991,11 @@
         (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
         (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*"))
     #+end_src
-** ls
-   #+begin_src emacs-lisp
-     (when (string= system-type "darwin")
-       (setq dired-use-ls-dired nil))
-   #+end_src
+*** ls
+    #+begin_src emacs-lisp
+      (when (string= system-type "darwin")
+        (setq dired-use-ls-dired nil))
+    #+end_src
 ** Shortcuts
 *** Aliases
     #+BEGIN_SRC emacs-lisp
