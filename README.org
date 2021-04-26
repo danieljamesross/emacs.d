@@ -888,42 +888,39 @@
                                    (filename . "djr-init")
                                    (filename . "README.org")
                                    (filename . "init.el")))
-                ("Org" (or (mode . org-mode)
-                           (filename . "OrgMode")))
-                ("lisp" (or (filename . "*.lisp")
-                            (filename . "*.lsp")
-                            (filename . "*.el")
-                            (filename . "*.asd")
-                            (filename . "*.clm")
-                            (mode . lisp-mode)))
-                ("Shells/Terminals/REPLs" (or (name . "\*eshell\*")
-                                              (name . "\*terminal\*")
-                                              (name . "\*slime-repl sbcl\*")
-                                              (name . "\*shell\*")))
-                ("Logs" (or (name . "\*Messages\*")
-                            (name . "\*slime-events\*")
-                            (name . "\*inferior-lisp\*")
-                            (name . "\*lsp-log\*")
-                            (name . "\*jsts-ls\*")
-                            (name . "\*jsts-log\*")
-                            (name . "\*jsts-ls::stderr\*")))
-                ("Help" (or (name . "\*Help\*")
-                            (name . "\*Apropos\*")
-                            (name . "\*Completions\*")
-                            (name . "\*info\*")))
-                ("Misc" (or  (name . "untitled")
-                             (name . "\*scratch\*"))))))
-            (add-hook 'ibuffer-mode-hook
-                      '(lambda ()
-                         (ibuffer-switch-to-saved-filter-groups "home")))
-            (setq ibuffer-expert t)
-            (setq ibuffer-show-empty-filter-groups nil)
-            (add-hook 'ibuffer-mode-hook
-                      '(lambda ()
-                         (ibuffer-auto-mode 1)
-                         (ibuffer-switch-to-saved-filter-groups "home")))
-            (setq dired-auto-revert-buffer t
-                  auto-revert-verbose nil)
+               ("Org" (or (mode . org-mode)
+                          (filename . "OrgMode")))
+               ("lisp" (or (filename . "*.lisp")
+                           (filename . "*.lsp")
+                           (filename . "*.el")
+                           (filename . "*.asd")
+                           (filename . "*.clm")
+                           (mode . lisp-mode)))
+               ("Shells/Terminals/REPLs" (or (name . "\*eshell\*")
+                                             (name . "\*terminal\*")
+                                             (name . "\*slime-repl sbcl\*")
+                                             (name . "\*shell\*")))
+               ("Logs" (or (name . "\*Messages\*")
+                           (name . "\*slime-events\*")
+                           (name . "\*inferior-lisp\*")
+                           (name . "\*lsp-log\*")
+                           (name . "\*jsts-ls\*")
+                           (name . "\*jsts-log\*")
+                           (name . "\*jsts-ls::stderr\*")))
+               ("Help" (or (name . "\*Help\*")
+                           (name . "\*Apropos\*")
+                           (name . "\*Completions\*")
+                           (name . "\*info\*")))
+               ("Misc" (or  (name . "untitled")
+                            (name . "\*scratch\*"))))))
+      (setq ibuffer-expert t)
+      (setq ibuffer-show-empty-filter-groups nil)
+      (add-hook 'ibuffer-mode-hook
+                '(lambda ()
+                   (ibuffer-auto-mode 1)
+                   (ibuffer-switch-to-saved-filter-groups "home")))
+      (setq dired-auto-revert-buffer t
+            auto-revert-verbose nil)
 
     #+END_SRC
 *** Dired-tree
@@ -1212,8 +1209,8 @@
         :if window-system
         :ensure t
         :config (setq highlight-indent-guides-character-face "Fira Code Symbol"
-                      highlight-indent-guides-method 'character
-                      highlight-indent-guides-auto-character-face-perc 15)
+                      highlight-indent-guides-method 'bitmap
+                      highlight-indent-guides-auto-character-face-perc 10)
         :hook (prog-mode . highlight-indent-guides-mode))
     #+end_src
 ** Stackoverflow Search
