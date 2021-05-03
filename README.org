@@ -619,7 +619,7 @@
         ;; indent 4 spaces width
         (my-setup-indent 2))
 
-      ;; (add-hook 'web-mode-hook 'my-web-code-style)
+      (add-hook 'web-mode-hook 'my-web-code-style)
     #+END_SRC
 
 *** prettier-js-mode
@@ -663,21 +663,13 @@
                               (enable-minor-mode
                                '("\\.ts?\\'" . tide-setup))
                               (enable-minor-mode
-                               '("\\.tsx?\\'" . tide-setup))
-                              (enable-minor-mode
-                               '("\\.js?\\'" . tide-setup))
-                              (enable-minor-mode
-                               '("\\.jsx?\\'" . tide-setup))))
+                               '("\\.tsx?\\'" . tide-setup))))
         (add-hook 'web-mode-hook
                   #'(lambda ()
                       (enable-minor-mode
                        '("\\.ts?\\'" . tide-hl-identifier-mode))
                       (enable-minor-mode
-                       '("\\.tsx?\\'" . tide-hl-identifier-mode))
-                      (enable-minor-mode
-                       '("\\.js?\\'" . tide-hl-identifier-mode))
-                      (enable-minor-mode
-                       '("\\.jsx?\\'" . tide-hl-identifier-mode)))))
+                       '("\\.tsx?\\'" . tide-hl-identifier-mode)))))
     #+end_src
 *** eslint
     #+begin_src emacs-lisp
@@ -875,46 +867,39 @@ i.e. `.3s` becomes `.3s`
     #+BEGIN_SRC emacs-lisp
       (setq ibuffer-saved-filter-groups
             '(("home"
-               ("GIT" (or (mode . magit-log-mode)
-                          (mode . magit-diff-mode)
-                          (mode . magit-process-mode)
-                          (mode . magit-status-mode)
-                          (mode . magit-ediff-mode)
-                          (mode . magit-mode)
-                          (name . "\*magit")
-                          (name . "\*ediff")))
-               ("JS/TS" (or (filename . "*.js")
-                            (filename . "*.jsx")
-                            (filename . "*.ts")
-                            (filename . "*.tsx")))
+               ("GIT" (or (name . "^magit")
+                          (name . "^ediff")))
+               ("JS/TS" (or (name . "^.js")
+                            (name . "^.jsx")
+                            (name . "^.ts")
+                            (name . "^.tsx")))
                ("Web Dev" (or (mode . html-mode)
-                              (filename . "*.html")
+                              (name . "^.html")
                               (mode . jinja2-mode)))
                ("CSS" (or (mode . css-mode)
                           (mode . scss-mode)
-                          (filename . "*.css")
-                          (filename . "*.scss")))
+                          (name . "^.css")
+                          (name . "^.scss")))
                ("Python" (or (mode . python-mode)
-                             (filename . "*.py")))
+                             (name . "^.py")))
                ("JSON/Config" (or (mode . json-mode)
-                                  (filename . "*.json")
+                                  (name . "^.json")
                                   (mode . kintaro-mode)
-                                  (filename . "*.ksdl")))
-               ("SVG" (filename . "*.svg"))
+                                  (name . "^.ksdl")))
+               ("SVG" (name . "^.svg"))
                ("ERC" (mode . erc-mode))
                ("find" (or (mode . xref-mode)
                            (mode . dired-mode)))
-               ("emacs-config" (or (filename . "emacs-config")
-                                   (filename . "djr-init")
-                                   (filename . "README.org")
-                                   (filename . "init.el")))
-               ("Org" (or (mode . org-mode)
-                          (filename . "OrgMode")))
-               ("lisp" (or (filename . "*.lisp")
-                           (filename . "*.lsp")
-                           (filename . "*.el")
-                           (filename . "*.asd")
-                           (filename . "*.clm")
+               ("emacs-config" (or (name . "emacs-config")
+                                   (name . "djr-init")
+                                   (name . "README.org")
+                                   (name . "init.el")))
+               ("Org" (mode . org-mode))
+               ("lisp" (or (name . "^.lisp")
+                           (name . "^.lsp")
+                           (name . "^.el")
+                           (name . "^.asd")
+                           (name . "^.clm")
                            (mode . lisp-mode)))
                ("Shells/Terminals/REPLs" (or (name . "\*eshell\*")
                                              (name . "\*terminal\*")
