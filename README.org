@@ -4,6 +4,23 @@
   :END:
   This is my initialisation file for Emacs. Behold!, the code blocks will be
   compiled at startup, but not these titles or this text.
+** Customisations
+  #+begin_src emacs-lisp
+(setq custom-file (expand-file-name "~/.emacs.d/djr-custom.el"))
+(load custom-file)
+(set-variable 'meta-flag 't)
+(define-key esc-map "?" 'describe-key-briefly)
+(require 'saveplace)
+(setq-default save-place t)
+(setq make-backup-files nil)
+(setq debug-on-error t)
+(setq case-fold-search t)
+;; ignore case when switching buffers with C-x b
+(setq read-buffer-completion-ignore-case t)
+(fset 'yes-or-no-p 'y-or-n-p)
+(delete-selection-mode 1)
+(setq ead-buffer-completion-ignore-case t)
+  #+end_src
 ** Package Managers
 *** Quelpa
     #+begin_src emacs-lisp
@@ -486,7 +503,7 @@
     #+END_SRC
 *** Minibuffer auto-complete
     #+begin_src emacs-lisp
-      (setq completion-styles '(initials partial-completion flex)) ; > Emacs 27.1
+      (setq completion-styles '(basic initials partial-completion flex)) ; > Emacs 27.1
       (setq completion-cycle-threshold 10)
     #+end_src
 *** Fido
@@ -786,7 +803,7 @@ i.e. `.3s` becomes `.3s`
         (font-lock-add-keywords
          'emacs-lisp-mode
          '(("(\\s-*\\(\\_<\\(?:\\sw\\|\\s_\\)+\\)\\_>"
-            1 'font-lock-function--face))
+            1 'font-lock-function-keyword-face))
          'append)) ;; <-- Add after all other rules
     #+END_SRC
 ** Rainbow delimiters
@@ -829,16 +846,16 @@ i.e. `.3s` becomes `.3s`
                     (add-to-list 'latex-help-cmd-alist (cons key value))))))
           latex-help-cmd-alist))
 
-      (use-package latex
-        :defer t
-        :config
-        (use-package preview)
-        (add-hook 'LaTeX-mode-hook 'reftex-mode)
-        (info-lookup-add-help :mode 'LaTeX-mode
-                              :regexp ".*"
-                              :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
-                              :doc-spec '(("(latex2e)Concept Index" )
-                                          ("(latex2e)Command Index"))))
+      ;; (use-package latex
+      ;;   :defer t
+      ;;   :config
+      ;;   (use-package preview)
+      ;;   (add-hook 'LaTeX-mode-hook 'reftex-mode)
+      ;;   (info-lookup-add-help :mode 'LaTeX-mode
+      ;;                         :regexp ".*"
+      ;;                         :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
+      ;;                         :doc-spec '(("(latex2e)Concept Index" )
+      ;;                                     ("(latex2e)Command Index"))))
     #+end_src
 *** markdown pandoc
     #+BEGIN_SRC emacs-lisp
@@ -1353,4 +1370,53 @@ i.e. `.3s` becomes `.3s`
                             (start-process "" nil "xdg-open" $fpath)))
               $file-list))))))
      (global-set-key (kbd "C-s-o") 'xah-open-in-external-app)
+   #+end_src
+
+** Regexp
+   #+begin_src emacs-lisp
+     (defvar my/re-builder-positions nil
+       "Store point and region bounds before calling re-builder")
+     (advice-add 're-builder
+                 :before
+                 (defun my/re-builder-save-state (&rest _)
+                   "Save into `my/re-builder-positions' the point and region
+          positions before calling `re-builder'."
+                   (setq my/re-builder-positions
+                         (cons (point)
+                               (when (region-active-p)
+                                 (list (region-beginning)
+                                       (region-end)))))))
+
+     (defun reb-replace-regexp (&optional delimited)
+       "Run `query-replace-regexp' with the contents of re-builder. With
+          non-nil optional argument DELIMITED, only replace matches
+          surrounded by word boundaries."
+       (interactive "P")
+       (reb-update-regexp)
+       (let* ((re (reb-target-binding reb-regexp))
+              (replacement (query-replace-read-to
+                            re
+                            (concat "Query replace"
+                                    (if current-prefix-arg
+                                        (if (eq current-prefix-arg '-) " backward" " word")
+                                      "")
+                                    " regexp"
+                                    (if (with-selected-window reb-target-window
+                                          (region-active-p)) " in region" ""))
+                            t))
+              (pnt (car my/re-builder-positions))
+              (beg (cadr my/re-builder-positions))
+              (end (caddr my/re-builder-positions)))
+         (with-selected-window reb-target-window
+           (goto-char pnt) ; replace with (goto-char (match-beginning 0)) if you want
+                                             ; to control where in the buffer the replacement starts
+                                             ; with re-builder
+           (setq my/re-builder-positions nil)
+           (reb-quit)
+           (query-replace-regexp re replacement delimited beg end))))
+     (require 're-builder)
+     (define-key reb-mode-map (kbd "RET") #'reb-replace-regexp)
+     (define-key reb-lisp-mode-map (kbd "RET") #'reb-replace-regexp)
+     (global-set-key (kbd "C-M-%") #'re-builder)
+
    #+end_src
