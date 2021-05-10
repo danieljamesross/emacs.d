@@ -1064,7 +1064,7 @@ i.e. `.3s` becomes `.3s`
       ;; Reveal.js + Org mode
       (use-package ox-reveal
         :ensure t
-        :config (setq Org-Reveal-root (concatenate 'string "file://" (expand-file-name "~/reveal.js")))
+        :config (setq Org-Reveal-root (concat "file://" (expand-file-name "~/reveal.js/")))
         (setq Org-Reveal-title-slide nil))
 
       ;; (require 'ox-reveal)
