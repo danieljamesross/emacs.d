@@ -644,33 +644,32 @@
 
 *** prettier-js-mode
     #+BEGIN_SRC emacs-lisp
-      (require 'prettier-js)
-      (add-hook 'web-mode-hook
-                #'(lambda ()
-                    (enable-minor-mode
-                     '("\\.jsx?\\'" . prettier-js-mode))
-                    (enable-minor-mode
-                     '("\\.js?\\'" . prettier-js-mode))
-                    (enable-minor-mode
-                     '("\\.ts?\\'" . prettier-js-mode))
-                    (enable-minor-mode
-                     '("\\.tsx?\\'" . prettier-js-mode))))
-
-      (setq prettier-js-args
-            '("--trailing-comma" "none"
-              "--semi" "true"
-              "--bracket-spacing" "true"
-              "--single-quote" "true"
-              "--jsx-single-quote" "true"
-              "--jsx-bracket-same-line" "true"
-              "--print-width" "80"
-              "--use-tabs" "false"
-              "--tab-width" "2"
-              "--arrow-parens" "always"))
-
-      (eval-after-load 'web-mode
-        '(progn
-           (add-hook 'web-mode-hook 'add-node-modules-path)))
+      (use-package prettier-js
+        :ensure t
+        :config (add-hook 'web-mode-hook
+                          #'(lambda ()
+                              (enable-minor-mode
+                               '("\\.jsx?\\'" . prettier-js-mode))
+                              (enable-minor-mode
+                               '("\\.js?\\'" . prettier-js-mode))
+                              (enable-minor-mode
+                               '("\\.ts?\\'" . prettier-js-mode))
+                              (enable-minor-mode
+                               '("\\.tsx?\\'" . prettier-js-mode))))
+        (setq prettier-js-args
+              '("--trailing-comma" "none"
+                "--semi" "true"
+                "--bracket-spacing" "true"
+                "--single-quote" "true"
+                "--jsx-single-quote" "true"
+                "--jsx-bracket-same-line" "true"
+                "--print-width" "80"
+                "--use-tabs" "false"
+                "--tab-width" "2"
+                "--arrow-parens" "always"))
+        (eval-after-load 'web-mode
+          '(progn
+             (add-hook 'web-mode-hook 'add-node-modules-path))))
     #+END_SRC
 *** tide
     #+begin_src emacs-lisp
