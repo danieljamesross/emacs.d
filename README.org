@@ -1074,27 +1074,28 @@ i.e. `.3s` becomes `.3s`
     #+END_SRC
 *** org bullets
     #+BEGIN_SRC emacs-lisp
-      (use-package org-bullets
-        :if window-system
-        :after org
-        :hook (org-mode . org-bullets-mode)
-        :custom
-        (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+          (use-package org-bullets
+            :if window-system
+            :ensure t
+            :after org
+            :hook (org-mode . org-bullets-mode)
+            :custom
+            (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
-      ;; Replace list hyphen with dot
-      (font-lock-add-keywords 'org-mode
-                              '(("^ *\\([-]\\) "
-                                 (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-      (when (member "Cantarell" (font-family-list))
-        (dolist (face '((org-level-1 . 1.2)
-                        (org-level-2 . 1.1)
-                        (org-level-3 . 1.05)
-                        (org-level-4 . 1.0)
-                        (org-level-5 . 1.1)
-                        (org-level-6 . 1.1)
-                        (org-level-7 . 1.1)
-                        (org-level-8 . 1.1)))
-          (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face))))
+          ;; Replace list hyphen with dot
+          (font-lock-add-keywords 'org-mode
+                                  '(("^ *\\([-]\\) "
+                                     (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+          (when (member "Cantarell" (font-family-list))
+            (dolist (face '((org-level-1 . 1.2)
+                            (org-level-2 . 1.1)
+                            (org-level-3 . 1.05)
+                            (org-level-4 . 1.0)
+                            (org-level-5 . 1.1)
+                            (org-level-6 . 1.1)
+                            (org-level-7 . 1.1)
+                            (org-level-8 . 1.1)))
+              (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face))))
     #+END_SRC
 *** org capture
     #+begin_src emacs-lisp
