@@ -1431,3 +1431,9 @@ i.e. `.3s` becomes `.3s`
        :defer t
        :ensure t)
    #+end_src
+** Magit
+   #+begin_src emacs-lisp
+     (use-package magit
+       :ensure t
+       :defer t)
+   #+end_src
