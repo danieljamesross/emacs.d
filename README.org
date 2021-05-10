@@ -399,12 +399,16 @@
     #+END_SRC
 ** Node
    #+begin_src emacs-lisp
-     (eval-after-load 'js-mode
-       '(add-hook 'js-mode-hook #'add-node-modules-path))
-     (eval-after-load 'js2-mode
-       '(add-hook 'js2-mode-hook #'add-node-modules-path))
-     (eval-after-load 'web-mode
-       '(add-hook 'web-mode-hook #'add-node-modules-path))
+     (use-package add-node-modules-path
+       :ensure t
+       :defer t
+       :config
+       (eval-after-load 'js-mode
+         '(add-hook 'js-mode-hook #'add-node-modules-path))
+       (eval-after-load 'js2-mode
+         '(add-hook 'js2-mode-hook #'add-node-modules-path))
+       (eval-after-load 'web-mode
+         '(add-hook 'web-mode-hook #'add-node-modules-path)))
    #+end_src
 ** Non Elpa/Melpa Package Modes
 *** Antescofo mode
@@ -666,10 +670,7 @@
                 "--print-width" "80"
                 "--use-tabs" "false"
                 "--tab-width" "2"
-                "--arrow-parens" "always"))
-        (eval-after-load 'web-mode
-          '(progn
-             (add-hook 'web-mode-hook 'add-node-modules-path))))
+                "--arrow-parens" "always")))
     #+END_SRC
 *** tide
     #+begin_src emacs-lisp
