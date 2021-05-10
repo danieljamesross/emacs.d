@@ -618,7 +618,8 @@
                ("\\.htm$"     . web-mode)
                ("\\.shtml$"   . web-mode)
                ("\\.tsx$"     . web-mode)
-               ("\\.ts$"      . web-mode)))
+               ("\\.ts$"      . web-mode))
+        :config (setq web-mode-enable-auto-quoting nil))
     #+END_SRC
 *** web-mode-indent
     #+BEGIN_SRC emacs-lisp
