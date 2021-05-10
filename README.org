@@ -805,7 +805,7 @@ i.e. `.3s` becomes `.3s`
         (font-lock-add-keywords
          'emacs-lisp-mode
          '(("(\\s-*\\(\\_<\\(?:\\sw\\|\\s_\\)+\\)\\_>"
-            1 'font-lock-function-keyword-face))
+            1 'font-lock-function-name-face))
          'append)) ;; <-- Add after all other rules
     #+END_SRC
 ** Rainbow delimiters
