@@ -1184,6 +1184,7 @@ i.e. `.3s` becomes `.3s`
     Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emulation-in-emacs/post.md#appendix-b-update-1-firacode-integration][here]]
     #+begin_src emacs-lisp
       (use-package fira-code-mode
+        :ensure t
         :if window-system
         :custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
         :hook prog-mode)
