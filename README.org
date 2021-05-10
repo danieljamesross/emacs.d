@@ -1420,3 +1420,10 @@ i.e. `.3s` becomes `.3s`
      (global-set-key (kbd "C-M-%") #'re-builder)
 
    #+end_src
+
+** Multiple Cursors
+   #+begin_src emacs-lisp
+     (use-package multiple-cursors
+       :defer t
+       :ensure t)
+   #+end_src
