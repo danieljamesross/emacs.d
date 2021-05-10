@@ -865,21 +865,20 @@ i.e. `.3s` becomes `.3s`
     #+END_SRC
 *** LaTeX
     #+BEGIN_SRC emacs-lisp
-      (when (window-system)
-        (latex-preview-pane-enable)
-        (require 'latex-pretty-symbols))
+      ;; (use-package auctex
+      ;;   :ensure t
+      ;;   :config 
+      ;;   (when (window-system)
+      ;;     (latex-preview-pane-enable)
+      ;;     (require 'latex-pretty-symbols)))
     #+END_SRC
-** VSCode Icons
-   #+begin_src emacs-lisp
-     (use-package vscode-icon
-       :if window-system
-       :ensure t
-       :commands (vscode-icon-for-file))
-   #+end_src
 ** Projectile
    #+begin_src emacs-lisp
-     (projectile-mode +1)
-     (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+     (use-package projectile
+       :ensure t
+       :config
+       (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+       :init (projectile-mode +1))
    #+end_src
 ** iBuffer & Dired
 *** iBuffer
