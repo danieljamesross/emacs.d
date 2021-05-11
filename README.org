@@ -516,7 +516,7 @@
     #+end_src
 ** lsp-mode
    Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
-   #+BEGIN_SRC  emacs-lisp
+   #+BEGIN_SRC emacs-lisp
      (use-package lsp-mode
        :if window-system
        :ensure t
@@ -525,8 +525,11 @@
               (css-mode . lsp-deferred))
        :commands (lsp lsp-deferred)
        :config (setq lsp-keymap-prefix "C-c l"
-                     lsp-headerline-breadcrumb-mode t))
-
+                     lsp-headerline-breadcrumb-mode t
+                     lsp-log-io nil))
+   #+END_SRC
+*** lsp-ui
+   #+BEGIN_SRC emacs-lisp
      (use-package lsp-ui
        :commands lsp-ui-mode
        :ensure t)
@@ -580,13 +583,13 @@
     #+end_src
 *** tsx
     #+begin_src emacs-lisp
-      (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
-      (add-hook 'web-mode-hook
-                (lambda ()
-                  (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                    (setup-tide-mode))))
-      ;; enable typescript-tslint checker
-      (flycheck-add-mode 'typescript-tslint 'web-mode)
+      ;; (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
+      ;; (add-hook 'web-mode-hook
+      ;;           (lambda ()
+      ;;             (when (string-equal "tsx" (file-name-extension buffer-file-name))
+      ;;               (setup-tide-mode))))
+      ;; ;; enable typescript-tslint checker
+      ;; (flycheck-add-mode 'typescript-tslint 'web-mode)
     #+end_src
 *** jsx
     #+begin_src emacs-lisp
@@ -691,7 +694,7 @@
                       (enable-minor-mode
                        '("\\.tsx?\\'" . tide-hl-identifier-mode)))))
     #+end_src
-*** eslint
+*** eslint-fix
     #+begin_src emacs-lisp
       (use-package eslint-fix
         :ensure t
@@ -868,10 +871,10 @@ i.e. `.3s` becomes `.3s`
     #+BEGIN_SRC emacs-lisp
       ;; (use-package auctex
       ;;   :ensure t
-      ;;   :config 
-      ;;   (when (window-system)
+      ;;   :if window-system
+      ;;   :config
       ;;     (latex-preview-pane-enable)
-      ;;     (require 'latex-pretty-symbols)))
+      ;;     (require 'latex-pretty-symbols))
     #+END_SRC
 ** Projectile
    #+begin_src emacs-lisp
@@ -949,27 +952,6 @@ i.e. `.3s` becomes `.3s`
             auto-revert-verbose nil)
 
     #+END_SRC
-*** Dired-tree
-    #+begin_src emacs-lisp
-      (use-package dired-sidebar
-        :if window-system
-        :ensure t
-        :commands (dired-sidebar-toggle-sidebar)
-        :bind ("C-x n" . dired-sidebar-toggle-sidebar)
-        :init
-        (add-hook 'dired-sidebar-mode-hook
-                  (lambda ()
-                    (unless (file-remote-p default-directory)
-                      (auto-revert-mode))))
-        :config
-        (push 'toggle-window-split dired-sidebar-toggle-hidden-commands)
-        (push 'rotate-windows dired-sidebar-toggle-hidden-commands)
-
-        (setq dired-sidebar-subtree-line-prefix "__")
-        (setq dired-sidebar-theme 'vscode)
-        (setq dired-sidebar-use-term-integration t)
-        (setq dired-sidebar-use-custom-font t))
-    #+end_src
 *** Dired Rainbow
     #+begin_src emacs-lisp
       (use-package dired-rainbow
@@ -1335,7 +1317,6 @@ i.e. `.3s` becomes `.3s`
      (setq backup-directory-alist
            `(("." . ,(concat user-emacs-directory "backups"))))
    #+end_src
-
 ** open in another App
    #+begin_src emacs-lisp
      (defun xah-open-in-external-app (&optional @fname)
@@ -1424,9 +1405,7 @@ i.e. `.3s` becomes `.3s`
      (define-key reb-mode-map (kbd "RET") #'reb-replace-regexp)
      (define-key reb-lisp-mode-map (kbd "RET") #'reb-replace-regexp)
      (global-set-key (kbd "C-M-%") #'re-builder)
-
    #+end_src
-
 ** Multiple Cursors
    #+begin_src emacs-lisp
      (use-package multiple-cursors
