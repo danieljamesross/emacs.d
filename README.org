@@ -743,6 +743,12 @@ i.e. `.3s` becomes `.3s`
                   (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
     #+end_src
 
+** JSON
+   #+begin_src emacs-lisp
+     (use-package json-mode
+       :ensure t
+       :defer t)
+   #+end_src
 ** Lisp stuff
 *** SBCL
     #+BEGIN_SRC emacs-lisp
