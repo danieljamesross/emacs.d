@@ -893,7 +893,8 @@ i.e. `.3s` becomes `.3s`
       (setq ibuffer-saved-filter-groups
             '(("home"
                ("GIT" (or (name . "^magit")
-                          (name . "^ediff")))
+                          (name . "^ediff")
+                          (name . "\\.git")))
                ("JS/TS" (or (name . "\\.js")
                             (name . "\\.jsx")
                             (name . "\\.ts")
