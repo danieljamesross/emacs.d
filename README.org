@@ -216,7 +216,6 @@
                      ("\\.ly\\'"      . lilypond-mode)
                      ("\\.js\\'"      . js2-mode)
                      ("\\.json\\'"    . json-mode)
-
                      ("\\.jinja\\'"   . jinja2-mode)
                      ("\\.tex\\'"     . latex-mode)
                      ("\\.cls\\'"     . latex-mode)
