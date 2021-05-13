@@ -63,13 +63,20 @@
        :ensure t
        :if (memq window-system '(mac ns x))
        :config (setq default-directory (expand-file-name "~/"))
-       (when (file-exists-p (expand-file-name  "/Library/TeX/texbin"))
-         (setenv "PATH" (concat "/Library/TeX/texbin:"
-                                (getenv "PATH")))
-         (add-to-list 'exec-path "/Library/TeX/texbin"))
-       (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-       (setq exec-path (append exec-path '("/usr/local/bin")))
-       (add-to-list 'exec-path (expand-file-name "~/.local/bin")))
+       (setenv "SHELL" "/bin/zsh")
+       (exec-path-from-shell-initialize)
+       (exec-path-from-shell-copy-envs
+        '("PATH"))
+       ;; (when (file-exists-p (expand-file-name  "/Library/TeX/texbin"))
+       ;;   (setenv "PATH" (concat "/Library/TeX/texbin:"
+       ;;                          (getenv "PATH")))
+       ;;   (add-to-list 'exec-path "/Library/TeX/texbin"))
+       ;; (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+       ;; (setq exec-path (append exec-path '("/usr/local/bin")))
+       ;; (add-to-list 'exec-path exec-path default-directory)
+       ;; (add-to-list 'exec-path exec-path (expand-file-name "~/.emacs.d"))
+       ;; (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
+       )
    #+END_SRC
 ** Buffers and Panes
 *** buffer-move
