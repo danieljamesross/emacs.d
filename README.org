@@ -696,10 +696,13 @@
     #+end_src
 *** eslint-fix
     #+begin_src emacs-lisp
+      (unless (file-exists-p (expand-file-name "~/.emacs.d/eslint-fix/"))
+        (shell-command "git clone https://github.com/codesuki/eslint-fix.git eslint-fix"))
+      (unless (file-exists-p (expand-file-name "/usr/local/bin/eslint"))
+        (shell-command "npm i -g eslint"))
       (use-package eslint-fix
         :ensure t
-        ;; :load-path
-        ;; "https://raw.githubusercontent.com/codesuki/eslint-fix/master/eslint-fix.el"
+        :load-path "~/.emacs.d/eslint-fix/"
         :config (eval-after-load 'js-mode
                   '(add-hook 'js-mode-hook
                              (lambda ()
