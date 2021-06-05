@@ -5,22 +5,23 @@
   This is my initialisation file for Emacs. Behold!, the code blocks will be
   compiled at startup, but not these titles or this text.
 ** Customisations
-  #+begin_src emacs-lisp
-(setq custom-file (expand-file-name "~/.emacs.d/djr-custom.el"))
-(load custom-file)
-(set-variable 'meta-flag 't)
-(define-key esc-map "?" 'describe-key-briefly)
-(require 'saveplace)
-(setq-default save-place t)
-(setq make-backup-files nil)
-(setq debug-on-error t)
-(setq case-fold-search t)
-;; ignore case when switching buffers with C-x b
-(setq read-buffer-completion-ignore-case t)
-(fset 'yes-or-no-p 'y-or-n-p)
-(delete-selection-mode 1)
-(setq ead-buffer-completion-ignore-case t)
-  #+end_src
+   #+begin_src emacs-lisp
+     (setq custom-file (expand-file-name "~/.emacs.d/djr-custom.el"))
+     (load custom-file)
+     (set-variable 'meta-flag 't)
+     (define-key esc-map "?" 'describe-key-briefly)
+     (require 'saveplace)
+     (setq-default save-place t)
+     (setq make-backup-files nil)
+     (setq debug-on-error t)
+     (setq case-fold-search t)
+     ;; ignore case when switching buffers with C-x b
+     (setq read-buffer-completion-ignore-case t)
+     (fset 'yes-or-no-p 'y-or-n-p)
+     (delete-selection-mode 1)
+     (setq ead-buffer-completion-ignore-case t)
+     (setq standard-indent 2)
+   #+end_src
 ** Package Managers
 *** Quelpa
     #+begin_src emacs-lisp
@@ -35,12 +36,12 @@
     #+end_src
 ** Update
    #+begin_src emacs-lisp
-     (use-package auto-package-update
-       :ensure t
-       :config
-       (setq auto-package-update-delete-old-versions t)
-       (setq auto-package-update-hide-results t)
-       (auto-package-update-maybe))
+ ;    (use-package auto-package-update
+ ;      :ensure t
+ ;      :config
+ ;      (setq auto-package-update-delete-old-versions t)
+ ;      (setq auto-package-update-hide-results t)
+ ;      (auto-package-update-maybe))
    #+end_src
 ** Optimisations
    #+begin_src emacs-lisp
@@ -66,17 +67,34 @@
        (setenv "SHELL" "/bin/zsh")
        (exec-path-from-shell-initialize)
        (exec-path-from-shell-copy-envs
-        '("PATH"))
-       ;; (when (file-exists-p (expand-file-name  "/Library/TeX/texbin"))
-       ;;   (setenv "PATH" (concat "/Library/TeX/texbin:"
-       ;;                          (getenv "PATH")))
-       ;;   (add-to-list 'exec-path "/Library/TeX/texbin"))
-       ;; (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-       ;; (setq exec-path (append exec-path '("/usr/local/bin")))
-       ;; (add-to-list 'exec-path exec-path default-directory)
-       ;; (add-to-list 'exec-path exec-path (expand-file-name "~/.emacs.d"))
-       ;; (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
-       )
+	'("PATH"))
+       (if (and (fboundp 'native-comp-available-p)
+		(native-comp-available-p))
+	   (progn
+	     (message "Native comp is available")
+	     ;; Using Emacs.app/Contents/MacOS/bin since it was compiled with
+	     ;; ./configure --prefix="$PWD/nextstep/Emacs.app/Contents/MacOS"
+	     (add-to-list 'exec-path (concat invocation-directory "bin") t)
+	     (setenv "LIBRARY_PATH" (concat (getenv "LIBRARY_PATH")
+					    (when (getenv "LIBRARY_PATH")
+					      ":")
+					    ;; This is where Homebrew puts gcc libraries.
+					    (car (file-expand-wildcards
+						  (expand-file-name "/usr/local/opt/gcc/lib/gcc/*")))))
+	     ;; Only set after LIBRARY_PATH can find gcc libraries.
+	     (setq comp-deferred-compilation t))
+	 (message "Native comp is *not* available")))
+
+     ;; (when (file-exists-p (expand-file-name  "/Library/TeX/texbin"))
+     ;;   (setenv "PATH" (concat "/Library/TeX/texbin:"
+     ;;                          (getenv "PATH")))
+     ;;   (add-to-list 'exec-path "/Library/TeX/texbin"))
+     ;; (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+     ;; (setq exec-path (append exec-path '("/usr/local/bin")))
+     ;; (add-to-list 'exec-path exec-path default-directory)
+     ;; (add-to-list 'exec-path exec-path (expand-file-name "~/.emacs.d"))
+     ;; (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
+     
    #+END_SRC
 ** Buffers and Panes
 *** buffer-move
@@ -535,11 +553,16 @@
                      lsp-log-io nil))
    #+END_SRC
 *** lsp-ui
-   #+BEGIN_SRC emacs-lisp
-     (use-package lsp-ui
-       :commands lsp-ui-mode
-       :ensure t)
-   #+END_SRC
+    #+BEGIN_SRC emacs-lisp
+      (use-package lsp-ui
+        :commands lsp-ui-mode
+        :ensure t)
+    #+END_SRC
+*** lsp-treemacs
+    #+begin_src emacs-lisp
+ ;     (use-package lsp-treemacs
+  ;      :ensure t)
+    #+end_src
 ** Web Dev Stuff
 *** js-comint / js2
     #+BEGIN_SRC emacs-lisp
@@ -555,70 +578,13 @@
                      (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
                      (local-set-key "\C-cl" 'js-load-file-and-go))))
     #+END_SRC
-*** tide-mode
-    #+begin_src emacs-lisp
-      (defun setup-tide-mode ()
-        (interactive)
-        (tide-setup)
-        (flycheck-mode +1)
-        (setq flycheck-check-syntax-automatically '(save mode-enabled))
-        (eldoc-mode +1)
-        (tide-hl-identifier-mode +1)
-        ;; company is an optional dependency. You have to
-        ;; install it separately via package-install
-        ;; `M-x package-install [ret] company`
-        (company-mode +1))
-
-      ;; aligns annotation to the right hand side
-      (setq company-tooltip-align-annotations t)
-
-      ;; formats the buffer before saving
-      ;; (add-hook 'before-save-hook 'tide-format-before-save)
-
-      (add-hook 'typescript-mode-hook #'setup-tide-mode)
-      (setq tide-format-options
-            '(:insertSpaceAfterFunctionKeywordForAnonymousFunctions
-              t
-              :placeOpenBraceOnNewLineForFunctions
-              nil
-              :indentSize 2
-              :tabSize 2
-              :insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces
-              t))
-    #+end_src
-*** tsx
-    #+begin_src emacs-lisp
-      (add-to-list 'auto-mode-alist '("\\.tsx\\'" . web-mode))
-      (add-hook 'web-mode-hook
-                (lambda ()
-                  (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                    (setup-tide-mode))))
-      ;; enable typescript-tslint checker
-      (flycheck-add-mode 'typescript-tslint 'web-mode)
-    #+end_src
-*** jsx
-    #+begin_src emacs-lisp
-      (add-to-list 'auto-mode-alist '("\\.js[x]?\\'" . web-mode))
-      (add-hook 'web-mode-hook
-                (lambda ()
-                  (when (string-equal "jsx" (file-name-extension buffer-file-name))
-                    (setup-tide-mode))))
-      (add-hook 'web-mode-hook
-                (lambda ()
-                  (when (string-equal "js" (file-name-extension buffer-file-name))
-                    (setup-tide-mode))))
-      ;; configure jsx-tide checker to run after your default jsx checker
-      (flycheck-add-mode 'javascript-eslint 'web-mode)
-      ;; dunno
-      ;; (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
-    #+end_src
 *** emmet
     #+BEGIN_SRC emacs-lisp
-      (use-package emmet-mode
-        :ensure t
-        :hook ((web-mode . (lambda () (emmet-mode)))
-               (css-mode . (lambda () (emmet-mode)))
-               local-write-file-hooks . (lambda () (delete-trailing-whitespace) nil)))
+      ;; (use-package emmet-mode
+      ;;   :ensure t
+      ;;   :hook ((web-mode . (lambda () (emmet-mode)))
+      ;;          (css-mode . (lambda () (emmet-mode)))
+      ;;          local-write-file-hooks . (lambda () (delete-trailing-whitespace) nil)))
     #+end_src
 *** web-mode
     #+begin_src emacs-lisp
@@ -639,6 +605,9 @@
          ;; java/c/c++
          (setq-local c-basic-offset n)
          ;; web development
+         (setq-local indent-tabs-mode nil)
+         (setq-local tab-width n)
+         (setq typescript-indent-level n)
          (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
          (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
          (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
@@ -668,23 +637,26 @@
                               (enable-minor-mode
                                '("\\.tsx?\\'" . prettier-js-mode))))
         (setq prettier-js-args
-              '("--trailing-comma" "none"
+              '(
+                ;; "--trailing-comma" "none"
+                ;;       
                 "--semi" "true"
                 "--bracket-spacing" "true"
-                "--single-quote" "true"
-                "--jsx-single-quote" "true"
-                "--jsx-bracket-same-line" "true"
+                ;;   "--single-quote" "false"
+                  "--jsx-bracket-same-line" "false"
                 "--print-width" "80"
                 "--use-tabs" "false"
                 "--tab-width" "2"
-                "--arrow-parens" "always")))
+                ;;   "--arrow-parens" "always"
+                )
+              prettier-inline-errors-flag t))
     #+END_SRC
 *** tide
     #+begin_src emacs-lisp
       (use-package tide
         :ensure t
         :after (typescript-mode company flycheck web-mode)
-        :hook ((before-save . tide-format-before-save))
+        ;; :hook ((before-save . tide-format-before-save))
         :config (add-hook 'web-mode-hook
                           #'(lambda ()
                               (enable-minor-mode
@@ -698,6 +670,57 @@
                       (enable-minor-mode
                        '("\\.tsx?\\'" . tide-hl-identifier-mode)))))
     #+end_src
+**** tide-mode
+     #+begin_src emacs-lisp
+       (defun setup-tide-mode ()
+         (interactive)
+         (tide-setup)
+         (flycheck-mode +1)
+         (setq flycheck-check-syntax-automatically '(save mode-enabled))
+         (eldoc-mode +1)
+         (tide-hl-identifier-mode +1)
+         ;; company is an optional dependency. You have to
+         ;; install it separately via package-install
+         ;; `M-x package-install [ret] company`
+         (company-mode +1))
+
+       ;; aligns annotation to the right hand side
+       (setq company-tooltip-align-annotations t)
+
+       ;; formats the buffer before saving
+       ;; (add-hook 'before-save-hook 'tide-format-before-save)
+
+       ;; (add-hook 'typescript-mode-hook #'setup-tide-mode)
+       ;; (setq tide-format-options
+       ;;       '(:insertSpaceAfterFunctionKeywordForAnonymousFunctions
+       ;;         t
+       ;;         :placeOpenBraceOnNewLineForFunctions
+       ;;         nil
+       ;;         :indentSize 2
+       ;;         :tabSize 2
+       ;;         :insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces
+       ;;         t))
+     #+end_src
+**** tsx
+     #+begin_src emacs-lisp
+       (add-hook 'web-mode-hook
+                 (lambda ()
+                   (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                     (setup-tide-mode))))
+       ;; enable typescript-tslint checker
+       (flycheck-add-mode 'typescript-tslint 'web-mode)
+     #+end_src
+**** jsx
+     #+begin_src emacs-lisp
+       (add-hook 'web-mode-hook
+                 (lambda ()
+                   (when (string-equal "jsx" (file-name-extension buffer-file-name))
+                     (setup-tide-mode))))
+       ;; configure jsx-tide checker to run after your default jsx checker
+       ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
+       ;; dunno
+       ;; (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
+     #+end_src
 *** eslint-fix
     #+begin_src emacs-lisp
       (use-package eslint-fix
@@ -709,10 +732,11 @@
                              (lambda ()
                                (add-hook 'after-save-hook
                                          'eslint-fix nil t))))
-        (eval-after-load 'web-mode
-          '(add-hook 'web-mode-hook
-                     (lambda ()
-                       (add-hook 'after-save-hook 'eslint-fix nil t)))))
+        ;; (eval-after-load 'web-mode
+        ;;   '(add-hook 'web-mode-hook
+        ;;              (lambda ()
+        ;;                (add-hook 'after-save-hook 'eslint-fix nil t))))
+        )
     #+end_src
 *** jinja
     #+begin_src emacs-lisp
@@ -726,18 +750,18 @@
     #+end_src
 ** CSS
 *** Indenting & brackets
-   #+begin_src emacs-lisp
-     (setq css-electric-semi-behavior t
-           css-indent-offset  2
-           css-tab-mode 'auto)
-   #+end_src
+    #+begin_src emacs-lisp
+      (setq css-electric-semi-behavior t
+            css-indent-offset  2
+            css-tab-mode 'auto)
+    #+end_src
 *** Prettier CSS
     #+begin_src emacs-lisp
-     (add-hook 'css-mode-hook #'prettier-js-mode)
+      (add-hook 'css-mode-hook #'prettier-js-mode)
     #+end_src
 *** Remove leading zeros
-This undoes the formatting by `prettier` to conform with Google's style guide.
-i.e. `.3s` becomes `.3s`
+    This undoes the formatting by `prettier` to conform with Google's style guide.
+    i.e. `.3s` becomes `.3s`
     #+begin_src emacs-lisp
       (defun remove-decimal-zero ()
         (replace-regexp "0\\." "."))
@@ -837,9 +861,10 @@ i.e. `.3s` becomes `.3s`
 *** auctex
     Taken from [[https://github.com/jwiegley/use-package/issues/379][this github issue]].
     #+begin_src emacs-lisp
-      (use-package tex-site ; auctex
+      (use-package  auctex
         :defines (latex-help-cmd-alist latex-help-file)
         :mode ("\\.tex\\'" . TeX-latex-mode)
+        :ensure t
         :init
         (setq reftex-plug-into-AUCTeX t)
         (setenv "PATH" (concat "/Library/TeX/texbin:"
@@ -862,16 +887,18 @@ i.e. `.3s` becomes `.3s`
                     (add-to-list 'latex-help-cmd-alist (cons key value))))))
           latex-help-cmd-alist))
 
-      ;; (use-package latex
-      ;;   :defer t
-      ;;   :config
-      ;;   (use-package preview)
-      ;;   (add-hook 'LaTeX-mode-hook 'reftex-mode)
-      ;;   (info-lookup-add-help :mode 'LaTeX-mode
-      ;;                         :regexp ".*"
-      ;;                         :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
-      ;;                         :doc-spec '(("(latex2e)Concept Index" )
-      ;;                                     ("(latex2e)Command Index"))))
+      (use-package latex
+        :ensure auctex
+        :defer t
+        :config
+        (use-package preview)
+        (use-package info-look)
+        (add-hook 'LaTeX-mode-hook 'reftex-mode)
+        (info-lookup-add-help :mode 'LaTeX-mode
+                              :regexp ".*"
+                              :parse-rule "\\\\?[a-zA-Z]+\\|\\\\[^a-zA-Z]"
+                              :doc-spec '(("(latex2e)Concept Index" )
+                                          ("(latex2e)Command Index"))))
     #+end_src
 *** markdown pandoc
     #+BEGIN_SRC emacs-lisp
@@ -902,10 +929,10 @@ i.e. `.3s` becomes `.3s`
                ("GIT" (or (name . "^magit")
                           (name . "^ediff")
                           (name . "\\.git")))
-               ("JS/TS" (or (name . "\\.js")
-                            (name . "\\.jsx")
-                            (name . "\\.ts")
-                            (name . "\\.tsx")))
+               ("jsx/tsx" (or (name . "\\.jsx")
+                              (name . "\\.tsx")))
+               ("js/ts" (or (name . "\\.js")
+                            (name . "\\.ts")))
                ("Web Dev" (or (mode . html-mode)
                               (name . "\\.html")
                               (mode . jinja2-mode)))
@@ -1026,8 +1053,8 @@ i.e. `.3s` becomes `.3s`
       (global-set-key (kbd "s-w") 'delete-frame)
       (global-set-key (kbd "s-<backspace>") 'kill-whole-line)
       ;; Resize Windows
-      (global-set-key (kbd "S-s-C-<down>") 'shrink-window-horizontally)
-      (global-set-key (kbd "S-s-C-<up>") 'enlarge-window-horizontally)
+      ;; (global-set-key (kbd "S-s-C-<down>") 'shrink-window-horizontally)
+      ;; (global-set-key (kbd "S-s-C-<up>") 'enlarge-window-horizontally)
       (global-set-key (kbd "C-x C-g") 'project-find-regexp)
     #+END_SRC
 ** Org
@@ -1058,38 +1085,33 @@ i.e. `.3s` becomes `.3s`
       ;; Reveal.js + Org mode
       (use-package ox-reveal
         :ensure t
-        :config (setq Org-Reveal-root (concat "file://" (expand-file-name "~/reveal.js/")))
-        (setq Org-Reveal-title-slide nil))
-
-      ;; (require 'ox-reveal)
-      ;; (setq Org-Reveal-root (concatenate 'string "file://" (expand-file-name "~/reveal.js")))
-
-      ;; (setq Org-Reveal-title-slide nil)
+        :config (setq Org-Reveal-root (concat "file://" (expand-file-name "~/reveal.js/"))
+                      Org-Reveal-title-slide nil))
     #+END_SRC
 *** org bullets
     #+BEGIN_SRC emacs-lisp
-          (use-package org-bullets
-            :if window-system
-            :ensure t
-            :after org
-            :hook (org-mode . org-bullets-mode)
-            :custom
-            (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+      (use-package org-bullets
+        :if window-system
+        :ensure t
+        :after org
+        :hook (org-mode . org-bullets-mode)
+        :custom
+        (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
-          ;; Replace list hyphen with dot
-          (font-lock-add-keywords 'org-mode
-                                  '(("^ *\\([-]\\) "
-                                     (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-          (when (member "Cantarell" (font-family-list))
-            (dolist (face '((org-level-1 . 1.2)
-                            (org-level-2 . 1.1)
-                            (org-level-3 . 1.05)
-                            (org-level-4 . 1.0)
-                            (org-level-5 . 1.1)
-                            (org-level-6 . 1.1)
-                            (org-level-7 . 1.1)
-                            (org-level-8 . 1.1)))
-              (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face))))
+      ;; Replace list hyphen with dot
+      (font-lock-add-keywords 'org-mode
+                              '(("^ *\\([-]\\) "
+                                 (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+      (when (member "Cantarell" (font-family-list))
+        (dolist (face '((org-level-1 . 1.2)
+                        (org-level-2 . 1.1)
+                        (org-level-3 . 1.05)
+                        (org-level-4 . 1.0)
+                        (org-level-5 . 1.1)
+                        (org-level-6 . 1.1)
+                        (org-level-7 . 1.1)
+                        (org-level-8 . 1.1)))
+          (set-face-attribute (car face) nil :font "Cantarell" :weight 'regular :height (cdr face))))
     #+END_SRC
 *** org capture
     #+begin_src emacs-lisp
@@ -1199,18 +1221,18 @@ i.e. `.3s` becomes `.3s`
           (ligature-set-ligatures 'eww-mode '("ff" "fi" "ffi"))
           ;; Enable all Cascadia Code ligatures in programming modes
           (ligature-set-ligatures 'prog-mode '("|||>" "<|||" "<==>" "<!--" "####" "~~>" "***" "||=" "||>"
-                                       ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
-                                       "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
-                                       "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
-                                       "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
-                                       "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
-                                       "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
-                                       "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
-                                       ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
-                                       "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
-                                       "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
-                                       "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
-                                       "\\\\" "://"))
+                                               ":::" "::=" "=:=" "===" "==>" "=!=" "=>>" "=<<" "=/=" "!=="
+                                               "!!." ">=>" ">>=" ">>>" ">>-" ">->" "->>" "-->" "---" "-<<"
+                                               "<~~" "<~>" "<*>" "<||" "<|>" "<$>" "<==" "<=>" "<=<" "<->"
+                                               "<--" "<-<" "<<=" "<<-" "<<<" "<+>" "</>" "###" "#_(" "..<"
+                                               "..." "+++" "/==" "///" "_|_" "www" "&&" "^=" "~~" "~@" "~="
+                                               "~>" "~-" "**" "*>" "*/" "||" "|}" "|]" "|=" "|>" "|-" "{|"
+                                               "[|" "]#" "::" ":=" ":>" ":<" "$>" "==" "=>" "!=" "!!" ">:"
+                                               ">=" ">>" ">-" "-~" "-|" "->" "--" "-<" "<~" "<*" "<|" "<:"
+                                               "<$" "<=" "<>" "<-" "<<" "<+" "</" "#{" "#[" "#:" "#=" "#!"
+                                               "##" "#(" "#?" "#_" "%%" ".=" ".-" ".." ".?" "+>" "++" "?:"
+                                               "?=" "?." "??" ";;" "/*" "/=" "/>" "//" "__" "~~" "(*" "*)"
+                                               "\\\\" "://"))
           ;; Enables ligature checks globally in all buffers. You can also do it
           ;; per mode with `ligature-mode'.
           (global-ligature-mode t)))
@@ -1319,9 +1341,9 @@ i.e. `.3s` becomes `.3s`
 ** kintaro-mode
    #+begin_src emacs-lisp
      (when (file-exists-p (expand-file-name "~/.emacs.d/kintaro"))
-          (setq load-path (cons (expand-file-name "~/.emacs.d/kintaro") load-path))
-          (require 'kintaro-mode)
-          (add-to-list 'auto-mode-alist '("\\.ksdl\\'" . kintaro-mode)))
+       (setq load-path (cons (expand-file-name "~/.emacs.d/kintaro") load-path))
+       (require 'kintaro-mode)
+       (add-to-list 'auto-mode-alist '("\\.ksdl\\'" . kintaro-mode)))
    #+end_src
 
 ** backups
@@ -1366,7 +1388,7 @@ i.e. `.3s` becomes `.3s`
             ((string-equal system-type "gnu/linux")
              (mapc
               (lambda ($fpath) (let ((process-connection-type nil))
-                            (start-process "" nil "xdg-open" $fpath)))
+                                 (start-process "" nil "xdg-open" $fpath)))
               $file-list))))))
      (global-set-key (kbd "C-s-o") 'xah-open-in-external-app)
    #+end_src
@@ -1427,6 +1449,12 @@ i.e. `.3s` becomes `.3s`
 ** Magit
    #+begin_src emacs-lisp
      (use-package magit
+       :ensure t
+       :defer t)
+   #+end_src
+** shader-mode
+   #+begin_src emacs-lisp
+     (use-package shader-mode
        :ensure t
        :defer t)
    #+end_src
