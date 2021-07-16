@@ -629,32 +629,41 @@
      #+END_SRC
 *** prettier-js-mode
     #+BEGIN_SRC emacs-lisp
-      (use-package prettier-js
-        :ensure t
-        :config (add-hook 'web-mode-hook
-                          #'(lambda ()
-                              (enable-minor-mode
-                               '("\\.jsx?\\'" . prettier-js-mode))
-                              (enable-minor-mode
-                               '("\\.js?\\'" . prettier-js-mode))
-                              (enable-minor-mode
-                               '("\\.ts?\\'" . prettier-js-mode))
-                              (enable-minor-mode
-                               '("\\.tsx?\\'" . prettier-js-mode))))
+      (defun local-prettier ()
+        (use-package prettier-js
+          :ensure t
+          :config
+        (enable-minor-mode
+         '("\\.jsx?\\'" . prettier-js-mode))
+        (enable-minor-mode
+         '("\\.js?\\'" . prettier-js-mode))
+        (enable-minor-mode
+         '("\\.ts?\\'" . prettier-js-mode))
+        (enable-minor-mode
+         '("\\.tsx?\\'" . prettier-js-mode))
         (setq prettier-js-args
               '(
-                ;; "--trailing-comma" "none"
-                ;;       
+                "--arrow-parens" "always"
                 "--semi" "true"
                 "--bracket-spacing" "true"
-                ;;   "--single-quote" "false"
-                  "--jsx-bracket-same-line" "false"
+                "--single-quote" "true"
+                "--jsx-bracket-same-line" "true"
                 "--print-width" "80"
                 "--use-tabs" "false"
-                "--tab-width" "2"
-                ;;   "--arrow-parens" "always"
-                )
-              prettier-inline-errors-flag t))
+                "--tab-width" "2"))))
+
+      (defun choose-prettier ()
+        (let ((node-path "node_modules/.bin"))
+          (dolist (item exec-path)
+            (if (and (string-match node-path item)
+                     (file-exists-p (concat item "prettier")))
+                (return #'prettier-js-mode)
+              (return #'local-prettier)))))
+
+      (eval-after-load 'web-mode
+        '(progn
+           (add-hook 'web-mode-hook #'add-node-modules-path)
+           (add-hook 'web-mode-hook #'choose-prettier)))
     #+END_SRC
 *** tide
     #+begin_src emacs-lisp
