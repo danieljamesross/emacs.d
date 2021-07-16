@@ -23,7 +23,6 @@
   (let ((user-init-file custom-file))
     ad-do-it))
 (org-babel-load-file (expand-file-name "~/.emacs.d/README.org"))
-(put 'upcase-region 'disabled nil)
 
 (server-start)
 ;; Make gc pauses faster by decreasing the threshold.
