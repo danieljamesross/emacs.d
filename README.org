@@ -1345,12 +1345,11 @@
    #+end_src
 ** kintaro-mode
    #+begin_src emacs-lisp
-     (when (file-exists-p (expand-file-name "~/.emacs.d/kintaro"))
-       (setq load-path (cons (expand-file-name "~/.emacs.d/kintaro") load-path))
+     (when (file-exists-p (expand-file-name "~/.emacs.d/kintaro-mode"))
+       (setq load-path (cons (expand-file-name "~/.emacs.d/kintaro-mode") load-path))
        (require 'kintaro-mode)
        (add-to-list 'auto-mode-alist '("\\.ksdl\\'" . kintaro-mode)))
    #+end_src
-
 ** backups
    #+begin_src emacs-lisp
      (setq backup-directory-alist
