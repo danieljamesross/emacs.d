@@ -239,7 +239,7 @@
                      ("\\.yaml\\'"     . yaml-mode)
                      ("\\.py\\'"      . python-mode)
                      ("\\.ly\\'"      . lilypond-mode)
-                     ("\\.js\\'"      . js2-mode)
+                     ("\\.js\\'"      . web-mode)
                      ("\\.json\\'"    . json-mode)
                      ("\\.jinja\\'"   . jinja2-mode)
                      ("\\.tex\\'"     . latex-mode)
@@ -429,8 +429,6 @@
        :config
        (eval-after-load 'js-mode
          '(add-hook 'js-mode-hook #'add-node-modules-path))
-       (eval-after-load 'js2-mode
-         '(add-hook 'js2-mode-hook #'add-node-modules-path))
        (eval-after-load 'web-mode
          '(add-hook 'web-mode-hook #'add-node-modules-path)))
    #+end_src
