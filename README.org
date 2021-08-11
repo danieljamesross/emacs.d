@@ -131,7 +131,8 @@
       (add-hook 'prog-mode-hook 'turn-on-auto-fill)
       (remove-hook 'nxml-mode-hook #'turn-on-auto-fill)
       (remove-hook 'jinja2-mode-hook #'turn-on-auto-fill)
-      (display-fill-column-indicator-mode nil)
+      (remove-hook 'yaml-mode-hook #'turn-on-auto-fill)
+      (display-fill-column-indicator-mode t)
     #+End_SRC
 *** new UNTITLED file
     #+BEGIN_SRC emacs-lisp
