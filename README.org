@@ -594,7 +594,7 @@
         :config
         (setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
         (add-hook 'js2-mode-hook
-                  '(lambda ()
+                  #'(lambda ()
                      (local-set-key "\C-x\C-e" 'js-send-last-sexp)
                      (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
                      (local-set-key "\C-cb" 'js-send-buffer)
@@ -736,18 +736,18 @@
 **** tsx
      #+begin_src emacs-lisp
        (add-hook 'web-mode-hook
-                 (lambda ()
-                   (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                     (setup-tide-mode))))
+                 #'(lambda ()
+                     (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                       (setup-tide-mode))))
        ;; enable typescript-tslint checker
        (flycheck-add-mode 'typescript-tslint 'web-mode)
      #+end_src
 **** jsx
      #+begin_src emacs-lisp
        (add-hook 'web-mode-hook
-                 (lambda ()
-                   (when (string-equal "jsx" (file-name-extension buffer-file-name))
-                     (setup-tide-mode))))
+                 #'(lambda ()
+                     (when (string-equal "jsx" (file-name-extension buffer-file-name))
+                       (setup-tide-mode))))
        ;; configure jsx-tide checker to run after your default jsx checker
        ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
        ;; dunno
@@ -761,7 +761,7 @@
         ;; "https://raw.githubusercontent.com/codesuki/eslint-fix/master/eslint-fix.el"
         :config (eval-after-load 'js-mode
                   '(add-hook 'js-mode-hook
-                             (lambda ()
+                             #'(lambda ()
                                (add-hook 'after-save-hook
                                          'eslint-fix nil t))))
         ;; (eval-after-load 'web-mode
@@ -798,14 +798,22 @@
       (defun remove-decimal-zero ()
         (replace-regexp "0\\." "."))
 
-      (add-hook 'css-mode-hook 
-                (lambda () 
+      (add-hook 'css-mode-hook
+                #'(lambda ()
                   (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
-      (add-hook 'scss-mode-hook 
-                (lambda () 
+      (add-hook 'scss-mode-hook
+                #'(lambda ()
                   (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
     #+end_src
 
+*** SASS
+    #+begin_src emacs-lisp
+      (use-package sass-mode
+        :ensure t
+        :defer t
+        :config
+        (enable-minor-mode '("\\.sass?\\'" . sass-mode)))
+    #+end_src
 ** JSON
    #+begin_src emacs-lisp
      (use-package json-mode
@@ -1015,7 +1023,7 @@
       (setq ibuffer-expert t)
       (setq ibuffer-show-empty-filter-groups nil)
       (add-hook 'ibuffer-mode-hook
-                '(lambda ()
+                #'(lambda ()
                    (ibuffer-auto-mode 1)
                    (ibuffer-switch-to-saved-filter-groups "home")))
       (setq dired-auto-revert-buffer t
@@ -1070,9 +1078,9 @@
     #+END_SRC
 *** Key bindings
     #+BEGIN_SRC emacs-lisp
-      (global-set-key "\M-3" '(lambda() (interactive) (insert "#")))
+      (global-set-key "\M-3" #'(lambda() (interactive) (insert "#")))
       (global-set-key (kbd "C-c n") #'djr-new-buffer-frame)
-      (global-set-key "\C-x\l" '(lambda () (interactive)
+      (global-set-key "\C-x\l" #'(lambda () (interactive)
                                   (switch-to-buffer "*slime-repl sbcl*")))
       (global-set-key (kbd "C-x C-b") 'ibuffer) ;; Use Ibuffer for Buffer List
       ;; Becasue I just can't quite those MacOS bindings, and why should I?
