@@ -675,8 +675,8 @@
           (dolist (item exec-path)
             (if (and (string-match node-path item)
                      (file-exists-p (concat item "prettier")))
-                (return #'prettier-js-mode)
-              (return #'local-prettier)))))
+                (cl-return #'prettier-js-mode)
+              (cl-return #'local-prettier)))))
 
       (eval-after-load 'web-mode
         '(progn
