@@ -464,12 +464,15 @@
 ** Completions: Company, Flyspell, FlyCheck, Minibuffer auto-complete, Fido
 *** Company
     #+begin_src emacs-lisp
+      (defun remove-company-mode ()
+        (company-mode -1))
       (use-package company
-        :ensure t
-        :bind ("C-`" . 'company-complete-common)
-        :custom ((company-idle-delay 0.0)
-                 (company-minimum-prefix-length 1))
-        :init (add-hook 'after-init-hook 'global-company-mode))
+              :ensure t
+              :bind ("C-`" . 'company-complete-common)
+              :custom ((company-idle-delay 0.1)
+                       (company-minimum-prefix-length 1))
+              :hook ((after-init-hook . global-company-mode)
+                     (shell-mode-hook .remove-company-mode)))
     #+end_src
 *** Flyspell
     Taken from [[https://stackoverflow.com/questions/17126951/emacs-cannot-find-flyspell-ispell][here]].
