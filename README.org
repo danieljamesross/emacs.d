@@ -799,14 +799,22 @@
       (defun remove-decimal-zero ()
         (replace-regexp "0\\." "."))
 
-      (add-hook 'css-mode-hook 
-                (lambda () 
+      (add-hook 'css-mode-hook
+                #'(lambda ()
                   (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
-      (add-hook 'scss-mode-hook 
-                (lambda () 
+      (add-hook 'scss-mode-hook
+                #'(lambda ()
                   (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
     #+end_src
 
+*** SASS
+    #+begin_src emacs-lisp
+      (use-package sass-mode
+        :ensure t
+        :defer t
+        :config
+        (enable-minor-mode '("\\.sass?\\'" . sass-mode)))
+    #+end_src
 ** JSON
    #+begin_src emacs-lisp
      (use-package json-mode
