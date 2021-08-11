@@ -287,13 +287,13 @@
     #+BEGIN_SRC emacs-lisp
       (defun js-80-slash ()
         (interactive)
-        (loop repeat 80 do (insert "/")))
+        (cl-loop repeat 80 do (insert "/")))
     #+END_SRC
 *** lisp-80-slash
     #+BEGIN_SRC emacs-lisp
       (defun lisp-80-slash ()
         (interactive)
-        (loop repeat 80 do (insert ";")))
+        (cl-loop repeat 80 do (insert ";")))
     #+END_SRC
 *** React boilerplate
     #+BEGIN_SRC emacs-lisp
