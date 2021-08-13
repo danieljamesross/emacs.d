@@ -2,7 +2,17 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("seem-events"
+(("bolands"
+ (filename . "~/phntms/gweb-bolands-mills/")
+ (front-context-string . "src\n  -rw-r--r--")
+ (rear-context-string . "92 20 Jul 10:31 ")
+ (position . 1447))
+("yebba"
+ (filename . "~/phntms/yebba-2021/")
+ (front-context-string . ".babelrc\n  -rw-r")
+ (rear-context-string . "92 13 May 17:44 ")
+ (position . 267))
+("seem-events"
  (filename . "~/ReactApps/seem-events/")
  (front-context-string . "client\n  drwxr-x")
  (rear-context-string . "48  9 May 13:36 ")

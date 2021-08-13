@@ -131,7 +131,8 @@
       (add-hook 'prog-mode-hook 'turn-on-auto-fill)
       (remove-hook 'nxml-mode-hook #'turn-on-auto-fill)
       (remove-hook 'jinja2-mode-hook #'turn-on-auto-fill)
-      (display-fill-column-indicator-mode nil)
+      (remove-hook 'yaml-mode-hook #'turn-on-auto-fill)
+      (display-fill-column-indicator-mode t)
     #+End_SRC
 *** new UNTITLED file
     #+BEGIN_SRC emacs-lisp
@@ -218,41 +219,42 @@
    #+end_src
 ** File Types & modes
    #+BEGIN_SRC emacs-lisp
-     (setq auto-mode-alist
-           (append '(("\\.c\\'"       . c-mode)
-                     ("\\.cs\\'"      . csharp-mode)
-                     ("\\.txt\\'"     . text-mode)
-                     ("\\.md\\'"      . markdown-mode)
-                     ("\\.cpp\\'"     . c++-mode)
-                     ("\\.CPP\\'"     . c++-mode)
-                     ("\\.h\\'"       . c-mode)
-                     ("\\.lsp\\'"     . lisp-mode)
-                     ("\\.cl\\'"      . lisp-mode)
-                     ("\\.cm\\'"      . lisp-mode)
-                     ("\\.lisp\\'"    . lisp-mode)
-                     ("\\.clm\\'"     . lisp-mode)
-                     ("\\.ins\\'"     . lisp-mode)
-                     ("\\.el\\'"      . lisp-mode)
-                     ("\\.el.gz\\'"   . lisp-mode)
-                     ("\\.ws\\'"      . lisp-mode)
-                     ("\\.asd\\'"     . lisp-mode)
-                     ("\\.yaml\\'"     . yaml-mode)
-                     ("\\.py\\'"      . python-mode)
-                     ("\\.ly\\'"      . lilypond-mode)
-                     ("\\.js\\'"      . js2-mode)
-                     ("\\.json\\'"    . json-mode)
-                     ("\\.jinja\\'"   . jinja2-mode)
-                     ("\\.tex\\'"     . latex-mode)
-                     ("\\.cls\\'"     . latex-mode)
-                     ("\\.java\\'"    . java-mode)
-                     ("\\.ascii\\'"   . text-mode)
-                     ("\\.sql\\'"     . sql-mode)
-                     ("\\.pl\\'"      . perl-mode)
-                     ("\\.php\\'"     . php-mode)
-                     ("\\.jxs\\'"     . shader-mode)
-                     ("\\.sh\\'"      . shell-mode)
-                     ("\\.gnuplot\\'" . shell-mode))
-                   auto-mode-alist))
+          (setq auto-mode-alist
+                (append '(("\\.c\\'"       . c-mode)
+                          ("\\.cs\\'"      . csharp-mode)
+                          ("\\.txt\\'"     . text-mode)
+                          ("\\.md\\'"      . markdown-mode)
+                          ("\\.cpp\\'"     . c++-mode)
+                          ("\\.CPP\\'"     . c++-mode)
+                          ("\\.h\\'"       . c-mode)
+                          ("\\.lsp\\'"     . lisp-mode)
+                          ("\\.cl\\'"      . lisp-mode)
+                          ("\\.cm\\'"      . lisp-mode)
+                          ("\\.lisp\\'"    . lisp-mode)
+                          ("\\.clm\\'"     . lisp-mode)
+                          ("\\.ins\\'"     . lisp-mode)
+                          ("\\.el\\'"      . lisp-mode)
+                          ("\\.el.gz\\'"   . lisp-mode)
+                          ("\\.ws\\'"      . lisp-mode)
+                          ("\\.asd\\'"     . lisp-mode)
+                          ("\\.yaml\\'"     . yaml-mode)
+                          ("\\.py\\'"      . python-mode)
+                          ("\\.ly\\'"      . lilypond-mode)
+                          ("\\.js\\'"      . web-mode)
+                          ("\\.json\\'"    . json-mode)
+                          ("\\.jinja\\'"   . jinja2-mode)
+                          ("\\.tex\\'"     . latex-mode)
+                          ("\\.cls\\'"     . latex-mode)
+                          ("\\.java\\'"    . java-mode)
+                          ("\\.ascii\\'"   . text-mode)
+                          ("\\.sql\\'"     . sql-mode)
+                          ("\\.pl\\'"      . perl-mode)
+                          ("\\.php\\'"     . php-mode)
+                          ("\\.jxs\\'"     . shader-mode)
+                          ("\\.sh\\'"      . shell-mode)
+                          ("\\.gnuplot\\'" . shell-mode)
+                          ("\\.svg\\'"     . nxml-mode))
+                        auto-mode-alist))
    #+END_SRC
 ** Generate Code
 *** THREE box
@@ -285,13 +287,13 @@
     #+BEGIN_SRC emacs-lisp
       (defun js-80-slash ()
         (interactive)
-        (loop repeat 80 do (insert "/")))
+        (cl-loop repeat 80 do (insert "/")))
     #+END_SRC
 *** lisp-80-slash
     #+BEGIN_SRC emacs-lisp
       (defun lisp-80-slash ()
         (interactive)
-        (loop repeat 80 do (insert ";")))
+        (cl-loop repeat 80 do (insert ";")))
     #+END_SRC
 *** React boilerplate
     #+BEGIN_SRC emacs-lisp
@@ -429,8 +431,6 @@
        :config
        (eval-after-load 'js-mode
          '(add-hook 'js-mode-hook #'add-node-modules-path))
-       (eval-after-load 'js2-mode
-         '(add-hook 'js2-mode-hook #'add-node-modules-path))
        (eval-after-load 'web-mode
          '(add-hook 'web-mode-hook #'add-node-modules-path)))
    #+end_src
@@ -464,12 +464,15 @@
 ** Completions: Company, Flyspell, FlyCheck, Minibuffer auto-complete, Fido
 *** Company
     #+begin_src emacs-lisp
+      (defun remove-company-mode ()
+        (company-mode -1))
       (use-package company
-        :ensure t
-        :bind ("C-`" . 'company-complete-common)
-        :custom ((company-idle-delay 0.0)
-                 (company-minimum-prefix-length 1))
-        :init (add-hook 'after-init-hook 'global-company-mode))
+              :ensure t
+              :bind ("C-`" . 'company-complete-common)
+              :custom ((company-idle-delay 0.1)
+                       (company-minimum-prefix-length 1))
+              :hook ((after-init-hook . global-company-mode)
+                     (shell-mode-hook .remove-company-mode)))
     #+end_src
 *** Flyspell
     Taken from [[https://stackoverflow.com/questions/17126951/emacs-cannot-find-flyspell-ispell][here]].
@@ -538,19 +541,39 @@
     #+begin_src emacs-lisp
       (setq fido-mode t)
     #+end_src
+*** Bash completion
+    #+begin_src emacs-lisp
+      (use-package bash-completion
+        :defer t
+        :ensure t
+        :config (bash-completion-setup))
+    #+end_src
 ** lsp-mode
    Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
    #+BEGIN_SRC emacs-lisp
+     ;; (defun check-lsp ()
+     ;;     (print (file-name-extension buffer-file-name))
+     ;;   (when (or (string-equal "jsx" (file-name-extension buffer-file-name))
+     ;;             (string-equal "js" (file-name-extension buffer-file-name))
+     ;;             (string-equal "tsx" (file-name-extension buffer-file-name))
+     ;;             (string-equal "ts" (file-name-extension buffer-file-name)))
+     ;;     #'lsp-deferred))
+
      (use-package lsp-mode
        :if window-system
        :ensure t
-       :hook ((js2-mode . lsp-deferred)
-              (web-mode . lsp-deferred)
-              (css-mode . lsp-deferred))
        :commands (lsp lsp-deferred)
        :config (setq lsp-keymap-prefix "C-c l"
                      lsp-headerline-breadcrumb-mode t
-                     lsp-log-io nil))
+                     lsp-log-io nil)
+        (enable-minor-mode
+         '("\\.jsx?\\'" . lsp-deferred))
+        (enable-minor-mode
+         '("\\.js?\\'" . lsp-deferred))
+        (enable-minor-mode
+         '("\\.ts?\\'" . lsp-deferred))
+        (enable-minor-mode
+         '("\\.tsx?\\'" . lsp-deferred)))
    #+END_SRC
 *** lsp-ui
     #+BEGIN_SRC emacs-lisp
@@ -571,7 +594,7 @@
         :config
         (setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
         (add-hook 'js2-mode-hook
-                  '(lambda ()
+                  #'(lambda ()
                      (local-set-key "\C-x\C-e" 'js-send-last-sexp)
                      (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
                      (local-set-key "\C-cb" 'js-send-buffer)
@@ -596,7 +619,8 @@
                ("\\.htm$"     . web-mode)
                ("\\.shtml$"   . web-mode)
                ("\\.tsx$"     . web-mode)
-               ("\\.ts$"      . web-mode))
+               ("\\.ts$"      . web-mode)
+               ("\\.njk$"      . web-mode))
         :config (setq web-mode-enable-auto-quoting nil))
     #+END_SRC
 **** web-mode-indent
@@ -624,32 +648,41 @@
      #+END_SRC
 *** prettier-js-mode
     #+BEGIN_SRC emacs-lisp
-      (use-package prettier-js
-        :ensure t
-        :config (add-hook 'web-mode-hook
-                          #'(lambda ()
-                              (enable-minor-mode
-                               '("\\.jsx?\\'" . prettier-js-mode))
-                              (enable-minor-mode
-                               '("\\.js?\\'" . prettier-js-mode))
-                              (enable-minor-mode
-                               '("\\.ts?\\'" . prettier-js-mode))
-                              (enable-minor-mode
-                               '("\\.tsx?\\'" . prettier-js-mode))))
+      (defun local-prettier ()
+        (use-package prettier-js
+          :ensure t
+          :config
+        (enable-minor-mode
+         '("\\.jsx?\\'" . prettier-js-mode))
+        (enable-minor-mode
+         '("\\.js?\\'" . prettier-js-mode))
+        (enable-minor-mode
+         '("\\.ts?\\'" . prettier-js-mode))
+        (enable-minor-mode
+         '("\\.tsx?\\'" . prettier-js-mode))
         (setq prettier-js-args
               '(
-                ;; "--trailing-comma" "none"
-                ;;       
+                "--arrow-parens" "always"
                 "--semi" "true"
                 "--bracket-spacing" "true"
-                ;;   "--single-quote" "false"
-                  "--jsx-bracket-same-line" "false"
+                "--single-quote" "true"
+                "--jsx-bracket-same-line" "true"
                 "--print-width" "80"
                 "--use-tabs" "false"
-                "--tab-width" "2"
-                ;;   "--arrow-parens" "always"
-                )
-              prettier-inline-errors-flag t))
+                "--tab-width" "2"))))
+
+      (defun choose-prettier ()
+        (let ((node-path "node_modules/.bin"))
+          (dolist (item exec-path)
+            (if (and (string-match node-path item)
+                     (file-exists-p (concat item "prettier")))
+                (cl-return #'prettier-js-mode)
+              (cl-return #'local-prettier)))))
+
+      (eval-after-load 'web-mode
+        '(progn
+           (add-hook 'web-mode-hook #'add-node-modules-path)
+           (add-hook 'web-mode-hook #'choose-prettier)))
     #+END_SRC
 *** tide
     #+begin_src emacs-lisp
@@ -704,18 +737,18 @@
 **** tsx
      #+begin_src emacs-lisp
        (add-hook 'web-mode-hook
-                 (lambda ()
-                   (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                     (setup-tide-mode))))
+                 #'(lambda ()
+                     (when (string-equal "tsx" (file-name-extension buffer-file-name))
+                       (setup-tide-mode))))
        ;; enable typescript-tslint checker
        (flycheck-add-mode 'typescript-tslint 'web-mode)
      #+end_src
 **** jsx
      #+begin_src emacs-lisp
        (add-hook 'web-mode-hook
-                 (lambda ()
-                   (when (string-equal "jsx" (file-name-extension buffer-file-name))
-                     (setup-tide-mode))))
+                 #'(lambda ()
+                     (when (string-equal "jsx" (file-name-extension buffer-file-name))
+                       (setup-tide-mode))))
        ;; configure jsx-tide checker to run after your default jsx checker
        ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
        ;; dunno
@@ -732,7 +765,7 @@
         :load-path "~/.emacs.d/eslint-fix/"
         :config (eval-after-load 'js-mode
                   '(add-hook 'js-mode-hook
-                             (lambda ()
+                             #'(lambda ()
                                (add-hook 'after-save-hook
                                          'eslint-fix nil t))))
         ;; (eval-after-load 'web-mode
@@ -769,14 +802,22 @@
       (defun remove-decimal-zero ()
         (replace-regexp "0\\." "."))
 
-      (add-hook 'css-mode-hook 
-                (lambda () 
+      (add-hook 'css-mode-hook
+                #'(lambda ()
                   (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
-      (add-hook 'scss-mode-hook 
-                (lambda () 
+      (add-hook 'scss-mode-hook
+                #'(lambda ()
                   (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
     #+end_src
 
+*** SASS
+    #+begin_src emacs-lisp
+      (use-package sass-mode
+        :ensure t
+        :defer t
+        :config
+        (enable-minor-mode '("\\.sass?\\'" . sass-mode)))
+    #+end_src
 ** JSON
    #+begin_src emacs-lisp
      (use-package json-mode
@@ -938,17 +979,22 @@
                             (name . "\\.ts")))
                ("Web Dev" (or (mode . html-mode)
                               (name . "\\.html")
+                              (name . "\\.njk")
                               (mode . jinja2-mode)))
                ("CSS" (or (mode . css-mode)
                           (mode . scss-mode)
+                          (mode . sass-mode)
                           (name . "\\.css")
-                          (name . "\\.scss")))
+                          (name . "\\.scss")
+                          (name . "\\.sass")))
                ("Python" (or (mode . python-mode)
                              (name . "\\.py")))
-               ("JSON/Config" (or (mode . json-mode)
-                                  (name . "\\.json")
-                                  (mode . kintaro-mode)
-                                  (name . "\\.ksdl")))
+               ("JSON/YAML/Config" (or (mode . json-mode)
+                                       (name . "\\.json")
+                                       (mode . yaml-mode)
+                                       (name . "\\.json")
+                                       (mode . kintaro-mode)
+                                       (name . "\\.ksdl")))
                ("SVG" (name . "\\.svg"))
                ("ERC" (mode . erc-mode))
                ("find" (or (mode . xref-mode)
@@ -986,7 +1032,7 @@
       (setq ibuffer-expert t)
       (setq ibuffer-show-empty-filter-groups nil)
       (add-hook 'ibuffer-mode-hook
-                '(lambda ()
+                #'(lambda ()
                    (ibuffer-auto-mode 1)
                    (ibuffer-switch-to-saved-filter-groups "home")))
       (setq dired-auto-revert-buffer t
@@ -1041,9 +1087,9 @@
     #+END_SRC
 *** Key bindings
     #+BEGIN_SRC emacs-lisp
-      (global-set-key "\M-3" '(lambda() (interactive) (insert "#")))
+      (global-set-key "\M-3" #'(lambda() (interactive) (insert "#")))
       (global-set-key (kbd "C-c n") #'djr-new-buffer-frame)
-      (global-set-key "\C-x\l" '(lambda () (interactive)
+      (global-set-key "\C-x\l" #'(lambda () (interactive)
                                   (switch-to-buffer "*slime-repl sbcl*")))
       (global-set-key (kbd "C-x C-b") 'ibuffer) ;; Use Ibuffer for Buffer List
       ;; Becasue I just can't quite those MacOS bindings, and why should I?
@@ -1244,10 +1290,13 @@
     <<fonts>>
     #+BEGIN_SRC emacs-lisp
       (when (display-graphic-p)
-        (add-to-list 'default-frame-alist '(font . "Fira Code"))
+        ;; (add-to-list 'default-frame-alist '(font . "Fira Code"))
+        (add-to-list 'default-frame-alist '(font . "DejaVu Sans Mono"))
         (set-fontset-font t '(#Xe100 . #Xe16f) "Fira Code Symbol")
-        (set-face-attribute 'default nil :height 130)
-        (set-frame-font "Fira Code 13" nil t))
+        (set-face-attribute 'default nil :height 140)
+        ;; (set-frame-font "Fira Code 13" nil t)
+        (set-frame-font "DejaVu Sans Mono" nil t)
+        )
     #+end_src
 *** highlight-indent-guides
     Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
@@ -1343,12 +1392,11 @@
    #+end_src
 ** kintaro-mode
    #+begin_src emacs-lisp
-     (when (file-exists-p (expand-file-name "~/.emacs.d/kintaro"))
-       (setq load-path (cons (expand-file-name "~/.emacs.d/kintaro") load-path))
+     (when (file-exists-p (expand-file-name "~/.emacs.d/kintaro-mode"))
+       (setq load-path (cons (expand-file-name "~/.emacs.d/kintaro-mode") load-path))
        (require 'kintaro-mode)
        (add-to-list 'auto-mode-alist '("\\.ksdl\\'" . kintaro-mode)))
    #+end_src
-
 ** backups
    #+begin_src emacs-lisp
      (setq backup-directory-alist
@@ -1460,4 +1508,107 @@
      (use-package shader-mode
        :ensure t
        :defer t)
+   #+end_src
+
+** polymode
+   #+begin_src emacs-lisp
+(use-package poly-markdown
+  :ensure t)
+   #+end_src
+*** styled-components-polymode
+    #+begin_src emacs-lisp
+      (define-hostmode styled-components-hostmode
+        :mode 'web-mode)
+
+      (define-innermode poly-css-styled-components-innermode
+        :mode 'scss-mode
+        :head-matcher "styled\[^\r\n\t\f\v \]+`\n"
+        :tail-matcher "\n`;"
+        :head-mode 'host
+        :tail-mode 'host)
+
+      (define-polymode styled-components-mode
+        :hostmode 'styled-components-hostmode
+        :innermodes '(poly-css-styled-components-innermode))
+    #+end_src
+** editorconfig
+   #+begin_src emacs-lisp
+(use-package editorconfig
+  :ensure t
+  :config
+  (editorconfig-mode 1))
+   #+end_src
+** Xah Move Cursor
+   #+begin_src emacs-lisp
+(defvar xah-brackets nil "string of left/right brackets pairs.")
+(setq xah-brackets "()[]{}<>（）［］｛｝⦅⦆〚〛⦃⦄“”‘’‹›«»「」〈〉《》【】〔〕⦗⦘『』〖〗〘〙｢｣⟦⟧⟨⟩⟪⟫⟮⟯⟬⟭⌈⌉⌊⌋⦇⦈⦉⦊❛❜❝❞❨❩❪❫❴❵❬❭❮❯❰❱❲❳〈〉⦑⦒⧼⧽﹙﹚﹛﹜﹝﹞⁽⁾₍₎⦋⦌⦍⦎⦏⦐⁅⁆⸢⸣⸤⸥⟅⟆⦓⦔⦕⦖⸦⸧⸨⸩｟｠⧘⧙⧚⧛⸜⸝⸌⸍⸂⸃⸄⸅⸉⸊᚛᚜༺༻༼༽⏜⏝⎴⎵⏞⏟⏠⏡﹁﹂﹃﹄︹︺︻︼︗︘︿﹀︽︾﹇﹈︷︸")
+
+(defvar xah-left-brackets '("(" "{" "[" "<" "〔" "【" "〖" "〈" "《" "「" "『" "“" "‘" "‹" "«" )
+  "List of left bracket chars.")
+(progn
+;; make xah-left-brackets based on xah-brackets
+  (setq xah-left-brackets '())
+  (dotimes ($x (- (length xah-brackets) 1))
+    (when (= (% $x 2) 0)
+      (push (char-to-string (elt xah-brackets $x))
+            xah-left-brackets)))
+  (setq xah-left-brackets (reverse xah-left-brackets)))
+
+(defvar xah-right-brackets '(")" "]" "}" ">" "〕" "】" "〗" "〉" "》" "」" "』" "”" "’" "›" "»")
+  "list of right bracket chars.")
+(progn
+  (setq xah-right-brackets '())
+  (dotimes ($x (- (length xah-brackets) 1))
+    (when (= (% $x 2) 1)
+      (push (char-to-string (elt xah-brackets $x))
+            xah-right-brackets)))
+  (setq xah-right-brackets (reverse xah-right-brackets)))
+
+(defun xah-backward-left-bracket ()
+  "Move cursor to the previous occurrence of left bracket.
+The list of brackets to jump to is defined by `xah-left-brackets'.
+URL `http://ergoemacs.org/emacs/emacs_navigating_keys_for_brackets.html'
+Version 2015-10-01"
+  (interactive)
+  (re-search-backward (regexp-opt xah-left-brackets) nil t))
+
+(defun xah-forward-right-bracket ()
+  "Move cursor to the next occurrence of right bracket.
+The list of brackets to jump to is defined by `xah-right-brackets'.
+URL `http://ergoemacs.org/emacs/emacs_navigating_keys_for_brackets.html'
+Version 2015-10-01"
+  (interactive)
+  (re-search-forward (regexp-opt xah-right-brackets) nil t))
+
+(global-set-key (kbd "S-M-C-<right>") 'xah-forward-right-bracket)
+(global-set-key (kbd "S-M-C-<left>") 'xah-backward-left-bracket)
+   #+end_src
+*** Xah Matching Brackets
+    #+begin_src emacs-lisp
+(defun xah-goto-matching-bracket ()
+  "Move cursor to the matching bracket.
+If cursor is not on a bracket, call `backward-up-list'.
+The list of brackets to jump to is defined by `xah-left-brackets' and `xah-right-brackets'.
+URL `http://ergoemacs.org/emacs/emacs_navigating_keys_for_brackets.html'
+Version 2016-11-22"
+  (interactive)
+  (if (nth 3 (syntax-ppss))
+      (backward-up-list 1 'ESCAPE-STRINGS 'NO-SYNTAX-CROSSING)
+    (cond
+     ((eq (char-after) ?\") (forward-sexp))
+     ((eq (char-before) ?\") (backward-sexp ))
+     ((looking-at (regexp-opt xah-left-brackets))
+      (forward-sexp))
+     ((looking-back (regexp-opt xah-right-brackets) (max (- (point) 1) 1))
+      (backward-sexp))
+     (t (backward-up-list 1 'ESCAPE-STRINGS 'NO-SYNTAX-CROSSING)))))
+
+(global-set-key (kbd "S-M-C-<down>") 'xah-goto-matching-bracket)
+    #+end_src
+** shellhighlight
+   #+begin_src emacs-lisp
+     (use-package shx
+       :ensure t
+       :defer t
+       :config (shx-global-mode 1))
    #+end_src
