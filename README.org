@@ -1612,7 +1612,8 @@ Version 2016-11-22"
        :defer t
        :config (shx-global-mode 1))
    #+end_src
-** 
+** vterm
    #+begin_src emacs-lisp
-     (add-hook 'prog-mode-hook #'(lambda () (display-fill-column-indicator-mode t)))
+     (use-package vterm
+         :ensure t)
    #+end_src
