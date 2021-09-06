@@ -58,6 +58,15 @@
             (if (string-match (car my-pair) buffer-file-name)
                 (funcall (cdr my-pair)))))
     #+end_src
+*** check-file-exists-or-clone
+    #+begin_src emacs-lisp
+      (defun check-file-exists-or-clone (file repo)
+        (let ((expanded-filname (expand-file-name file)))
+          (if (file-exists-p expanded-filname)
+              (princ (format "%s already exists\n" expanded-filname))
+            (async-shell-command (format "git clone -q %s %s" repo expanded-filname))
+            (princ (format "Cloning repo %s into %s" repo expanded-filname)))))
+    #+end_src
 ** PATH
    #+BEGIN_SRC emacs-lisp
      (use-package exec-path-from-shell
@@ -1256,12 +1265,12 @@
     #+end_src
 *** Ligatures
     #+begin_src emacs-lisp
-      (let ((lig-path (expand-file-name "~/.emacs.d/ligature/")))
-        (unless (file-exists-p lig-path)
-          (shell-command "git clone -q https://github.com/mickeynp/ligature.el.git ligature"))
+      (let ((lig-path "~/.emacs.d/ligature/")
+            (lig-repo "https://github.com/mickeynp/ligature.el.git"))
+        (check-file-exists-or-clone lig-path lig-repo)
         (use-package ligature
           :if window-system
-          :load-path "~/.emacs.d/ligature/"
+          :load-path lig-path
           :config
           ;; Enable the "www" ligature in every possible major mode
           (ligature-set-ligatures 't '("www"))
