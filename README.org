@@ -158,7 +158,6 @@
       (remove-hook 'nxml-mode-hook #'turn-on-auto-fill)
       (remove-hook 'jinja2-mode-hook #'turn-on-auto-fill)
       (remove-hook 'yaml-mode-hook #'turn-on-auto-fill)
-      (display-fill-column-indicator-mode t)
     #+End_SRC
 *** new UNTITLED file
     #+BEGIN_SRC emacs-lisp
@@ -1761,4 +1760,9 @@ Version 2016-11-22"
        :ensure t
        :defer t
        :config (shx-global-mode 1))
+   #+end_src
+** vterm
+   #+begin_src emacs-lisp
+     (use-package vterm
+         :ensure t)
    #+end_src
