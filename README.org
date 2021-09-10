@@ -93,23 +93,23 @@
        (setenv "SHELL" "/bin/zsh")
        (exec-path-from-shell-initialize)
        (exec-path-from-shell-copy-envs
-	'("PATH"))
+        '("PATH"))
        (if (and (fboundp 'native-comp-available-p)
-		(native-comp-available-p))
-	   (progn
-	     (message "Native comp is available")
-	     ;; Using Emacs.app/Contents/MacOS/bin since it was compiled with
-	     ;; ./configure --prefix="$PWD/nextstep/Emacs.app/Contents/MacOS"
-	     (add-to-list 'exec-path (concat invocation-directory "bin") t)
-	     (setenv "LIBRARY_PATH" (concat (getenv "LIBRARY_PATH")
-					    (when (getenv "LIBRARY_PATH")
-					      ":")
-					    ;; This is where Homebrew puts gcc libraries.
-					    (car (file-expand-wildcards
-						  (expand-file-name "/usr/local/opt/gcc/lib/gcc/*")))))
-	     ;; Only set after LIBRARY_PATH can find gcc libraries.
-	     (setq comp-deferred-compilation t))
-	 (message "Native comp is *not* available")))
+                (native-comp-available-p))
+           (progn
+             (message "Native comp is available")
+             ;; Using Emacs.app/Contents/MacOS/bin since it was compiled with
+             ;; ./configure --prefix="$PWD/nextstep/Emacs.app/Contents/MacOS"
+             (add-to-list 'exec-path (concat invocation-directory "bin") t)
+             (setenv "LIBRARY_PATH" (concat (getenv "LIBRARY_PATH")
+                                            (when (getenv "LIBRARY_PATH")
+                                              ":")
+                                            ;; This is where Homebrew puts gcc libraries.
+                                            (car (file-expand-wildcards
+                                                  (expand-file-name "/usr/local/opt/gcc/lib/gcc/*")))))
+             ;; Only set after LIBRARY_PATH can find gcc libraries.
+             (setq comp-deferred-compilation t))
+         (message "Native comp is *not* available")))
 
      ;; (when (file-exists-p (expand-file-name  "/Library/TeX/texbin"))
      ;;   (setenv "PATH" (concat "/Library/TeX/texbin:"
@@ -120,7 +120,7 @@
      ;; (add-to-list 'exec-path exec-path default-directory)
      ;; (add-to-list 'exec-path exec-path (expand-file-name "~/.emacs.d"))
      ;; (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
-     
+
    #+END_SRC
 ** Buffers and Panes
 *** buffer-move
@@ -781,14 +781,6 @@
 ** lsp-mode
    Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
    #+BEGIN_SRC emacs-lisp
-     ;; (defun check-lsp ()
-     ;;     (print (file-name-extension buffer-file-name))
-     ;;   (when (or (string-equal "jsx" (file-name-extension buffer-file-name))
-     ;;             (string-equal "js" (file-name-extension buffer-file-name))
-     ;;             (string-equal "tsx" (file-name-extension buffer-file-name))
-     ;;             (string-equal "ts" (file-name-extension buffer-file-name)))
-     ;;     #'lsp-deferred))
-
      (use-package lsp-mode
        :if window-system
        :ensure t
@@ -1039,7 +1031,6 @@
                 #'(lambda ()
                   (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
     #+end_src
-
 *** SASS
     #+begin_src emacs-lisp
       (use-package sass-mode
@@ -1464,7 +1455,6 @@
        :if window-system
        :ensure t)
    #+end_src
-
 ** Xah customisations
 *** Move beginning/end of line
     #+begin_src emacs-lisp
@@ -1658,7 +1648,6 @@
        :ensure t
        :defer t)
    #+end_src
-
 ** polymode
    #+begin_src emacs-lisp
 (use-package poly-markdown
