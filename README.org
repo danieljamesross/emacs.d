@@ -27,7 +27,7 @@
     #+end_src
 *** custom file
     #+begin_src emacs-lisp
-      (setq custom-file (expand-file-name "~/.emacs.d/djr-custom.el"))
+      (setq custom-file (expand-file-name (concat user-emacs-directory "djr-custom.el")))
       (load custom-file)
     #+end_src
 *** debug
@@ -54,27 +54,71 @@
            (if (file-exists-p expanded-filname)
                (princ (format "%s already exists\n" expanded-filname))
              (shell-command (format "git clone -q %s %s" repo expanded-filname))
-             (princ (format "Cloning repo %s into %s" repo expanded-filname)))))
+             (message (format "Cloning repo %s into %s" repo expanded-filname)))))
      #+end_src
 **** check-font-exists-or-download
      #+begin_src emacs-lisp
        (defun set-default-font (font-name)
          (add-to-list 'default-frame-alist `(font . ,font-name))
-         (set-frame-font font-name nil t))
+         (set-frame-font font-name nil t)
+         (message (format "Set font %s" font-name)))
 
        (defun check-font-exists-or-download (font-name font-repo)
          (if (find-font (font-spec :name font-name))
              (set-default-font font-name)
            (let* ((temp-folder (expand-file-name "/private/tmp/hack"))
                   (font-folder (expand-file-name "/Library/Fonts/")))
-                  (shell-command (format "git clone -q %s %s" font-repo temp-folder))
-                  (shell-command (format "mv %s/font/* %s" temp-folder font-folder))
-                  (set-default-font font-name))))
+             (shell-command (format "git clone -q %s %s" font-repo temp-folder))
+             (shell-command (format "mv %s/font/* %s" temp-folder font-folder))
+             (message (format "Download font %s from %s" font-name font-repo))
+             (set-default-font font-name))))
      #+end_src
 *** keys
     #+begin_src emacs-lisp
       (set-variable 'meta-flag 't)
       (define-key esc-map "?" 'describe-key-briefly)
+    #+end_src
+*** Move beginning/end of line
+    #+begin_src emacs-lisp
+      (defun xah-beginning-of-line-or-block ()
+        "Move cursor to beginning of line or previous paragraph.
+
+      • When called first time, move cursor to beginning of char in current line. (if already, move to beginning of line.)
+      • When called again, move cursor backward by jumping over any sequence of whitespaces containing 2 blank lines.
+
+      URL `http://ergoemacs.org/emacs/emacs_keybinding_design_beginning-of-line-or-block.html'
+      Version 2017-05-13"
+        (interactive)
+        (let (($p (point)))
+          (if (or (equal (point) (line-beginning-position))
+                  (equal last-command this-command ))
+              (if (re-search-backward "\n[\t\n ]*\n+" nil "NOERROR")
+                  (progn
+                    (skip-chars-backward "\n\t ")
+                    (forward-char ))
+                (goto-char (point-min)))
+            (progn
+              (back-to-indentation)
+              (when (eq $p (point))
+                (beginning-of-line))))))
+
+      (defun xah-end-of-line-or-block ()
+        "Move cursor to end of line or next paragraph.
+
+      • When called first time, move cursor to end of line.
+      • When called again, move cursor forward by jumping over any sequence of whitespaces containing 2 blank lines.
+
+      URL `http://ergoemacs.org/emacs/emacs_keybinding_design_beginning-of-line-or-block.html'
+      Version 2017-05-30"
+        (interactive)
+        (if (or (equal (point) (line-end-position))
+                (equal last-command this-command ))
+            (progn
+              (re-search-forward "\n[\t\n ]*\n+" nil "NOERROR" ))
+          (end-of-line)))
+
+      (global-set-key (kbd "C-a") 'xah-beginning-of-line-or-block)
+      (global-set-key (kbd "C-e") 'xah-end-of-line-or-block)
     #+end_src
 *** open in another App
     #+begin_src emacs-lisp
@@ -139,6 +183,16 @@
     #+begin_src emacs-lisp
       (setq case-fold-search t)
     #+end_src
+*** smart-hungry-delete
+    #+begin_src emacs-lisp
+      ;; https://github.com/hrehfeld/emacs-smart-hungry-delete
+      (use-package smart-hungry-delete
+        :ensure t
+        :bind (("<backspace>" . smart-hungry-delete-backward-char)
+               ("C-d" . smart-hungry-delete-forward-char))
+        :defer nil ;; dont defer so we can add our functions to hooks 
+        :config (smart-hungry-delete-add-default-hooks))
+    #+end_src
 *** tabs & indent
     #+begin_src emacs-lisp
       (setq standard-indent 2)
@@ -157,49 +211,6 @@
         :ensure t
         :bind ("C-x tf" . transpose-frame))
     #+end_src
-*** Xah customisations
-**** Move beginning/end of line
-     #+begin_src emacs-lisp
-       (defun xah-beginning-of-line-or-block ()
-         "Move cursor to beginning of line or previous paragraph.
-
-       • When called first time, move cursor to beginning of char in current line. (if already, move to beginning of line.)
-       • When called again, move cursor backward by jumping over any sequence of whitespaces containing 2 blank lines.
-
-       URL `http://ergoemacs.org/emacs/emacs_keybinding_design_beginning-of-line-or-block.html'
-       Version 2017-05-13"
-         (interactive)
-         (let (($p (point)))
-           (if (or (equal (point) (line-beginning-position))
-                   (equal last-command this-command ))
-               (if (re-search-backward "\n[\t\n ]*\n+" nil "NOERROR")
-                   (progn
-                     (skip-chars-backward "\n\t ")
-                     (forward-char ))
-                 (goto-char (point-min)))
-             (progn
-               (back-to-indentation)
-               (when (eq $p (point))
-                 (beginning-of-line))))))
-
-       (defun xah-end-of-line-or-block ()
-         "Move cursor to end of line or next paragraph.
-
-       • When called first time, move cursor to end of line.
-       • When called again, move cursor forward by jumping over any sequence of whitespaces containing 2 blank lines.
-
-       URL `http://ergoemacs.org/emacs/emacs_keybinding_design_beginning-of-line-or-block.html'
-       Version 2017-05-30"
-         (interactive)
-         (if (or (equal (point) (line-end-position))
-                 (equal last-command this-command ))
-             (progn
-               (re-search-forward "\n[\t\n ]*\n+" nil "NOERROR" ))
-           (end-of-line)))
-
-       (global-set-key (kbd "C-a") 'xah-beginning-of-line-or-block)
-       (global-set-key (kbd "C-e") 'xah-end-of-line-or-block)
-     #+end_src
 *** y-or-no-p
     #+begin_src emacs-lisp
       (fset 'yes-or-no-p 'y-or-n-p)
@@ -210,6 +221,13 @@
        '(zoom-mode t))
     #+END_SRC
 ** Views
+*** all-the-icons
+    #+begin_src emacs-lisp
+      (use-package all-the-icons
+        :ensure t
+        :defer nil
+        :config (all-the-icons-install-fonts t))
+    #+end_src
 *** fast-scroll
     #+BEGIN_SRC emacs-lisp
       (use-package fast-scroll
@@ -232,21 +250,47 @@
     #+END_SRC
 *** telephone-line
     #+BEGIN_SRC emacs-lisp
-      (use-package telephone-line
-        :if window-system
-        :ensure t
-        :config (setq telephone-line-lhs
-                      '((accent . (telephone-line-vc-segment
-                                   telephone-line-erc-modified-channels-segment
-                                   telephone-line-process-segment))
-                        (nil    . (telephone-line-buffer-segment
-                                   telephone-line-minor-mode-segment
-                                   )))
-                      telephone-line-rhs
-                      '((nil    . (telephone-line-misc-info-segment))
-                        (accent . (telephone-line-major-mode-segment)))))
-      (telephone-line-mode t)
+      ;; (use-package telephone-line
+      ;;   :if window-system
+      ;;   :ensure t
+      ;;   :config (setq telephone-line-lhs
+      ;;                 '((accent . (telephone-line-vc-segment
+      ;;                              telephone-line-erc-modified-channels-segment
+      ;;                              telephone-line-process-segment))
+      ;;                   (nil    . (telephone-line-buffer-segment
+      ;;                              telephone-line-minor-mode-segment
+      ;;                              )))
+      ;;                 telephone-line-rhs
+      ;;                 '((nil    . (telephone-line-misc-info-segment))
+      ;;                   (accent . (telephone-line-major-mode-segment)))))
+      ;; (telephone-line-mode t)
     #+END_SRC
+*** doom-themes
+    #+begin_src emacs-lisp
+      (use-package doom-themes
+        :ensure t
+        :config
+        ;; Global settings (defaults)
+        (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+              doom-themes-enable-italic t) ; if nil, italics is universally disabled
+        (load-theme 'doom-peacock t)
+
+        ;; Enable flashing mode-line on errors
+        (doom-themes-visual-bell-config)
+        ;; Enable custom neotree theme (all-the-icons must be installed!)
+        (doom-themes-neotree-config)
+        ;; or for treemacs users
+        (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+        (doom-themes-treemacs-config)
+        ;; Corrects (and improves) org-mode's native fontification.
+        (doom-themes-org-config))
+    #+end_src
+*** doom-mode-line
+    #+begin_src emacs-lisp
+      (use-package doom-modeline
+        :ensure t
+        :init (doom-modeline-mode 1))
+    #+end_src
 **** active buffer
      #+begin_src emacs-lisp
        (when (display-graphic-p)
@@ -289,7 +333,7 @@
      #+end_src
 **** Ligatures
      #+begin_src emacs-lisp
-       (let ((lig-path (expand-file-name "~/.emacs.d/ligature/"))
+       (let ((lig-path (expand-file-name (concat user-emacs-directory "ligature/")))
              (lig-repo "https://github.com/mickeynp/ligature.el.git"))
          (check-file-exists-or-clone lig-path lig-repo)
          (use-package ligature
@@ -355,6 +399,9 @@
                 (tab-mark 9 [9655 9] [92 9]) ; tab
                 )))
       (global-whitespace-mode)
+    #+end_src
+*** whitespace-cleanup-mode
+    #+begin_src emacs-lisp
       ;; (use-package whitespace-cleanup-mode
       ;;   :ensure t
       ;;   :config (setq 'whitespace-cleanup-mode t)
@@ -384,7 +431,7 @@
 *** Non Elpa/Melpa Package Modes
 **** Antescofo mode
      #+BEGIN_SRC emacs-lisp
-       (let ((antesc-path "~/.emacs.d/antesc-mode-master/"))
+       (let ((antesc-path (concat user-emacs-directory "antesc-mode-master/")))
          (check-file-exists-or-clone antesc-path "https://github.com/programLyrique/antesc-mode.git")
          ;; Antescofo text highlighting
          ;; Thanks to Pierre Donat-Bouillud
@@ -399,18 +446,20 @@
      #+END_SRC
 **** Lilypond mode
      #+BEGIN_SRC emacs-lisp
-       (let ((lily-path "~/.emacs.d/lilypond-mode/"))
+       (let ((lily-path (concat user-emacs-directory "lilypond-mode/")))
          (check-file-exists-or-clone lily-path "https://github.com/jmgpena/lilypond-mode.git")
          ;; Antescofo text highlighting
          ;; Thanks to Pierre Donat-Bouillud
          ;; https://github.com/programLyrique/antesc-mode
          ;; lilypond mode
          (add-to-list 'load-path (expand-file-name lily-path))
-         (load (expand-file-name (concat lily-path "lilypond-init.el"))))
+         (load (expand-file-name (concat lily-path "lilypond-init.el")))
+         (setq auto-mode-alist (append '(("\\.ly\\'" . antesc-mode))
+                       auto-mode-alist)))
      #+END_SRC
 **** kintaro-mode
      #+begin_src emacs-lisp
-       (let ((kintaro-path "~/.emacs.d/kintaro-mode"))
+       (let ((kintaro-path (concat user-emacs-directory "kintaro-mode")))
          (check-file-exists-or-clone kintaro-path "https://github.com/danieljamesross/kintaro-mode.git")
          (setq load-path (cons (expand-file-name kintaro-path) load-path))
          (require 'kintaro-mode)
@@ -1058,7 +1107,7 @@
       (use-package company
               :ensure t
               :bind ("C-`" . 'company-complete-common)
-              :custom ((company-idle-delay 0.1)
+              :custom ((company-idle-delay 0.0)
                        (company-minimum-prefix-length 1))
               :hook ((after-init-hook . global-company-mode)
                      (shell-mode-hook .remove-company-mode)))
@@ -1137,36 +1186,36 @@
         :ensure t
         :config (bash-completion-setup))
     #+end_src
-*** lsp-mode
-    Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
+** lsp-mode
+   Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
+   #+BEGIN_SRC emacs-lisp
+     (use-package lsp-mode
+       :if window-system
+       :ensure t
+       :commands (lsp lsp-deferred)
+       :config (setq lsp-keymap-prefix "C-c l"
+                     lsp-headerline-breadcrumb-mode t
+                     lsp-log-io nil)
+        (enable-minor-mode
+         '("\\.jsx?\\'" . lsp-deferred))
+        (enable-minor-mode
+         '("\\.js?\\'" . lsp-deferred))
+        (enable-minor-mode
+         '("\\.ts?\\'" . lsp-deferred))
+        (enable-minor-mode
+         '("\\.tsx?\\'" . lsp-deferred)))
+   #+END_SRC
+*** lsp-ui
     #+BEGIN_SRC emacs-lisp
-      (use-package lsp-mode
-        :if window-system
-        :ensure t
-        :commands (lsp lsp-deferred)
-        :config (setq lsp-keymap-prefix "C-c l"
-                      lsp-headerline-breadcrumb-mode t
-                      lsp-log-io nil)
-         (enable-minor-mode
-          '("\\.jsx?\\'" . lsp-deferred))
-         (enable-minor-mode
-          '("\\.js?\\'" . lsp-deferred))
-         (enable-minor-mode
-          '("\\.ts?\\'" . lsp-deferred))
-         (enable-minor-mode
-          '("\\.tsx?\\'" . lsp-deferred)))
+      (use-package lsp-ui
+        :commands lsp-ui-mode
+        :ensure t)
     #+END_SRC
-**** lsp-ui
-     #+BEGIN_SRC emacs-lisp
-       (use-package lsp-ui
-         :commands lsp-ui-mode
-         :ensure t)
-     #+END_SRC
-**** lsp-treemacs
-     #+begin_src emacs-lisp
-  ;     (use-package lsp-treemacs
-   ;      :ensure t)
-     #+end_src
+*** lsp-treemacs
+    #+begin_src emacs-lisp
+ ;     (use-package lsp-treemacs
+  ;      :ensure t)
+    #+end_src
 ** Web Dev
 *** CSS
 **** Indenting & brackets
@@ -1300,9 +1349,13 @@
     #+END_SRC
 *** tide
     #+begin_src emacs-lisp
+      (use-package company-web
+        :ensure t
+        :config (add-to-list 'company-backends 'company-web-html))
+
       (use-package tide
         :ensure t
-        :after (typescript-mode company flycheck web-mode)
+        :after (typescript-mode company flycheck web-mode comapny-tide)
         ;; :hook ((before-save . tide-format-before-save))
         :config (add-hook 'web-mode-hook
                           #'(lambda ()
@@ -1370,18 +1423,17 @@
      #+end_src
 *** eslint-fix
     #+begin_src emacs-lisp
-      (unless (file-exists-p (expand-file-name "~/.emacs.d/eslint-fix/"))
-        (shell-command "git clone https://github.com/codesuki/eslint-fix.git eslint-fix"))
+      (check-file-exists-or-clone "eslint-fix" "https://github.com/codesuki/eslint-fix.git")
       (unless (file-exists-p (expand-file-name "/usr/local/bin/eslint"))
         (shell-command "npm i -g eslint"))
       (use-package eslint-fix
         :ensure t
-        :load-path "~/.emacs.d/eslint-fix/"
-        :config (eval-after-load 'js-mode
-                  '(add-hook 'js-mode-hook
+        :load-path "eslint-fix"
+        :config (eval-after-load 'web-mode
+                  '(add-hook 'web-mode-hook
                              #'(lambda ()
-                               (add-hook 'after-save-hook
-                                         'eslint-fix nil t))))
+                                 (add-hook 'after-save-hook
+                                           'eslint-fix nil t))))
         ;; (eval-after-load 'web-mode
         ;;   '(add-hook 'web-mode-hook
         ;;              (lambda ()
