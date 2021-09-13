@@ -40,8 +40,8 @@
  '(telephone-line-mode t)
  '(tool-bar-mode nil)
  '(visual-line-mode nil t)
- '(warning-suppress-log-types '((server)))
- '(zoom-mode t))
+ '(warning-suppress-log-types '((comp)(server)))
+ '(zoom-mode t nil (zoom)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
