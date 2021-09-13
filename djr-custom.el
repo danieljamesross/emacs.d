@@ -34,13 +34,13 @@
  '(org-log-into-drawer nil)
  '(org-support-shift-select t)
  '(package-selected-packages
-   '(shx ccompany sass-mode sass editorconfig poly-markdown bash-completion company lsp-treemacs preview auctex latex tex-site reformatter gnu-elpa-keyring-update multiple-cursos shader-mode multiple-cursors org-jira command-log-mode auto-package-update highlight-indent-guides eslint-fix fill-column-indicator quelpa-use-package quelpa use-package dracula-theme kintaro kintaro-mode scss-mode lorem-ipsum yaml-mode jinja2-mode cl-lib emacs-sos projectile dired-sidebar add-node-modules-path eshell-syntax-highlighting tide fira-code-mode unicode-fonts auto-indent-mode org-bullets xkcd prettier-js sos paredit js-auto-beautify csv-mode default-text-scale lsp-ui json-mode js2-mode transpose-frame flycheck emmet-mode js-comint fast-scroll buffer-move magit multi-term telephone-line exec-path-from-shell latex-pretty-symbols latex-preview-pane markdown-mode ac-slime ox-reveal dimmer slime-repl-ansi-color rainbow-delimiters smartparens lisp-extra-font-lock web-mode auto-complete slime))
+   '(lilypond smart-hungry-delete doom-themes doom-modeline shx ccompany sass-mode sass editorconfig poly-markdown bash-completion company lsp-treemacs preview auctex latex tex-site reformatter gnu-elpa-keyring-update multiple-cursos shader-mode multiple-cursors org-jira command-log-mode auto-package-update highlight-indent-guides eslint-fix fill-column-indicator quelpa-use-package quelpa use-package dracula-theme kintaro kintaro-mode scss-mode lorem-ipsum yaml-mode jinja2-mode cl-lib emacs-sos projectile dired-sidebar add-node-modules-path eshell-syntax-highlighting tide fira-code-mode unicode-fonts auto-indent-mode org-bullets xkcd prettier-js sos paredit js-auto-beautify csv-mode default-text-scale lsp-ui json-mode js2-mode transpose-frame flycheck emmet-mode js-comint fast-scroll buffer-move magit multi-term telephone-line exec-path-from-shell latex-pretty-symbols latex-preview-pane markdown-mode ac-slime ox-reveal dimmer slime-repl-ansi-color rainbow-delimiters smartparens lisp-extra-font-lock web-mode auto-complete slime))
  '(safe-local-variable-values '((base . 10) (package . clm) (syntax . common-lisp)))
  '(show-paren-mode t)
  '(telephone-line-mode t)
  '(tool-bar-mode nil)
  '(visual-line-mode nil t)
- '(warning-suppress-log-types '((comp)(server)))
+ '(warning-suppress-log-types '((comp) (server)))
  '(zoom-mode t nil (zoom)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
