@@ -8,7 +8,8 @@
    #+begin_src emacs-lisp
      (setq gc-cons-threshold (* 100 1024 1024)
            read-process-output-max (* 1024 1024)
-           create-lockfiles nil) ;; lock files will kill `npm start'
+           create-lockfiles nil ;; lock files will kill `npm start'
+           warning-suppress-log-types '((comp) (server)))
    #+end_src
 ** Customisations
 *** autofill
@@ -38,14 +39,23 @@
     #+begin_src emacs-lisp
       (delete-selection-mode 1)
     #+end_src
-*** functions
-**** enable-minor-mode
+**** smart-hungry-delete
      #+begin_src emacs-lisp
-       (defun enable-minor-mode (my-pair)
-         "Enable minor mode if filename match the regexp. MY-PAIR is a cons cell (regexp . minor-mode)."
-         (if (buffer-file-name)
-             (if (string-match (car my-pair) buffer-file-name)
-                 (funcall (cdr my-pair)))))
+       ;; https://github.com/hrehfeld/emacs-smart-hungry-delete
+       (use-package smart-hungry-delete
+         :ensure t
+         :bind (("<backspace>" . smart-hungry-delete-backward-char)
+                ("C-d" . smart-hungry-delete-forward-char))
+         :defer nil ;; dont defer so we can add our functions to hooks
+         :config (smart-hungry-delete-add-default-hooks))
+     #+end_src
+*** functions
+**** internet-up-p
+     Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-check-for-internet-connection][great thread]].
+     #+begin_src emacs-lisp
+       (defun internet-up-p (&optional host)
+         (zerop (call-process "ping" nil nil nil "-c" "1" "-W" "1"
+                              (if host host "www.bbc.co.uk"))))
      #+end_src
 **** check-file-exists-or-clone
      #+begin_src emacs-lisp
@@ -53,8 +63,11 @@
          (let ((expanded-filname (expand-file-name file)))
            (if (file-exists-p expanded-filname)
                (princ (format "%s already exists\n" expanded-filname))
-             (shell-command (format "git clone -q %s %s" repo expanded-filname))
-             (message (format "Cloning repo %s into %s" repo expanded-filname)))))
+             (if (internet-up-p)
+                 (progn
+                   (shell-command (format "timeout 7 git clone -q %s %s" repo expanded-filname))
+                   (message (format "Cloning repo %s into %s" repo expanded-filname)))
+               (message (format "No internet connection, can't clone %s" repo))))))
      #+end_src
 **** check-font-exists-or-download
      #+begin_src emacs-lisp
@@ -64,14 +77,31 @@
          (message (format "Set font %s" font-name)))
 
        (defun check-font-exists-or-download (font-name font-repo)
-         (if (find-font (font-spec :name font-name))
+         (if (member font-name (font-family-list))
              (set-default-font font-name)
            (let* ((temp-folder (expand-file-name "/private/tmp/hack"))
                   (font-folder (expand-file-name "/Library/Fonts/")))
-             (shell-command (format "git clone -q %s %s" font-repo temp-folder))
-             (shell-command (format "mv %s/font/* %s" temp-folder font-folder))
-             (message (format "Download font %s from %s" font-name font-repo))
-             (set-default-font font-name))))
+             (if (internet-up-p)
+                 (progn
+                   (shell-command (format "timeout 7 git clone -q %s %s" font-repo temp-folder))
+                   (shell-command (format "mv %s/font/* %s" temp-folder font-folder))
+                   (message (format "Download font %s from %s" font-name font-repo))
+                   (set-default-font font-name))
+               (message (format "No internet connection, can't clone %s" font-repo))))))
+     #+end_src
+**** enable-minor-mode
+     #+begin_src emacs-lisp
+       (defun enable-minor-mode (my-pair)
+         "Enable minor mode if filename match the regexp. MY-PAIR is a cons cell (regexp . minor-mode)."
+         (when (and (buffer-file-name)
+                    (string-match (car my-pair) (buffer-file-name)))
+           (funcall (cdr my-pair))))
+     #+end_src
+**** eval-after-web-mode-load
+     #+begin_src emacs-lisp
+       (defun eval-after-web-mode-load (hook)
+         (eval-after-load 'web-mode
+           `(add-hook 'web-mode-hook ,hook)))
      #+end_src
 *** keys
     #+begin_src emacs-lisp
@@ -161,7 +191,6 @@
                $file-list))))))
       (global-set-key (kbd "C-s-o") 'xah-open-in-external-app)
     #+end_src
-
 *** Rainbow delimiters
     #+BEGIN_SRC emacs-lisp
       (use-package rainbow-delimiters
@@ -183,19 +212,16 @@
     #+begin_src emacs-lisp
       (setq case-fold-search t)
     #+end_src
-*** smart-hungry-delete
+*** startup
     #+begin_src emacs-lisp
-      ;; https://github.com/hrehfeld/emacs-smart-hungry-delete
-      (use-package smart-hungry-delete
-        :ensure t
-        :bind (("<backspace>" . smart-hungry-delete-backward-char)
-               ("C-d" . smart-hungry-delete-forward-char))
-        :defer nil ;; dont defer so we can add our functions to hooks 
-        :config (smart-hungry-delete-add-default-hooks))
+      (setq inhibit-startup-buffer-menu t
+            inhibit-startup-screen t
+            initial-scratch-message nil)
     #+end_src
 *** tabs & indent
     #+begin_src emacs-lisp
-      (setq standard-indent 2)
+      (setq standard-indent 2
+            js-indent-level 2)
       (setq-default indent-tabs-mode nil)
       (setq-default tab-always-indent 'complete)
       (global-set-key (kbd "S-M-t") 'indent-rigidly-left)
@@ -226,13 +252,10 @@
       (use-package all-the-icons
         :ensure t
         :defer nil
-        :config (all-the-icons-install-fonts t))
+        :config (when (and (internet-up-p)
+                           (not (member "all-the-icons" (font-family-list))))
+                  (all-the-icons-install-fonts t)))
     #+end_src
-*** fast-scroll
-    #+BEGIN_SRC emacs-lisp
-      (use-package fast-scroll
-        :ensure t)
-    #+END_SRC
 *** dimmer-mode
     #+BEGIN_SRC emacs-lisp
       (use-package dimmer
@@ -247,23 +270,6 @@
                 "^*[e|E]cho [a|A]rea 0*" "*scratch*"
                 "transient"))
         (dimmer-mode t))
-    #+END_SRC
-*** telephone-line
-    #+BEGIN_SRC emacs-lisp
-      ;; (use-package telephone-line
-      ;;   :if window-system
-      ;;   :ensure t
-      ;;   :config (setq telephone-line-lhs
-      ;;                 '((accent . (telephone-line-vc-segment
-      ;;                              telephone-line-erc-modified-channels-segment
-      ;;                              telephone-line-process-segment))
-      ;;                   (nil    . (telephone-line-buffer-segment
-      ;;                              telephone-line-minor-mode-segment
-      ;;                              )))
-      ;;                 telephone-line-rhs
-      ;;                 '((nil    . (telephone-line-misc-info-segment))
-      ;;                   (accent . (telephone-line-major-mode-segment)))))
-      ;; (telephone-line-mode t)
     #+END_SRC
 *** doom-themes
     #+begin_src emacs-lisp
@@ -305,6 +311,11 @@
                               ;; :background "white"
                               :box '(:line-width 1 :style released-button)))
      #+end_src
+*** fast-scroll
+    #+BEGIN_SRC emacs-lisp
+      (use-package fast-scroll
+        :ensure t)
+    #+END_SRC
 *** Fonts
 **** UTF-8
      #+BEGIN_SRC emacs-lisp
@@ -383,6 +394,37 @@
                       highlight-indent-guides-auto-character-face-perc 10)
         :hook (prog-mode . highlight-indent-guides-mode))
     #+end_src
+*** line-num, highlight, toolbar & fringe
+    #+begin_src emacs-lisp
+      (setq display-line-numbers t
+            fringe-mode '((nil . 0) nil (fringe))
+            global-hl-line-mode t
+            global-linum-mode nil
+            tool-bar-mode nil)
+    #+end_src
+*** prettify-symbols-mode
+     #+begin_src emacs-lisp
+       (global-prettify-symbols-mode 1)
+       (setq prettify-symbols-alist
+             '(("lambda" . 955)))
+     #+end_src
+*** telephone-line
+    #+BEGIN_SRC emacs-lisp
+      ;; (use-package telephone-line
+      ;;   :if window-system
+      ;;   :ensure t
+      ;;   :config (setq telephone-line-lhs
+      ;;                 '((accent . (telephone-line-vc-segment
+      ;;                              telephone-line-erc-modified-channels-segment
+      ;;                              telephone-line-process-segment))
+      ;;                   (nil    . (telephone-line-buffer-segment
+      ;;                              telephone-line-minor-mode-segment
+      ;;                              )))
+      ;;                 telephone-line-rhs
+      ;;                 '((nil    . (telephone-line-misc-info-segment))
+      ;;                   (accent . (telephone-line-major-mode-segment)))))
+      ;; (telephone-line-mode t)
+    #+END_SRC
 *** whitespace
     #+begin_src emacs-lisp
       (progn
@@ -579,33 +621,42 @@
              auto-revert-verbose nil)
 
      #+END_SRC
-**** Dired Rainbow
+**** Dired
      #+begin_src emacs-lisp
-       (use-package dired-rainbow
-         :if window-system
-         :defer 2
-         :config
-         (dired-rainbow-define-chmod directory "#6cb2eb" "d.*")
-         (dired-rainbow-define html "#eb5286" ("css" "less" "sass" "scss" "htm" "html" "jhtm" "mht" "eml" "mustache" "xhtml"))
-         (dired-rainbow-define xml "#f2d024" ("xml" "xsd" "xsl" "xslt" "wsdl" "bib" "json" "msg" "pgn" "rss" "yaml" "yml" "rdata"))
-         (dired-rainbow-define document "#9561e2" ("docm" "doc" "docx" "odb" "odt" "pdb" "pdf" "ps" "rtf" "djvu" "epub" "odp" "ppt" "pptx"))
-         (dired-rainbow-define markdown "#ffed4a" ("org" "etx" "info" "markdown" "md" "mkd" "nfo" "pod" "rst" "tex" "textfile" "txt"))
-         (dired-rainbow-define database "#6574cd" ("xlsx" "xls" "csv" "accdb" "db" "mdb" "sqlite" "nc"))
-         (dired-rainbow-define media "#de751f" ("mp3" "mp4" "mkv" "MP3" "MP4" "avi" "mpeg" "mpg" "flv" "ogg" "mov" "mid" "midi" "wav" "aiff" "flac"))
-         (dired-rainbow-define image "#f66d9b" ("tiff" "tif" "cdr" "gif" "ico" "jpeg" "jpg" "png" "psd" "eps" "svg"))
-         (dired-rainbow-define log "#c17d11" ("log"))
-         (dired-rainbow-define shell "#f6993f" ("awk" "bash" "bat" "sed" "sh" "zsh" "vim"))
-         (dired-rainbow-define interpreted "#38c172" ("py" "ipynb" "rb" "pl" "t" "msql" "mysql" "pgsql" "sql" "r" "clj" "cljs" "scala" "js"))
-         (dired-rainbow-define compiled "#4dc0b5" ("asm" "cl" "lisp" "el" "c" "h" "c++" "h++" "hpp" "hxx" "m" "cc" "cs" "cp" "cpp" "go" "f" "for" "ftn" "f90" "f95" "f03" "f08" "s" "rs" "hi" "hs" "pyc" ".java"))
-         (dired-rainbow-define executable "#8cc4ff" ("exe" "msi"))
-         (dired-rainbow-define compressed "#51d88a" ("7z" "zip" "bz2" "tgz" "txz" "gz" "xz" "z" "Z" "jar" "war" "ear" "rar" "sar" "xpi" "apk" "xz" "tar"))
-         (dired-rainbow-define packaged "#faad63" ("deb" "rpm" "apk" "jad" "jar" "cab" "pak" "pk3" "vdf" "vpk" "bsp"))
-         (dired-rainbow-define encrypted "#ffed4a" ("gpg" "pgp" "asc" "bfe" "enc" "signature" "sig" "p12" "pem"))
-         (dired-rainbow-define fonts "#6cb2eb" ("afm" "fon" "fnt" "pfb" "pfm" "ttf" "otf"))
-         (dired-rainbow-define partition "#e3342f" ("dmg" "iso" "bin" "nrg" "qcow" "toast" "vcd" "vmdk" "bak"))
-         (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
-         (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*"))
+       (setq dired-sidebar-icon-scale 0.1
+             dired-sidebar-mode-line-format
+             '("%e" mode-line-front-space mode-line-buffer-identification " " mode-line-end-spaces)
+             dired-sidebar-recenter-cursor-on-tui-update nil
+             dired-sidebar-should-follow-file t
+             dired-sidebar-toggle-hidden-commands '(rotate-windows toggle-window-split balance-windows))
      #+end_src
+***** Dired Rainbow
+      #+begin_src emacs-lisp
+        (use-package dired-rainbow
+          :if window-system
+          :defer 2
+          :config
+          (dired-rainbow-define-chmod directory "#6cb2eb" "d.*")
+          (dired-rainbow-define html "#eb5286" ("css" "less" "sass" "scss" "htm" "html" "jhtm" "mht" "eml" "mustache" "xhtml"))
+          (dired-rainbow-define xml "#f2d024" ("xml" "xsd" "xsl" "xslt" "wsdl" "bib" "json" "msg" "pgn" "rss" "yaml" "yml" "rdata"))
+          (dired-rainbow-define document "#9561e2" ("docm" "doc" "docx" "odb" "odt" "pdb" "pdf" "ps" "rtf" "djvu" "epub" "odp" "ppt" "pptx"))
+          (dired-rainbow-define markdown "#ffed4a" ("org" "etx" "info" "markdown" "md" "mkd" "nfo" "pod" "rst" "tex" "textfile" "txt"))
+          (dired-rainbow-define database "#6574cd" ("xlsx" "xls" "csv" "accdb" "db" "mdb" "sqlite" "nc"))
+          (dired-rainbow-define media "#de751f" ("mp3" "mp4" "mkv" "MP3" "MP4" "avi" "mpeg" "mpg" "flv" "ogg" "mov" "mid" "midi" "wav" "aiff" "flac"))
+          (dired-rainbow-define image "#f66d9b" ("tiff" "tif" "cdr" "gif" "ico" "jpeg" "jpg" "png" "psd" "eps" "svg"))
+          (dired-rainbow-define log "#c17d11" ("log"))
+          (dired-rainbow-define shell "#f6993f" ("awk" "bash" "bat" "sed" "sh" "zsh" "vim"))
+          (dired-rainbow-define interpreted "#38c172" ("py" "ipynb" "rb" "pl" "t" "msql" "mysql" "pgsql" "sql" "r" "clj" "cljs" "scala" "js"))
+          (dired-rainbow-define compiled "#4dc0b5" ("asm" "cl" "lisp" "el" "c" "h" "c++" "h++" "hpp" "hxx" "m" "cc" "cs" "cp" "cpp" "go" "f" "for" "ftn" "f90" "f95" "f03" "f08" "s" "rs" "hi" "hs" "pyc" ".java"))
+          (dired-rainbow-define executable "#8cc4ff" ("exe" "msi"))
+          (dired-rainbow-define compressed "#51d88a" ("7z" "zip" "bz2" "tgz" "txz" "gz" "xz" "z" "Z" "jar" "war" "ear" "rar" "sar" "xpi" "apk" "xz" "tar"))
+          (dired-rainbow-define packaged "#faad63" ("deb" "rpm" "apk" "jad" "jar" "cab" "pak" "pk3" "vdf" "vpk" "bsp"))
+          (dired-rainbow-define encrypted "#ffed4a" ("gpg" "pgp" "asc" "bfe" "enc" "signature" "sig" "p12" "pem"))
+          (dired-rainbow-define fonts "#6cb2eb" ("afm" "fon" "fnt" "pfb" "pfm" "ttf" "otf"))
+          (dired-rainbow-define partition "#e3342f" ("dmg" "iso" "bin" "nrg" "qcow" "toast" "vcd" "vmdk" "bak"))
+          (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
+          (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*"))
+      #+end_src
 **** ls
      #+begin_src emacs-lisp
        (when (string= system-type "darwin")
@@ -618,9 +669,6 @@
         :if (memq window-system '(mac ns x))
         :config (setq default-directory (expand-file-name "~/"))
         (setenv "SHELL" "/bin/zsh")
-        (exec-path-from-shell-initialize)
-        (exec-path-from-shell-copy-envs
-         '("PATH"))
         (if (and (fboundp 'native-comp-available-p)
                  (native-comp-available-p))
             (progn
@@ -636,20 +684,28 @@
                                                    (expand-file-name "/usr/local/opt/gcc/lib/gcc/*")))))
               ;; Only set after LIBRARY_PATH can find gcc libraries.
               (setq comp-deferred-compilation t))
-          (message "Native comp is *not* available")))
+          (message "Native comp is *not* available"))
+        ;; (exec-path-from-shell-initialize)
+        (add-to-list 'exec-path "/usr/local/bin")
+        (add-to-list 'exec-path default-directory)
+        (add-to-list 'exec-path user-emacs-directory)
+        (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
+        (exec-path-from-shell-copy-envs '("PATH")))
+
 
       ;; (when (file-exists-p (expand-file-name  "/Library/TeX/texbin"))
       ;;   (setenv "PATH" (concat "/Library/TeX/texbin:"
       ;;                          (getenv "PATH")))
       ;;   (add-to-list 'exec-path "/Library/TeX/texbin"))
       ;; (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-      ;; (setq exec-path (append exec-path '("/usr/local/bin")))
-      ;; (add-to-list 'exec-path exec-path default-directory)
-      ;; (add-to-list 'exec-path exec-path (expand-file-name "~/.emacs.d"))
-      ;; (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
+
 
     #+END_SRC
-*** Buffers and Panes
+*** Buffers and Frames
+**** buffer boundaries
+     #+begin_src emacs-lisp
+       (setq indicate-buffer-boundaries 'left)
+     #+end_src
 **** Buffer opening
      #+begin_src emacs-lisp
        ;; ignore case when switching buffers with C-x b
@@ -664,13 +720,14 @@
                 ("s-C-<left>" . buf-move-left)
                 ("s-C-<right>" . buf-move-right)))
      #+END_SRC
-**** Panes
+**** Frames
      #+BEGIN_SRC emacs-lisp
        (when (display-graphic-p)
          (add-to-list 'initial-frame-alist '(fullscreen . maximized))
          (add-to-list 'default-frame-alist '(fullscreen . maximized)))
-       ;;; Use the commands "control+x" followed by an arrow to
-       ;;; navigate between panes
+       (setq one-buffer-one-frame-mode nil)
+             ;;; Use the commands "control+x" followed by an arrow to
+             ;;; navigate between panes
        (global-set-key (kbd "C-x <up>") 'windmove-up)
        (global-set-key (kbd "C-x <down>") 'windmove-down)
        (global-set-key (kbd "C-x <left>") 'windmove-left)
@@ -1186,36 +1243,6 @@
         :ensure t
         :config (bash-completion-setup))
     #+end_src
-** lsp-mode
-   Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
-   #+BEGIN_SRC emacs-lisp
-     (use-package lsp-mode
-       :if window-system
-       :ensure t
-       :commands (lsp lsp-deferred)
-       :config (setq lsp-keymap-prefix "C-c l"
-                     lsp-headerline-breadcrumb-mode t
-                     lsp-log-io nil)
-        (enable-minor-mode
-         '("\\.jsx?\\'" . lsp-deferred))
-        (enable-minor-mode
-         '("\\.js?\\'" . lsp-deferred))
-        (enable-minor-mode
-         '("\\.ts?\\'" . lsp-deferred))
-        (enable-minor-mode
-         '("\\.tsx?\\'" . lsp-deferred)))
-   #+END_SRC
-*** lsp-ui
-    #+BEGIN_SRC emacs-lisp
-      (use-package lsp-ui
-        :commands lsp-ui-mode
-        :ensure t)
-    #+END_SRC
-*** lsp-treemacs
-    #+begin_src emacs-lisp
- ;     (use-package lsp-treemacs
-  ;      :ensure t)
-    #+end_src
 ** Web Dev
 *** CSS
 **** Indenting & brackets
@@ -1324,8 +1351,7 @@
         (enable-minor-mode
          '("\\.tsx?\\'" . prettier-js-mode))
         (setq prettier-js-args
-              '(
-                "--arrow-parens" "always"
+              '("--arrow-parens" "always"
                 "--semi" "true"
                 "--bracket-spacing" "true"
                 "--single-quote" "true"
@@ -1339,87 +1365,83 @@
           (dolist (item exec-path)
             (if (and (string-match node-path item)
                      (file-exists-p (concat item "prettier")))
-                (cl-return #'prettier-js-mode)
-              (cl-return #'local-prettier)))))
+                'prettier-js-mode
+              'local-prettier))))
 
       (eval-after-load 'web-mode
         '(progn
-           (add-hook 'web-mode-hook #'add-node-modules-path)
-           (add-hook 'web-mode-hook #'choose-prettier)))
+           (add-hook 'web-mode-hook 'add-node-modules-path)
+           (add-hook 'web-mode-hook 'choose-prettier)))
     #+END_SRC
-*** tide
+*** tide-mode
     #+begin_src emacs-lisp
-      (use-package company-web
-        :ensure t
-        :config (add-to-list 'company-backends 'company-web-html))
+      (defun setup-tide-mode ()
+        (interactive)
+        (tide-setup)
+        (flycheck-mode +1)
+        (setq flycheck-check-syntax-automatically '(save mode-enabled))
+        (eldoc-mode +1)
+        (tide-hl-identifier-mode +1)
+        ;; company is an optional dependency. You have to
+        ;; install it separately via package-install
+        ;; `M-x package-install [ret] company`
+        (company-mode +1))
 
-      (use-package tide
-        :ensure t
-        :after (typescript-mode company flycheck web-mode comapny-tide)
-        ;; :hook ((before-save . tide-format-before-save))
-        :config (add-hook 'web-mode-hook
-                          #'(lambda ()
-                              (enable-minor-mode
-                               '("\\.ts?\\'" . tide-setup))
-                              (enable-minor-mode
-                               '("\\.tsx?\\'" . tide-setup))))
-        (add-hook 'web-mode-hook
-                  #'(lambda ()
-                      (enable-minor-mode
-                       '("\\.ts?\\'" . tide-hl-identifier-mode))
-                      (enable-minor-mode
-                       '("\\.tsx?\\'" . tide-hl-identifier-mode)))))
+      ;; aligns annotation to the right hand side
+      (setq company-tooltip-align-annotations t)
+
+      ;; formats the buffer before saving
+      ;; (add-hook 'before-save-hook 'tide-format-before-save)
+
+      ;; (add-hook 'typescript-mode-hook #'setup-tide-mode)
+      ;; (setq tide-format-options
+      ;;       '(:insertSpaceAfterFunctionKeywordForAnonymousFunctions
+      ;;         t
+      ;;         :placeOpenBraceOnNewLineForFunctions
+      ;;         nil
+      ;;         :indentSize 2
+      ;;         :tabSize 2
+      ;;         :insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces
+      ;;         t))
     #+end_src
-**** tide-mode
-     #+begin_src emacs-lisp
-       (defun setup-tide-mode ()
-         (interactive)
-         (tide-setup)
-         (flycheck-mode +1)
-         (setq flycheck-check-syntax-automatically '(save mode-enabled))
-         (eldoc-mode +1)
-         (tide-hl-identifier-mode +1)
-         ;; company is an optional dependency. You have to
-         ;; install it separately via package-install
-         ;; `M-x package-install [ret] company`
-         (company-mode +1))
-
-       ;; aligns annotation to the right hand side
-       (setq company-tooltip-align-annotations t)
-
-       ;; formats the buffer before saving
-       ;; (add-hook 'before-save-hook 'tide-format-before-save)
-
-       ;; (add-hook 'typescript-mode-hook #'setup-tide-mode)
-       ;; (setq tide-format-options
-       ;;       '(:insertSpaceAfterFunctionKeywordForAnonymousFunctions
-       ;;         t
-       ;;         :placeOpenBraceOnNewLineForFunctions
-       ;;         nil
-       ;;         :indentSize 2
-       ;;         :tabSize 2
-       ;;         :insertSpaceAfterOpeningAndBeforeClosingTemplateStringBraces
-       ;;         t))
-     #+end_src
 **** tsx
      #+begin_src emacs-lisp
-       (add-hook 'web-mode-hook
-                 #'(lambda ()
-                     (when (string-equal "tsx" (file-name-extension buffer-file-name))
-                       (setup-tide-mode))))
-       ;; enable typescript-tslint checker
-       (flycheck-add-mode 'typescript-tslint 'web-mode)
+       ;; (add-hook 'web-mode-hook
+       ;;           #'(lambda ()
+       ;;               (when (string-equal "tsx" (file-name-extension buffer-file-name))
+       ;;                 (setup-tide-mode))))
+       ;; ;; enable typescript-tslint checker
+       ;; (flycheck-add-mode 'typescript-tslint 'web-mode)
      #+end_src
 **** jsx
      #+begin_src emacs-lisp
-       (add-hook 'web-mode-hook
-                 #'(lambda ()
-                     (when (string-equal "jsx" (file-name-extension buffer-file-name))
-                       (setup-tide-mode))))
+       ;; (add-hook 'web-mode-hook
+       ;;           #'(lambda ()
+       ;;               (when (string-equal "jsx" (file-name-extension buffer-file-name))
+       ;;                 (setup-tide-mode))))
        ;; configure jsx-tide checker to run after your default jsx checker
        ;; (flycheck-add-mode 'javascript-eslint 'web-mode)
        ;; dunno
        ;; (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
+     #+end_src
+**** tide
+     #+begin_src emacs-lisp
+        (defun trigger-tide-setup ()
+          (interactive)
+          (enable-minor-mode
+           '("\\.ts?\\'" . setup-tide-mode))
+          (enable-minor-mode
+           '("\\.tsx?\\'" . setup-tide-mode)))
+
+        (use-package company-web
+          :ensure t
+          :config (add-to-list 'company-backends 'company-web-html))
+
+        (use-package tide
+          :ensure t
+          :after (typescript-mode company flycheck web-mode))
+        ;; :hook ((before-save . tide-format-before-save))
+       (eval-after-load 'web-mode '(add-hook 'web-mode-hook 'trigger-tide-setup))
      #+end_src
 *** eslint-fix
     #+begin_src emacs-lisp
@@ -1428,17 +1450,14 @@
         (shell-command "npm i -g eslint"))
       (use-package eslint-fix
         :ensure t
-        :load-path "eslint-fix"
-        :config (eval-after-load 'web-mode
-                  '(add-hook 'web-mode-hook
-                             #'(lambda ()
-                                 (add-hook 'after-save-hook
-                                           'eslint-fix nil t))))
-        ;; (eval-after-load 'web-mode
-        ;;   '(add-hook 'web-mode-hook
-        ;;              (lambda ()
-        ;;                (add-hook 'after-save-hook 'eslint-fix nil t))))
-        )
+        :load-path "eslint-fix")
+      ;; :config (eval-after-web-mode-load
+      ;;          '(add-hook 'after-save-hook 'eslint-fix nil t)))
+      (defun eslint-hook ()
+        '(add-hook 'after-save-hook 'eslint-fix nil t))
+      (eval-after-load 'web-mode
+        '(add-hook 'web-mode-hook
+                   'eslint-hook))
     #+end_src
 *** jinja
     #+begin_src emacs-lisp
@@ -1450,6 +1469,44 @@
       (use-package yaml-mode
         :ensure t)
     #+end_src
+** lsp-mode
+   Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
+   #+BEGIN_SRC emacs-lisp
+     (defun enable-lsp-for-web-mode ()
+       (interactive)
+       (enable-minor-mode
+        '("\\.jsx" . lsp-deferred))
+       (enable-minor-mode
+        '("\\.js" . lsp-deferred))
+       (enable-minor-mode
+        '("\\.ts" . lsp-deferred))
+       (enable-minor-mode
+        '("\\.tsx" . lsp-deferred)))
+
+     (use-package lsp-mode
+       :if window-system
+       :after web-mode
+       :ensure t
+       :no-require t
+       :commands (lsp lsp-deferred)
+       :config (setq lsp-keymap-prefix "C-c l"
+                     lsp-headerline-breadcrumb-mode t
+                     lsp-log-io nil))
+
+     (eval-after-load 'web-mode
+       '(add-hook 'web-mode-hook 'enable-lsp-for-web-mode))
+   #+END_SRC
+*** lsp-ui
+    #+BEGIN_SRC emacs-lisp
+      (use-package lsp-ui
+        :commands lsp-ui-mode
+        :ensure t)
+    #+END_SRC
+*** lsp-treemacs
+    #+begin_src emacs-lisp
+ ;     (use-package lsp-treemacs
+  ;      :ensure t)
+    #+end_src
 ** JSON
    #+begin_src emacs-lisp
      (use-package json-mode
@@ -1457,6 +1514,10 @@
        :defer t)
    #+end_src
 ** Lisp
+*** paren-mode
+    #+begin_src emacs-lisp
+      (setq show-paren-mode t)
+    #+end_src
 *** SBCL
     #+BEGIN_SRC emacs-lisp
       ;; Set your lisp system and, optionally, some contribs
@@ -1567,7 +1628,7 @@
     #+end_src
 *** markdown pandoc
     #+BEGIN_SRC emacs-lisp
-      (setq markdown-command "pandoc")
+      (setq markdown-command "/usr/local/binpandoc")
     #+END_SRC
 *** LaTeX
     #+BEGIN_SRC emacs-lisp
@@ -1587,6 +1648,15 @@
        :init (projectile-mode +1))
    #+end_src
 ** Org
+   #+begin_src emacs-lisp
+     (setq org-support-shift-select t)
+   #+end_src
+*** org-agenda
+    #+begin_src emacs-lisp
+      (setq org-agenda-files (list org-directory)
+            org-directory (expand-file-name "~/org")
+            org-log-into-drawer nil)
+    #+end_src
 *** org-mode dates
     #+BEGIN_SRC emacs-lisp
       (setq-default org-display-custom-times t)
@@ -1743,7 +1813,7 @@
 ** Multiple Cursors
    #+begin_src emacs-lisp
      (use-package multiple-cursors
-       :defer t
+       :defer nil
        :ensure t)
    #+end_src
 ** Magit
