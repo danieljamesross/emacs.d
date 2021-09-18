@@ -38,7 +38,7 @@
     #+end_src
 *** debug
     #+begin_src emacs-lisp
-      (setq debug-on-error t)
+      (setq debug-on-error nil)
     #+end_src
 *** delete
     #+begin_src emacs-lisp
@@ -70,29 +70,34 @@
                (princ (format "%s already exists\n" expanded-filname))
              (if (internet-up-p)
                  (progn
-                   (shell-command (format "timeout 7 git clone -q %s %s" repo expanded-filname))
+                   (shell-command (format "git clone -q %s %s" repo expanded-filname))
                    (message (format "Cloning repo %s into %s" repo expanded-filname)))
                (message (format "No internet connection, can't clone %s" repo))))))
      #+end_src
 **** check-font-exists-or-download
      #+begin_src emacs-lisp
        (defun set-default-font (font-name)
-         (add-to-list 'default-frame-alist `(font . ,font-name))
-         (set-frame-font font-name nil t)
+         (ignore-errors (add-to-list 'default-frame-alist `(font . ,font-name)))
+         (ignore-errors (set-frame-font font-name nil t))
          (message (format "Set font %s" font-name)))
 
        (defun check-font-exists-or-download (font-name font-repo)
          (if (member font-name (font-family-list))
              (set-default-font font-name)
-           (let* ((temp-folder (expand-file-name "/private/tmp/hack"))
-                  (font-folder (expand-file-name "/Library/Fonts/")))
-             (if (internet-up-p)
-                 (progn
-                   (shell-command (format "timeout 7 git clone -q %s %s" font-repo temp-folder))
-                   (shell-command (format "mv %s/font/* %s" temp-folder font-folder))
-                   (message (format "Download font %s from %s" font-name font-repo))
-                   (set-default-font font-name))
-               (message (format "No internet connection, can't clone %s" font-repo))))))
+           (if (internet-up-p)
+               (let* ((temp-folder (expand-file-name "/private/tmp/hack"))
+                      (font-folder (expand-file-name "/Library/Fonts/"))
+                      (shell-command-string
+                       (concat (format "git clone -q %s %s" font-repo temp-folder)
+                               " && "
+                               (format "mv %s/font/* %s" temp-folder font-folder))))
+                 ;; (shell-command (format "git clone -q %s %s" font-repo temp-folder))
+                 ;; (shell-command (format "mv %s/font/* %s" temp-folder
+                 ;; font-folder))
+                 (shell-command shell-command-string)
+                 (message (format "Download font %s from %s" font-name font-repo))
+                 (set-defauxlt-font font-name))
+             (message (format "No internet connection, can't clone %s" font-repo)))))
      #+end_src
 **** enable-minor-mode
      #+begin_src emacs-lisp
@@ -382,11 +387,30 @@
 **** Fonts
      <<fonts>>
      #+BEGIN_SRC emacs-lisp
-       (check-font-exists-or-download
+       (ignore-errors
+         (check-font-exists-or-download
         "Hack Nerd Font Mono"
         "https://github.com/pyrho/hack-font-ligature-nerd-font.git")
 
-       (set-face-attribute 'default nil :height 130)
+         (set-face-attribute 'default nil :height 130))
+     #+end_src
+**** Emoji
+     #+begin_src emacs-lisp
+       ;; set font for emoji
+       (set-fontset-font
+        t
+        '(#x1f300 . #x1fad0)
+        (cond
+         ((member "Noto Color Emoji" (font-family-list)) "Noto Color Emoji")
+         ((member "Noto Emoji" (font-family-list)) "Noto Emoji")
+         ((member "Segoe UI Emoji" (font-family-list)) "Segoe UI Emoji")
+         ((member "Symbola" (font-family-list)) "Symbola")
+         ((member "Apple Color Emoji" (font-family-list)) "Apple Color Emoji"))
+        ;; Apple Color Emoji should be before Symbola, but Richard Stallman disabled it.
+        ;; GNU Emacs Removes Color Emoji Support on the Mac
+        ;; http://ergoemacs.org/misc/emacs_macos_emoji.html
+        ;;
+        )
      #+end_src
 *** highlight-indent-guides
     Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
