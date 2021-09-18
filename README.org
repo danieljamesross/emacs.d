@@ -26,6 +26,11 @@
       (setq backup-directory-alist
             `(("." . ,(concat user-emacs-directory "backups"))))
     #+end_src
+*** case
+    #+begin_src emacs-lisp
+ (put 'downcase-region 'disabled nil)
+ (put 'upcase-region 'disabled nil)
+    #+end_src
 *** custom file
     #+begin_src emacs-lisp
       (setq custom-file (expand-file-name (concat user-emacs-directory "djr-custom.el")))
@@ -402,6 +407,10 @@
             global-linum-mode nil
             tool-bar-mode nil)
     #+end_src
+*** narrow-to-page
+    #+begin_src emacs-lisp
+      (put 'narrow-to-page 'disabled nil)
+    #+end_src
 *** prettify-symbols-mode
      #+begin_src emacs-lisp
        (global-prettify-symbols-mode 1)
@@ -629,6 +638,7 @@
              dired-sidebar-recenter-cursor-on-tui-update nil
              dired-sidebar-should-follow-file t
              dired-sidebar-toggle-hidden-commands '(rotate-windows toggle-window-split balance-windows))
+       (put 'dired-find-alternate-file 'disabled nil)
      #+end_src
 ***** Dired Rainbow
       #+begin_src emacs-lisp
