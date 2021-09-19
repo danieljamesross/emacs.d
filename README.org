@@ -320,20 +320,6 @@
         :ensure t
         :init (doom-modeline-mode 1))
     #+end_src
-**** active buffer
-     #+begin_src emacs-lisp
-       (when (display-graphic-p)
-         (set-face-attribute  'mode-line
-                              nil
-                              :foreground "black"
-                              :background "gray96";;"gray25"
-                              :box '(:line-width 1 :style released-button))
-         (set-face-attribute  'mode-line-inactive
-                              nil
-                              :foreground "gray96"
-                              ;; :background "white"
-                              :box '(:line-width 1 :style released-button)))
-     #+end_src
 *** fast-scroll
     #+BEGIN_SRC emacs-lisp
       (use-package fast-scroll
