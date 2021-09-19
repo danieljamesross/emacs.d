@@ -517,7 +517,7 @@
         (auto-package-update-maybe))
     #+end_src
 *** Non Elpa/Melpa Package Modes
-**** Antescofo mode
+**** antesc-mode
      #+BEGIN_SRC emacs-lisp
        (let ((antesc-path (concat user-emacs-directory "antesc-mode-master/")))
          (check-file-exists-or-clone antesc-path "https://github.com/programLyrique/antesc-mode.git")
@@ -532,14 +532,10 @@
                (append '(("\\.\\(score\\|asco\\)\\.txt$" . antesc-mode))
                        auto-mode-alist)))
      #+END_SRC
-**** Lilypond mode
+**** lilypond-mode
      #+BEGIN_SRC emacs-lisp
        (let ((lily-path (concat user-emacs-directory "lilypond-mode/")))
          (check-file-exists-or-clone lily-path "https://github.com/jmgpena/lilypond-mode.git")
-         ;; Antescofo text highlighting
-         ;; Thanks to Pierre Donat-Bouillud
-         ;; https://github.com/programLyrique/antesc-mode
-         ;; lilypond mode
          (add-to-list 'load-path (expand-file-name lily-path))
          (load (expand-file-name (concat lily-path "lilypond-init.el")))
          (setq auto-mode-alist (append '(("\\.ly\\'" . antesc-mode))
@@ -709,7 +705,7 @@
        (when (string= system-type "darwin")
          (setq dired-use-ls-dired nil))
      #+end_src
-*** PATH
+*** exec-path-from-shell
     #+BEGIN_SRC emacs-lisp
       (use-package exec-path-from-shell
         :ensure t
