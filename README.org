@@ -1914,8 +1914,8 @@
    #+begin_src emacs-lisp
      (use-package projectile
        :ensure t
-       :config
-       (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+       :bind-keymap ("C-c p" . projectile-command-map)
+       :config (setq projectile-switch-project-action #'projectile-dired)
        :init (projectile-mode +1))
    #+end_src
 ** Org
