@@ -59,12 +59,14 @@
      Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-check-for-internet-connection][great thread]].
      #+begin_src emacs-lisp
        (defun internet-up-p (&optional host)
+         "Ping bbc.co.uk to test if internet is connected"
          (zerop (call-process "ping" nil nil nil "-c" "1" "-W" "1"
                               (if host host "www.bbc.co.uk"))))
      #+end_src
 **** check-file-exists-or-clone
      #+begin_src emacs-lisp
        (defun check-file-exists-or-clone (file repo)
+         "Check a file/folder exists and download from git if not"
          (let ((expanded-filname (expand-file-name file)))
            (if (file-exists-p expanded-filname)
                (princ (format "%s already exists\n" expanded-filname))
@@ -77,11 +79,13 @@
 **** check-font-exists-or-download
      #+begin_src emacs-lisp
        (defun set-default-font (font-name)
+         "Add the font to default-frame-alist and then set-frame-font"
          (ignore-errors (add-to-list 'default-frame-alist `(font . ,font-name)))
          (ignore-errors (set-frame-font font-name nil t))
          (message (format "Set font %s" font-name)))
 
        (defun check-font-exists-or-download (font-name font-repo)
+         "Check font exists, download if not, then call `set-default-font'"
          (if (member font-name (font-family-list))
              (set-default-font font-name)
            (if (internet-up-p)
@@ -110,6 +114,7 @@
 **** eval-after-web-mode-load
      #+begin_src emacs-lisp
        (defun eval-after-web-mode-load (hook)
+         "Add a hook that is called after web-mode is initialised"
          (eval-after-load 'web-mode
            `(add-hook 'web-mode-hook ,hook)))
      #+end_src
