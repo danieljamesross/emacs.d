@@ -556,12 +556,9 @@
                       ("\\.el.gz\\'"   . lisp-mode)
                       ("\\.ws\\'"      . lisp-mode)
                       ("\\.asd\\'"     . lisp-mode)
-                      ("\\.yaml\\'"     . yaml-mode)
+                      ("\\.yaml\\'"    . yaml-mode)
                       ("\\.py\\'"      . python-mode)
-                      ("\\.ly\\'"      . lilypond-mode)
-                      ("\\.js\\'"      . web-mode)
                       ("\\.json\\'"    . json-mode)
-                      ("\\.jinja\\'"   . jinja2-mode)
                       ("\\.tex\\'"     . latex-mode)
                       ("\\.cls\\'"     . latex-mode)
                       ("\\.java\\'"    . java-mode)
@@ -1719,7 +1716,8 @@
 *** jinja
     #+begin_src emacs-lisp
       (use-package jinja2-mode
-        :ensure t)
+        :ensure t
+        :mode "\\.jinja\\'")
     #+end_src
 *** yaml
     #+begin_src emacs-lisp
