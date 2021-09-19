@@ -38,7 +38,7 @@
     #+end_src
 *** debug
     #+begin_src emacs-lisp
-      (setq debug-on-error nil)
+      (setq debug-on-error t)
     #+end_src
 *** delete
     #+begin_src emacs-lisp
