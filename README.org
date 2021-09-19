@@ -733,7 +733,10 @@
         (add-to-list 'exec-path default-directory)
         (add-to-list 'exec-path user-emacs-directory)
         (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
-        (exec-path-from-shell-copy-envs '("PATH")))
+        (add-to-list 'exec-path "/sbin/")
+        (exec-path-from-shell-initialize)
+        ;; (exec-path-from-shell-copy-envs '("PATH"))
+        )
 
 
       ;; (when (file-exists-p (expand-file-name  "/Library/TeX/texbin"))
