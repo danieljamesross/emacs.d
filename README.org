@@ -2093,6 +2093,13 @@
        :ensure t
        :defer t)
    #+end_src
+*** diff
+    #+begin_src emacs-lisp
+      (use-package diff-hl
+        :ensure t
+        :init (turn-on-diff-hl-mode)
+        :hook ((prog-mode-hook vc-dir-mode-hook) . turn-on-diff-hl-mode))
+    #+end_src
 ** shader-mode
    #+begin_src emacs-lisp
      (use-package shader-mode
