@@ -420,15 +420,15 @@
         :config (setq highlight-indent-guides-character-face "Fira Code Symbol"
                       highlight-indent-guides-method 'bitmap
                       highlight-indent-guides-auto-character-face-perc 10)
-        :hook (prog-mode . highlight-indent-guides-mode))
+        :hook (prog-mode-hook . highlight-indent-guides-mode))
     #+end_src
 *** line-num, highlight, toolbar & fringe
     #+begin_src emacs-lisp
-      (setq display-line-numbers t
-            fringe-mode '((nil . 0) nil (fringe))
-            global-hl-line-mode t
-            global-linum-mode nil
+      (setq fringe-mode '((nil . 0) nil (fringe))
             tool-bar-mode nil)
+
+      (global-hl-line-mode t)
+      (global-linum-mode t)
     #+end_src
 *** narrow-to-page
     #+begin_src emacs-lisp
