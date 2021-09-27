@@ -472,14 +472,14 @@
                 (newline-mark 10 [182 10]) ; LINE FEED,
                 (tab-mark 9 [9655 9] [92 9]) ; tab
                 )))
-      (global-whitespace-mode)
+      (global-whitespace-mode 1)
     #+end_src
 *** whitespace-cleanup-mode
     #+begin_src emacs-lisp
-      ;; (use-package whitespace-cleanup-mode
-      ;;   :ensure t
-      ;;   :config (setq 'whitespace-cleanup-mode t)
-      ;;   :hook (prog-mode . whitespace-cleanup))
+      (use-package whitespace-cleanup-mode
+        :ensure t
+        :config (setq 'whitespace-cleanup-mode t)
+        :hook (prog-mode . whitespace-cleanup))
     #+end_src
 ** Packages and Managers
 *** Quelpa
