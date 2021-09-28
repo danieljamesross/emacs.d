@@ -85,9 +85,9 @@
 **** check-font-exists-or-download
      #+begin_src emacs-lisp
        (defun set-default-font (font-name)
-         "Add the font to default-frame-alist and then set-frame-font"
-         (ignore-errors (add-to-list 'default-frame-alist `(font . ,font-name)))
-         (ignore-errors (set-frame-font font-name nil t))
+         "Add the font to `default-frame-alist' and then `set-frame-font'"
+         (add-to-list 'default-frame-alist `(font . ,font-name))
+         (set-frame-font font-name nil t)
          (message (format "Set font %s" font-name)))
 
        (defun check-font-exists-or-download (font-name font-repo)
