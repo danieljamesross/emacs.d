@@ -541,7 +541,7 @@
          ;; Thanks to Pierre Donat-Bouillud
          ;; https://github.com/programLyrique/antesc-mode
          (add-to-list 'load-path (expand-file-name antesc-path))
-         (autoload 'antesc-mode "antesc-mode" "Major mode for editing Antescofo code" t)
+         ;; (autoload 'antesc-mode "antesc-mode" "Major mode for editing Antescofo code" t)
 
          ;; Extensions for antescofo mode
          (setq auto-mode-alist
@@ -552,10 +552,15 @@
      #+BEGIN_SRC emacs-lisp
        (let ((lily-path (concat user-emacs-directory "lilypond-mode/")))
          (check-file-exists-or-clone lily-path "https://github.com/jmgpena/lilypond-mode.git")
-         (add-to-list 'load-path (expand-file-name lily-path))
-         (load (expand-file-name (concat lily-path "lilypond-init.el")))
-         (setq auto-mode-alist (append '(("\\.ly\\'" . antesc-mode))
-                       auto-mode-alist)))
+         ;; (add-to-list 'load-path (expand-file-name lily-path))
+         ;; (load (expand-file-name (concat lily-path "lilypond-init.el")))
+         ;; (setq auto-mode-alist (append '(("\\.ly\\'" . lilypond-mode))
+         ;;                               auto-mode-alist))
+
+         (use-package lilypond
+           :load-path "lilypond-mode/lilypond-init.el"
+           :defer t
+           :mode "\\.ly\\'"))
      #+END_SRC
 **** kintaro-mode
      #+begin_src emacs-lisp
