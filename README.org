@@ -282,6 +282,18 @@
                            (not (member "all-the-icons" (font-family-list))))
                   (all-the-icons-install-fonts t)))
     #+end_src
+**** ibuffer
+     #+begin_src emacs-lisp
+    (use-package all-the-icons-ibuffer
+        :ensure t
+        :init (all-the-icons-ibuffer-mode 1))
+     #+end_src
+**** dired
+     #+begin_src emacs-lisp
+      (use-package all-the-icons-dired
+        :ensure t
+        :hook (dired-mode . all-the-icons-dired-mode))
+     #+end_src
 *** dimmer-mode
     #+BEGIN_SRC emacs-lisp
       (use-package dimmer
