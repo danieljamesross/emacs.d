@@ -31,25 +31,30 @@
     #+begin_src emacs-lisp
       (setq backup-directory-alist
             `(("." . ,(concat user-emacs-directory "backups"))))
-    #+end_src
+            (message 2)
+
 *** case
     #+begin_src emacs-lisp
- (put 'downcase-region 'disabled nil)
- (put 'upcase-region 'disabled nil)
-    #+end_src
+      (put 'downcase-region 'disabled nil)
+      (put 'upcase-region 'disabled nil)
+      (message 3)
+
 *** custom file
     #+begin_src emacs-lisp
       (setq custom-file (expand-file-name (concat user-emacs-directory "djr-custom.el")))
       (load custom-file)
-    #+end_src
+      (message 4)
+
 *** debug
     #+begin_src emacs-lisp
       (setq debug-on-error t)
-    #+end_src
+      (message 5)
+
 *** delete
     #+begin_src emacs-lisp
       (delete-selection-mode 1)
-    #+end_src
+      (message 6)
+
 **** smart-hungry-delete
      #+begin_src emacs-lisp
        ;; https://github.com/hrehfeld/emacs-smart-hungry-delete
