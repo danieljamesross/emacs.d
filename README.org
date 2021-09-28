@@ -1543,6 +1543,20 @@
                  #'(lambda ()
                    (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
      #+end_src
+**** Css sort
+     #+begin_src emacs-lisp
+       ;; (use-package com-css-sort
+       ;;   :ensure t
+       ;;   :config
+       ;;   (setq com-css-sort-sort-type 'alphabetic-sort))
+
+       ;; (add-hook 'css-mode-hook
+       ;;           #'(lambda ()
+       ;;               (add-hook 'before-save-hook 'com-css-sort-attributes-document nil 'local)))
+       ;; (add-hook 'scss-mode-hook
+       ;;           #'(lambda ()
+       ;;               (add-hook 'before-save-hook 'com-css-sort-attributes-document nil 'local)))
+     #+end_src
 **** SASS
      #+begin_src emacs-lisp
        (use-package sass-mode
