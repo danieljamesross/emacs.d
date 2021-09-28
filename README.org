@@ -1528,10 +1528,13 @@
      #+end_src
 **** Remove leading zeros
      This undoes the formatting by `prettier` to conform with Google's style guide.
-     i.e. `.3s` becomes `.3s`
+     i.e. `0.3s` becomes `.3s`
      #+begin_src emacs-lisp
        (defun remove-decimal-zero ()
-         (replace-regexp "0\\." "."))
+         (interactive)
+         (save-excursion
+           (beginning-of-buffer)
+           (replace-regexp "0\\." ".")))
 
        (add-hook 'css-mode-hook
                  #'(lambda ()
