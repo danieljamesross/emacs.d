@@ -1612,35 +1612,30 @@
      #+END_SRC
 *** prettier-js-mode
     #+BEGIN_SRC emacs-lisp
-      (defun local-prettier ()
-        (use-package prettier-js
+      (use-package prettier-js
           :ensure t
           :config
-        (enable-minor-mode
-         '("\\.jsx?\\'" . prettier-js-mode))
-        (enable-minor-mode
-         '("\\.js?\\'" . prettier-js-mode))
-        (enable-minor-mode
-         '("\\.ts?\\'" . prettier-js-mode))
-        (enable-minor-mode
-         '("\\.tsx?\\'" . prettier-js-mode))
-        (setq prettier-js-args
-              '("--arrow-parens" "always"
-                "--semi" "true"
-                "--bracket-spacing" "true"
-                "--single-quote" "true"
-                "--jsx-bracket-same-line" "true"
-                "--print-width" "80"
-                "--use-tabs" "false"
-                "--tab-width" "2"))))
+          (setq prettier-js-args
+                '("--arrow-parens" "always"
+                  "--semi" "true"
+                  "--bracket-spacing" "true"
+                  "--single-quote" "true"
+                  "--jsx-bracket-same-line" "true"
+                  "--print-width" "80"
+                  "--use-tabs" "false"
+                  "--tab-width" "2")))
+
+      ;; (defun choose-prettier ()
+      ;;   (let ((node-path "node_modules/.bin"))
+      ;;     (dolist (item exec-path)
+      ;;       (if (and (string-match node-path item)
+      ;;                (file-exists-p (concat item "prettier")))
+      ;;           'prettier-js-mode
+      ;;         'local-prettier))))
 
       (defun choose-prettier ()
-        (let ((node-path "node_modules/.bin"))
-          (dolist (item exec-path)
-            (if (and (string-match node-path item)
-                     (file-exists-p (concat item "prettier")))
-                'prettier-js-mode
-              'local-prettier))))
+        (enable-minor-mode
+         '("\\.js[x]?\\'|\\.ts[x]?\\'" . prettier-js-mode)))
 
       (eval-after-load 'web-mode
         '(progn
