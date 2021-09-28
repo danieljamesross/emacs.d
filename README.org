@@ -1898,7 +1898,7 @@
     #+end_src
 *** markdown pandoc
     #+BEGIN_SRC emacs-lisp
-      (setq markdown-command "/usr/local/binpandoc")
+      (setq markdown-command "/usr/local/bin/pandoc")
     #+END_SRC
 *** LaTeX
     #+BEGIN_SRC emacs-lisp
