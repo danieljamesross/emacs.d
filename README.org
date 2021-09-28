@@ -12,6 +12,12 @@
            warning-suppress-log-types '((comp) (server)))
    #+end_src
 ** Customisations
+*** ace-jump-mode
+    #+begin_src emacs-lisp
+      (use-package ace-jump-mode
+        :ensure t
+        :bind ("C-=" . ace-jump-mode))
+    #+end_src
 *** autofill
     #+BEGIN_SRC emacs-lisp
       (setq-default fill-column 80)
