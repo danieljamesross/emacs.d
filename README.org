@@ -101,9 +101,6 @@
                        (concat (format "git clone -q %s %s" font-repo temp-folder)
                                " && "
                                (format "mv %s/font/* %s" temp-folder font-folder))))
-                 ;; (shell-command (format "git clone -q %s %s" font-repo temp-folder))
-                 ;; (shell-command (format "mv %s/font/* %s" temp-folder
-                 ;; font-folder))
                  (shell-command shell-command-string)
                  (message (format "Download font %s from %s" font-name font-repo))
                  (set-defauxlt-font font-name))
@@ -124,7 +121,7 @@
          (eval-after-load 'web-mode
            `(add-hook 'web-mode-hook ,hook)))
      #+end_src
-*** keys
+*** Meta & Escape keys
     #+begin_src emacs-lisp
       (set-variable 'meta-flag 't)
       (define-key esc-map "?" 'describe-key-briefly)
@@ -392,12 +389,12 @@
 **** Fonts
      <<fonts>>
      #+BEGIN_SRC emacs-lisp
-       (ignore-errors
+
          (check-font-exists-or-download
         "Hack Nerd Font Mono"
         "https://github.com/pyrho/hack-font-ligature-nerd-font.git")
 
-         (set-face-attribute 'default nil :height 130))
+         (set-face-attribute 'default nil :height 130)
      #+end_src
 **** Emoji
      #+begin_src emacs-lisp
