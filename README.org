@@ -439,11 +439,11 @@
     #+end_src
 *** line-num, highlight, toolbar & fringe
     #+begin_src emacs-lisp
-      (setq display-line-numbers t
+      (setq display-line-numbers nil
             fringe-mode '((nil . 0) nil (fringe))
-            global-hl-line-mode t
-            global-linum-mode nil
             tool-bar-mode nil)
+      (global-hl-line-mode t)
+      (global-linum-mode t)
     #+end_src
 *** narrow-to-page
     #+begin_src emacs-lisp
