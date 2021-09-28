@@ -1758,35 +1758,32 @@
       ;; :config (eval-after-web-mode-load
       ;;          '(add-hook 'after-save-hook 'eslint-fix nil t)))
       (defun eslint-hook ()
-        '(add-hook 'after-save-hook 'eslint-fix nil t))
+        '(add-hook 'before-save-hook 'eslint-fix nil t))
       (eval-after-load 'web-mode
         '(add-hook 'web-mode-hook
                    'eslint-hook))
-    #+end_src
+                   (message 77)
+
 *** jinja
     #+begin_src emacs-lisp
       (use-package jinja2-mode
         :ensure t
         :mode "\\.jinja\\'")
-    #+end_src
+        (message 78)
+
 *** yaml
     #+begin_src emacs-lisp
       (use-package yaml-mode
         :ensure t)
-    #+end_src
+        (message 79)
+
 ** lsp-mode
    Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
    #+BEGIN_SRC emacs-lisp
      (defun enable-lsp-for-web-mode ()
        (interactive)
        (enable-minor-mode
-        '("\\.jsx" . lsp-deferred))
-       (enable-minor-mode
-        '("\\.js" . lsp-deferred))
-       (enable-minor-mode
-        '("\\.ts" . lsp-deferred))
-       (enable-minor-mode
-        '("\\.tsx" . lsp-deferred)))
+        '("\\.js[x]?\\|\\.ts[x]?" . lsp-deferred)))
 
      (use-package lsp-mode
        :if window-system
