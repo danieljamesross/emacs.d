@@ -2084,7 +2084,7 @@
        (editorconfig-mode 1))
    #+end_src
 ** Shells & Terminal Emulators
-*** shellhighlight
+*** shell highlight
     #+begin_src emacs-lisp
       (use-package shx
         :ensure t
