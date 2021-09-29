@@ -65,61 +65,60 @@
      Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-check-for-internet-connection][great thread]].
      #+begin_src emacs-lisp
        (defun internet-up-p (&optional host)
-	 "Ping bbc.co.uk to test if internet is connected"
-	 (zerop (call-process "ping" nil nil nil "-c" "1" "-W" "1"
-			      (if host host "www.bbc.co.uk"))))
+         "Ping bbc.co.uk to test if internet is connected"
+         (zerop (call-process "ping" nil nil nil "-c" "1" "-W" "1"
+                              (if host host "www.bbc.co.uk"))))
      #+end_src
 **** check-file-exists-or-clone
      #+begin_src emacs-lisp
        (defun check-file-exists-or-clone (file repo)
-	 "Check a file/folder exists and download from git if not"
-	 (let ((expanded-filname (expand-file-name file)))
-	   (if (file-exists-p expanded-filname)
-	       (princ (format "%s already exists\n" expanded-filname))
-	     (if (internet-up-p)
-		 (progn
-		   (shell-command (format "git clone -q %s %s" repo expanded-filname))
-		   (message (format "Cloning repo %s into %s" repo expanded-filname)))
-	       (message (format "No internet connection, can't clone %s" repo))))))
+         "Check a file/folder exists and download from git if not"
+         (let ((expanded-filname (expand-file-name file)))
+           (if (file-exists-p expanded-filname)
+               (princ (format "%s already exists\n" expanded-filname))
+             (if (internet-up-p)
+                 (progn
+                   (shell-command (format "git clone -q %s %s" repo expanded-filname))
+                   (message (format "Cloning repo %s into %s" repo expanded-filname)))
+               (message (format "No internet connection, can't clone %s" repo))))))
      #+end_src
 **** check-font-exists-or-download
      #+begin_src emacs-lisp
        (defun set-default-font (font-name)
-	 "Add the font to `default-frame-alist' and then `set-frame-font'"
-	 (add-to-list 'default-frame-alist `(font . ,font-name))
-	 (set-frame-font font-name nil t)
-	 (message (format "Set font %s" font-name)))
+         "Add the font to `default-frame-alist' and then `set-frame-font'"
+         (add-to-list 'default-frame-alist `(font . ,font-name))
+         (set-frame-font font-name nil t)
+         (message (format "Set font %s" font-name)))
 
        (defun check-font-exists-or-download (font-name font-repo)
-	 "Check font exists, download if not, then call `set-default-font'"
-	 (if (member font-name (font-family-list))
-	     (set-default-font font-name)
-	   (if (internet-up-p)
-	       (let* ((temp-folder (expand-file-name "/private/tmp/hack"))
-		      (font-folder (expand-file-name "/Library/Fonts/"))
-		      (shell-command-string
-		       (concat (format "git clone -q %s %s" font-repo temp-folder)
-			       " && "
-			       (format "mv %s/font/* %s" temp-folder font-folder))))
-		 (shell-command shell-command-string)
-		 (message (format "Download font %s from %s" font-name font-repo))
-		 (set-defauxlt-font font-name))
-	     (message (format "No internet connection, can't clone %s" font-repo)))))
+         "Check font exists, download if not, then call `set-default-font'"
+         (if (member font-name (font-family-list))
+             (set-default-font font-name)
+           (if (internet-up-p)
+               (let* ((temp-folder (expand-file-name "/private/tmp/hack"))
+                      (font-folder (expand-file-name "/Library/Fonts/"))
+                      (shell-command-string
+                       (concat (format "git clone -q %s %s" font-repo temp-folder)
+                               " && "
+                               (format "mv %s/font/* %s" temp-folder font-folder))))
+                 (shell-command shell-command-string)
+                 (message (format "Download font %s from %s" font-name font-repo))
+                 (set-defauxlt-font font-name))
+             (message (format "No internet connection, can't clone %s" font-repo)))))
      #+end_src
 **** enable-minor-mode
      #+begin_src emacs-lisp
        (defun enable-minor-mode (my-pair)
-	 "Enable minor mode if filename match the regexp. MY-PAIR is a cons cell (regexp . minor-mode)."
-	 (when (and (buffer-file-name)
-		    (string-match (car my-pair) (buffer-file-name)))
-	   (funcall (cdr my-pair))))
+         "Enable minor mode if filename match the regexp. MY-PAIR is a cons cell (regexp . minor-mode)."
+         (when (and (buffer-file-name)
+                    (string-match (car my-pair) (buffer-file-name)))
+           (funcall (cdr my-pair))))
      #+end_src
 **** eval-after-web-mode-load
      #+begin_src emacs-lisp
-       (defun eval-after-web-mode-load (hook)
-	 "Add a hook that is called after web-mode is initialised"
-	 (eval-after-load 'web-mode
-	   `(add-hook 'web-mode-hook ,hook)))
+       (defmacro eval-after-web-mode-load (hook)
+         "Add a hook that is called after web-mode is initialised"
+         `(eval-after-load 'web-mode '(add-hook 'web-mode-hook ,hook)))
      #+end_src
 *** Meta & Escape keys
     #+begin_src emacs-lisp
