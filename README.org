@@ -54,11 +54,11 @@
      #+begin_src emacs-lisp
        ;; https://github.com/hrehfeld/emacs-smart-hungry-delete
        (use-package smart-hungry-delete
-	 :ensure t
-	 :bind (("<backspace>" . smart-hungry-delete-backward-char)
-		("C-d" . smart-hungry-delete-forward-char))
-	 :defer nil ;; dont defer so we can add our functions to hooks
-	 :config (smart-hungry-delete-add-default-hooks))
+         :ensure t
+         :bind (("<backspace>" . smart-hungry-delete-backward-char)
+                ("<deletechar>" . smart-hungry-delete-forward-char))
+         :defer nil ;; dont defer so we can add our functions to hooks
+         :config (smart-hungry-delete-add-default-hooks))
      #+end_src
 *** functions
 **** internet-up-p
