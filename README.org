@@ -446,9 +446,8 @@
     #+end_src
 *** line-num, highlight, toolbar & fringe
     #+begin_src emacs-lisp
-      (setq fringe-mode '((nil . 0) nil (fringe))
-            tool-bar-mode nil)
-
+      (setq fringe-mode '((nil . 0) nil (fringe)))
+      (tool-bar-mode -1)
       (global-hl-line-mode t)
       (global-linum-mode t)
     #+end_src
