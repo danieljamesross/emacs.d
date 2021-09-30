@@ -969,7 +969,7 @@
         (xah-insert-bracket-pair "`" "`") )
 
       (global-set-key (kbd "M-(") 'xah-insert-paren)
-      (global-set-key (kbd "M-[") '[xah-insert-bracket])
+      (global-set-key (kbd "M-[") 'xah-insert-bracket)
       (global-set-key (kbd "M-{") 'xah-insert-brace)
       (global-set-key (kbd "M-\"") 'xah-insert-double-quote)
       (global-set-key (kbd "M-'") 'xah-insert-quote)
