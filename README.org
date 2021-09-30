@@ -1757,7 +1757,7 @@
 ** Lisp
 *** paren-mode
     #+begin_src emacs-lisp
-      (setq show-paren-mode t)
+      (show-paren-mode 1)
     #+end_src
 *** SBCL
     #+begin_src emacs-lisp
