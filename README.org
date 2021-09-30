@@ -2101,7 +2101,7 @@
     #+begin_src emacs-lisp
       (use-package eshell-syntax-highlighting
         :if window-system
-        :after esh-mode
+        :after eshell-mode
         :ensure t ;; Install if not already installed.
         :config
         ;; Enable in all Eshell buffers.
