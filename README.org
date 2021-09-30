@@ -1609,7 +1609,8 @@
                ("\\.shtml$"   . web-mode)
                ("\\.tsx$"     . web-mode)
                ("\\.ts$"      . web-mode)
-               ("\\.njk$"      . web-mode))
+               ("\\.njk$"     . web-mode)
+               ("\\.jinja$"   . web-mode))
         :config (setq web-mode-enable-auto-quoting nil))
     #+end_src
 **** web-mode-indent
@@ -1705,9 +1706,9 @@
 
 *** jinja
     #+begin_src emacs-lisp
-      (use-package jinja2-mode
-        :ensure t
-        :mode "\\.jinja\\'")
+;;      (use-package jinja2-mode
+;;        :ensure t
+;;        :mode "\\.jinja\\'")
     #+end_src
 
 *** yaml
