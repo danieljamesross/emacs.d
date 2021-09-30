@@ -15,7 +15,8 @@
 (setq package-enable-at-startup t)
 
 (add-to-list 'package-archives
-	     '("melpa" . "https://melpa.org/packages/"))
+             '("melpa" . "https://melpa.org/packages/"))
+
 ;; Bootstrap `use-package'
 (unless (package-installed-p 'use-package)
   (message "no use-package, installing...")
