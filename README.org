@@ -1995,31 +1995,31 @@
     This relies on their being auth credentials in the file [[~/.authinfo]]
     Details here: [[https://github.com/ahungry/org-jira]]
     #+begin_src emacs-lisp
-      (use-package org-jira
-        :ensure t
-        :if window-system
-        :config (unless (file-exists-p "~/.org-jira")
-                  (make-directory "~/.org-jira"))
-        (setq jiralib-url "https://phantomstudios.atlassian.net/")
-        (setq org-jira-done-states '("Merged" "Done" "Closed"))
-        (setq org-jira-jira-status-to-org-keyword-alist
-              '(("In Progress" . "IN_PROGRESS")
-                ("To Do" . "TODO")
-                ("Reopened" . "TODO")
-                ("Blocked" . "BLOCKED")
-                ("In Review" . "CR")
-                ("Merged" . "+2")
-                ("Ready for QA" . "QA")
-                ("In QA" . "QA")
-                ("Done" . "DONE")
-                ("Ready for Deployment" . "DONE")
-                ("Closed" . "DONE")))
-        (setq org-jira-progress-issue-flow
-              '(("To Do" . "In Progress")
-                ("Reopened/Blocked" . "In Progress")
-                ("In CR" . "Merged")
-                ("Ready for QA" . "Done")
-                ("Ready for Deployment" . "Closed"))))
+      ;; (use-package org-jira
+      ;;   :ensure t
+      ;;   :if window-system
+      ;;   :config (unless (file-exists-p "~/.org-jira")
+      ;;             (make-directory "~/.org-jira"))
+      ;;   (setq jiralib-url "https://phantomstudios.atlassian.net/")
+      ;;   (setq org-jira-done-states '("Merged" "Done" "Closed"))
+      ;;   (setq org-jira-jira-status-to-org-keyword-alist
+      ;;         '(("In Progress" . "IN_PROGRESS")
+      ;;           ("To Do" . "TODO")
+      ;;           ("Reopened" . "TODO")
+      ;;           ("Blocked" . "BLOCKED")
+      ;;           ("In Review" . "CR")
+      ;;           ("Merged" . "+2")
+      ;;           ("Ready for QA" . "QA")
+      ;;           ("In QA" . "QA")
+      ;;           ("Done" . "DONE")
+      ;;           ("Ready for Deployment" . "DONE")
+      ;;           ("Closed" . "DONE")))
+      ;;   (setq org-jira-progress-issue-flow
+      ;;         '(("To Do" . "In Progress")
+      ;;           ("Reopened/Blocked" . "In Progress")
+      ;;           ("In CR" . "Merged")
+      ;;           ("Ready for QA" . "Done")
+      ;;           ("Ready for Deployment" . "Closed"))))
     #+end_src
 
 ** Regexp
