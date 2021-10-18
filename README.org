@@ -428,7 +428,6 @@
 **** Fonts
      <<fonts>>
      #+begin_src emacs-lisp
-
        (check-font-exists-or-download
         "Hack Nerd Font Mono"
         "https://github.com/pyrho/hack-font-ligature-nerd-font.git")
