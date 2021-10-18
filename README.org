@@ -90,16 +90,16 @@
      #+end_src
 **** check-font-exists-or-download
      #+begin_src emacs-lisp
-       (defun set-default-font (font-name)
+       (defun set-default-font (font-name &optional font-size)
          "Add the font to `default-frame-alist' and then `set-frame-font'"
          (add-to-list 'default-frame-alist `(font . ,font-name))
-         (set-frame-font font-name nil t)
+         (set-frame-font (format "%s %s" font-name font-size) nil t)
          (message (format "Set font %s" font-name)))
 
-       (defun check-font-exists-or-download (font-name font-repo)
+       (defun check-font-exists-or-download (font-name font-repo &optional font-size)
          "Check font exists, download if not, then call `set-default-font'"
          (if (member font-name (font-family-list))
-             (set-default-font font-name)
+             (set-default-font font-name font-size)
            (if (internet-up-p)
                (let* ((temp-folder (expand-file-name "/private/tmp/hack"))
                       (font-folder (expand-file-name "/Library/Fonts/"))
@@ -109,7 +109,7 @@
                                (format "mv %s/font/* %s" temp-folder font-folder))))
                  (shell-command shell-command-string)
                  (message (format "Download font %s from %s" font-name font-repo))
-                 (set-default-font font-name))
+                 (set-default-font font-name (if font-size font-size 12)))
              (message (format "No internet connection, can't clone %s" font-repo)))))
      #+end_src
 **** enable-minor-mode
@@ -430,9 +430,8 @@
      #+begin_src emacs-lisp
        (check-font-exists-or-download
         "Hack Nerd Font Mono"
-        "https://github.com/pyrho/hack-font-ligature-nerd-font.git")
-
-       (set-face-attribute 'default nil :height 130)
+        "https://github.com/pyrho/hack-font-ligature-nerd-font.git"
+        13)
      #+end_src
 **** Emoji
      #+begin_src emacs-lisp
