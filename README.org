@@ -126,6 +126,16 @@
          "Add a hook that is called after web-mode is initialised"
          `(eval-after-load 'web-mode '(add-hook 'web-mode-hook ,hook)))
      #+end_src
+*** keychord
+    https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
+    #+begin_src emacs-lisp
+      ;; (let ((key-chord (expand-file-name (concat user-emacs-directory "key-chord/")))
+      ;;       (key-chord-repo "https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el"))
+      ;;   (check-file-exists-or-clone key-chord key-chord-repo)
+      ;;   (use-package key-chord
+      ;;     :load-path "key-chord/"
+      ;;     :init (key-chord-mode 1)))
+    #+end_src
 *** Meta & Escape keys
     #+begin_src emacs-lisp
       (set-variable 'meta-flag 't)
