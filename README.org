@@ -60,6 +60,12 @@
          :defer nil ;; dont defer so we can add our functions to hooks
          :config (smart-hungry-delete-add-default-hooks))
      #+end_src
+*** expand-region
+    #+begin_src emacs-lisp
+      (use-package expand-region
+        :ensure t
+        :bind ("C-`" . er/expand-region))
+    #+end_src
 *** functions
 **** internet-up-p
      Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-check-for-internet-connection][great thread]].
