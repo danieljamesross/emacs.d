@@ -574,11 +574,11 @@
      #+end_src
 **** kintaro-mode
      #+begin_src emacs-lisp
-       (let ((kintaro-path (concat user-emacs-directory "kintaro-mode")))
-         (check-file-exists-or-clone kintaro-path "https://github.com/danieljamesross/kintaro-mode.git")
-         (setq load-path (cons (expand-file-name kintaro-path) load-path))
-         (require 'kintaro-mode)
-         (add-to-list 'auto-mode-alist '("\\.ksdl\\'" . kintaro-mode)))
+       ;; (let ((kintaro-path (concat user-emacs-directory "kintaro-mode")))
+       ;;   (check-file-exists-or-clone kintaro-path "https://github.com/danieljamesross/kintaro-mode.git")
+       ;;   (setq load-path (cons (expand-file-name kintaro-path) load-path))
+       ;;   (require 'kintaro-mode)
+       ;;   (add-to-list 'auto-mode-alist '("\\.ksdl\\'" . kintaro-mode)))
      #+end_src
 ** Files, paths, buffers
 *** File Types & modes
