@@ -1615,18 +1615,12 @@
     #+end_src
 *** web-mode
     #+begin_src emacs-lisp
-      (use-package web-mode
-        :ensure t
-        :mode (("\\.jsx$"     . web-mode)
-               ("\\.html$"    . web-mode)
-               ("\\.ejs$"     . web-mode)
-               ("\\.htm$"     . web-mode)
-               ("\\.shtml$"   . web-mode)
-               ("\\.tsx$"     . web-mode)
-               ("\\.ts$"      . web-mode)
-               ("\\.njk$"     . web-mode)
-               ("\\.jinja$"   . web-mode))
-        :config (setq web-mode-enable-auto-quoting nil))
+            (use-package web-mode
+              :ensure t
+              :mode ("\\.jsx$" "\\.html$" "\\.ejs$"
+                     "\\.htm$" "\\.shtml$" "\\.tsx$"
+                      "\\.ts$" "\\.njk$" "\\.jinja$")
+              :config (setq web-mode-enable-auto-quoting nil))
     #+end_src
 **** web-mode-indent
      #+begin_src emacs-lisp
