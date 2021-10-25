@@ -1755,7 +1755,6 @@
 
      (use-package lsp-mode
        :if window-system
-       :after web-mode
        :ensure t
        :no-require t
        :commands (lsp lsp-deferred)
