@@ -1770,8 +1770,8 @@
     #+end_src
 *** lsp-treemacs
     #+begin_src emacs-lisp
-                                              ;     (use-package lsp-treemacs
-                                              ;      :ensure t)
+      (use-package lsp-treemacs
+       :ensure t)
     #+end_src
 ** JSON
    #+begin_src emacs-lisp
