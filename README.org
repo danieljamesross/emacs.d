@@ -1562,12 +1562,12 @@
            (beginning-of-buffer)
            (replace-regexp "0\\." ".")))
 
-       (add-hook 'css-mode-hook
-                 #'(lambda ()
-                     (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
-       (add-hook 'scss-mode-hook
-                 #'(lambda ()
-                     (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
+       ;; (add-hook 'css-mode-hook
+       ;;           #'(lambda ()
+       ;;               (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
+       ;; (add-hook 'scss-mode-hook
+       ;;           #'(lambda ()
+       ;;               (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
      #+end_src
 **** Css sort
      #+begin_src emacs-lisp
