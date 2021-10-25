@@ -1591,7 +1591,7 @@
          :config
          (enable-minor-mode '("\\.sass?\\'" . sass-mode)))
      #+end_src
-*** js-comint / js2
+*** js-comint
     #+begin_src emacs-lisp
       (use-package js-comint
         :ensure t
