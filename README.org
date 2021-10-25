@@ -1728,6 +1728,20 @@
         :ensure t)
     #+end_src
 
+*** js-mode
+#+begin_src emacs-lisp
+  (defun init-js ()
+    (interactive)
+    (init-prettier)
+    (lsp)
+    (tree-sitter-hl-mode 1))
+
+  (use-package js-mode
+    :mode "\\.js\\'"
+    :defer t
+    :config (init-js))
+
+#+end_src
 ** lsp-mode
    Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
    #+begin_src emacs-lisp
