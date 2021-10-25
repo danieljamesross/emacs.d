@@ -277,17 +277,12 @@
     #+end_src
 *** tree-sitter
     #+begin_src emacs-lisp
-      ;; (use-package tree-sitter
-      ;;   :ensure t
-      ;;   :config (tree-sitter-hl-mode)
-      ;;   :hook (prog-mode-hook . (lambda ()
-      ;;                             (when 
-      ;;                                 (member major-mode
-      ;;                                          tree-sitter-major-mode-language-alist) ;
-      ;;                               (tree-sitter-mode)))))
-      ;; (use-package tree-sitter-langs
-      ;;   :ensure t
-      ;;   :after tree-sitter-mod e)
+      (use-package tree-sitter
+        :ensure t)
+
+      (use-package tree-sitter-langs
+        :ensure t
+        :after tree-sitter-mode)
     #+end_src
 *** too-long-mode
     #+begin_src emacs-lisp
