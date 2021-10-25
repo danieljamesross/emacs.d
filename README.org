@@ -1283,6 +1283,8 @@
     with `brew install aspell`.
     #+begin_src emacs-lisp
       ;; flyspell
+      (unless (file-exists-p "/usr/local/bin/aspell")
+        (shell-command "brew install aspell"))
       (dolist (hook '(text-mode-hook markdown-mode-hook))
         (add-hook hook 'flyspell-mode))
       (add-hook 'prog-mode-hook 'flyspell-prog-mode)
