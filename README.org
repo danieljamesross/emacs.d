@@ -1666,9 +1666,11 @@
       (defun init-prettier ()
         (interactive)
         (enable-minor-mode
-         '("\\.js[x]\\|\\.ts[x]" . prettier-js-mode)))
+         '("\\.js[x]?\\|\\.ts[x]?" . prettier-js-mode))
+        (message "prettier inited"))
 
       (eval-after-web-mode-load 'init-prettier)
+
     #+end_src
 *** tide-mode
     #+begin_src emacs-lisp
