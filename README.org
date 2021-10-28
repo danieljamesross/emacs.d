@@ -1342,7 +1342,7 @@
     #+end_src
 *** Fido
     #+begin_src emacs-lisp
-      (setq fido-mode t)
+ ;;     (setq fido-mode t)
     #+end_src
 *** Bash completion
     #+begin_src emacs-lisp
