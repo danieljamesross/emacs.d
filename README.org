@@ -278,7 +278,8 @@
 *** tree-sitter
     #+begin_src emacs-lisp
       (use-package tree-sitter
-        :ensure t)
+        :ensure t
+        :config (global-tree-sitter-mode 1))
 
       (use-package tree-sitter-langs
         :ensure t
@@ -1681,10 +1682,12 @@
         (setq flycheck-check-syntax-automatically '(save mode-enabled))
         (eldoc-mode +1)
         (tide-hl-identifier-mode +1)
-        ;; company is an optional dependency. You have to
-        ;; install it separately via package-install
-        ;; `M-x package-install [ret] company`
-        (company-mode +1))
+        (company-mode +1)
+        (setq company-tooltip-align-annotations t
+              tide-completion-ignore-case t)
+        (eldoc-mode +1)
+        (tide-hl-identifier-mode +1)
+        (message "setup-tide-mode"))
 
       ;; aligns annotation to the right hand side
       (setq company-tooltip-align-annotations t)
@@ -1730,17 +1733,16 @@
 
 *** js-mode
 #+begin_src emacs-lisp
-  (defun init-js ()
-    (interactive)
-    (init-prettier)
-    (lsp)
-    (tree-sitter-hl-mode 1))
+    (defun init-js ()
+      (interactive)
+      (init-prettier)
+      (lsp)
+      (setup-tide-mode)
+      (tree-sitter-mode 1)
+      (tree-sitter-hl-mode 1))
 
-  (use-package js-mode
-    :mode "\\.js\\'"
-    :defer t
-    :config (init-js))
-
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . js-mode))
+  (add-hook 'js-mode-hook #'init-js)
   (with-eval-after-load 'js-mode
     (define-key js-mode-map (kbd "M-.") nil))
 
