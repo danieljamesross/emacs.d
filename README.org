@@ -15,7 +15,6 @@
 *** ace-jump-mode
     #+begin_src emacs-lisp
       (use-package ace-jump-mode
-        :ensure t
         :bind ("C-=" . ace-jump-mode))
     #+end_src
 *** autofill
@@ -63,69 +62,8 @@
 *** expand-region
     #+begin_src emacs-lisp
       (use-package expand-region
-        :ensure t
         :bind ("C-`" . er/expand-region))
     #+end_src
-*** functions
-**** internet-up-p
-     Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-check-for-internet-connection][great thread]].
-     #+begin_src emacs-lisp
-       (defun internet-up-p (&optional host)
-         "Ping bbc.co.uk to test if internet is connected"
-         (zerop (call-process "ping" nil nil nil "-c" "1" "-W" "1"
-                              (if host host "www.bbc.co.uk"))))
-     #+end_src
-**** check-file-exists-or-clone
-     #+begin_src emacs-lisp
-       (defun check-file-exists-or-clone (file repo)
-         "Check a file/folder exists and download from git if not"
-         (let ((expanded-filname (expand-file-name file)))
-           (if (file-exists-p expanded-filname)
-               (princ (format "%s already exists\n" expanded-filname))
-             (if (internet-up-p)
-                 (progn
-                   (shell-command (format "git clone -q %s %s" repo expanded-filname))
-                   (message (format "Cloning repo %s into %s" repo expanded-filname)))
-               (message (format "No internet connection, can't clone %s" repo))))))
-     #+end_src
-**** check-font-exists-or-download
-     #+begin_src emacs-lisp
-       (defun set-default-font (font-name &optional font-size)
-         "Add the font to `default-frame-alist' and then `set-frame-font'"
-         (add-to-list 'default-frame-alist `(font . ,font-name))
-         (set-frame-font (format "%s %s" font-name font-size) nil t)
-         (message (format "Set font %s" font-name)))
-
-       (defun check-font-exists-or-download (font-name font-repo &optional font-size)
-         "Check font exists, download if not, then call `set-default-font'"
-         (if (member font-name (font-family-list))
-             (set-default-font font-name font-size)
-           (if (internet-up-p)
-               (let* ((temp-folder (expand-file-name "/private/tmp/hack"))
-                      (font-folder (expand-file-name "/Library/Fonts/"))
-                      (shell-command-string
-                       (concat (format "git clone -q %s %s" font-repo temp-folder)
-                               " && "
-                               (format "mv %s/font/* %s" temp-folder font-folder))))
-                 (shell-command shell-command-string)
-                 (message (format "Download font %s from %s" font-name font-repo))
-                 (set-default-font font-name (if font-size font-size 12)))
-             (message (format "No internet connection, can't clone %s" font-repo)))))
-     #+end_src
-**** enable-minor-mode
-     #+begin_src emacs-lisp
-       (defun enable-minor-mode (my-pair)
-         "Enable minor mode if filename match the regexp. MY-PAIR is a cons cell (regexp . minor-mode)."
-         (when (and (buffer-file-name)
-                    (string-match (car my-pair) (buffer-file-name)))
-           (funcall (cdr my-pair))))
-     #+end_src
-**** eval-after-web-mode-load
-     #+begin_src emacs-lisp
-       (defmacro eval-after-web-mode-load (hook)
-         "Add a hook that is called after web-mode is initialised"
-         `(eval-after-load 'web-mode '(add-hook 'web-mode-hook ,hook)))
-     #+end_src
 *** keychord
     https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
     #+begin_src emacs-lisp
@@ -228,13 +166,11 @@
     #+begin_src emacs-lisp
       (use-package reveal-in-osx-finder
         :if (eq system-type 'darwin)
-        :ensure t
         :bind ("C-c o" . reveal-in-osx-finder))
     #+end_src
 *** Rainbow delimiters
     #+begin_src emacs-lisp
       (use-package rainbow-delimiters
-        :ensure t
         :hook (prog-mode-hook . rainbow-delimiters-mode))
       ;;                                       ; (lisp-mode-hook . rainbow-delimiters-mode)
       ;; :config (cl-loop for index from 1 to rainbow-delimiters-max-face-count
@@ -247,9 +183,8 @@
     #+begin_src emacs-lisp
       ;; Persist history over Emacs restarts. Vertico sorts by history position.
       (use-package savehist
-        :ensure t
-        :init
-        (savehist-mode))
+	:init
+	(savehist-mode))
     #+end_src
 *** saveplace
     #+begin_src emacs-lisp
@@ -278,11 +213,9 @@
 *** tree-sitter
     #+begin_src emacs-lisp
       (use-package tree-sitter
-        :ensure t
         :config (global-tree-sitter-mode 1))
 
       (use-package tree-sitter-langs
-        :ensure t
         :after tree-sitter-mode)
     #+end_src
 *** too-long-mode
@@ -293,7 +226,6 @@
     #+begin_src emacs-lisp
       (use-package transpose-frame
         :if window-system
-        :ensure t
         :bind ("C-x tf" . transpose-frame))
     #+end_src
 *** y-or-no-p
@@ -309,7 +241,6 @@
 *** all-the-icons
     #+begin_src emacs-lisp
       (use-package all-the-icons
-        :ensure t
         :defer nil
         :config (if (and (internet-up-p)
                          (not (member "all-the-icons" (font-family-list))))
@@ -335,7 +266,6 @@
 *** doom-themes
     #+begin_src emacs-lisp
       (use-package doom-themes
-        :ensure t
         :config
         ;; Global settings (defaults)
         (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
@@ -355,13 +285,11 @@
 *** doom-mode-line
     #+begin_src emacs-lisp
       (use-package doom-modeline
-        :ensure t
         :init (doom-modeline-mode 1))
     #+end_src
 *** fast-scroll
     #+begin_src emacs-lisp
-      (use-package fast-scroll
-        :ensure t)
+      (use-package fast-scroll)
     #+end_src
 *** Fonts
 **** UTF-8
@@ -452,7 +380,6 @@
     #+begin_src emacs-lisp
       (use-package highlight-indent-guides
         :if window-system
-        :ensure t
         :config (setq highlight-indent-guides-character-face "Fira Code Symbol"
                       highlight-indent-guides-method 'bitmap
                       highlight-indent-guides-auto-character-face-perc 10)
@@ -512,7 +439,6 @@
 *** whitespace-cleanup-mode
     #+begin_src emacs-lisp
       (use-package whitespace-cleanup-mode
-        :ensure t
         :config (setq 'whitespace-cleanup-mode t)
         :hook (prog-mode . whitespace-cleanup))
     #+end_src
@@ -520,22 +446,19 @@
 *** Quelpa
     #+begin_src emacs-lisp
       (use-package quelpa
-        :if window-system
-        :ensure t)
+        :if window-system)
 
       (use-package quelpa-use-package
         :if window-system
-        :ensure t
         :after quelpa)
     #+end_src
 *** Update
     #+begin_src emacs-lisp
       (use-package auto-package-update
-        :ensure t
-        :config
-        (setq auto-package-update-delete-old-versions t)
-        (setq auto-package-update-hide-results t)
-        (auto-package-update-maybe))
+	:config
+	(setq auto-package-update-delete-old-versions t)
+	(setq auto-package-update-hide-results t)
+	(auto-package-update-maybe))
     #+end_src
 *** Non Elpa/Melpa Package Modes
 **** antesc-mode
@@ -733,7 +656,6 @@
 *** exec-path-from-shell
     #+begin_src emacs-lisp
       (use-package exec-path-from-shell
-        :ensure t
         :if (memq window-system '(mac ns x))
         :config (setq default-directory (expand-file-name "~/"))
         (setenv "SHELL" "/bin/zsh")
@@ -807,14 +729,12 @@
 *** Node
     #+begin_src emacs-lisp
       (use-package add-node-modules-path
-        :ensure t
         :config)
     #+end_src
 ** Shortcuts
 *** lorem
     #+begin_src emacs-lisp
-      (use-package lorem-ipsum
-        :ensure t)
+      (use-package lorem-ipsum)
     #+end_src
 *** new UNTITLED file
     #+begin_src emacs-lisp
@@ -1227,7 +1147,6 @@
     #+begin_src emacs-lisp
       ;; Enable vertico
       (use-package vertico
-        :ensure t
         :init
         (vertico-mode)
 
@@ -1264,7 +1183,6 @@
         (company-mode -1))
 
       (use-package company
-        :ensure t
         :bind ("\t" . 'company-complete-common)
         :custom ((company-idle-delay 0.0)
                  (company-minimum-prefix-length 1))
@@ -1288,38 +1206,41 @@
       (setq flyspell-issue-message-flag nil)
       (defun flyspell-emacs-popup-textual (event poss word)
         "A textual flyspell popup menu."
-        (require 'popup)
-        (let* ((corrects (if flyspell-sort-corrections
-                             (sort (car (cdr (cdr poss))) 'string<)
-                           (car (cdr (cdr poss)))))
-               ;; sssss
-               ;; shljdsljhslhjslh 
-               (cor-menu (if (consp corrects)
-                             (mapcar (lambda (correct)
-                                       (list correct correct))
-                                     corrects)
-                           '()))
-               (affix (car (cdr (cdr (cdr poss)))))
-               show-affix-info
-               (base-menu  (let ((save (if (and (consp affix) show-affix-info)
-                                           (list
-                                            (list (concat "Save affix: " (car affix))
-                                                  'save)
-                                            '("Accept (session)" session)
-                                            '("Accept (buffer)" buffer))
-                                         '(("Save word" save)
-                                           ("Accept (session)" session)
-                                           ("Accept (buffer)" buffer)))))
-                             (if (consp cor-menu)
-                                 (append cor-menu (cons "" save))
-                               save)))
-               (menu (mapcar
-                      (lambda (arg) (if (consp arg) (car arg) arg))
-                      base-menu)))
-          (cadr (assoc (popup-menu* menu :scroll-bar t) base-menu))))
-      (eval-after-load "flyspell"
-        '(progn
-           (fset 'flyspell-emacs-popup 'flyspell-emacs-popup-textual)))
+        (unless (package-installed-p 'popup)
+          (use-package popup))
+        (when (package-installed-p 'popup)
+          (require 'popup)
+          (let* ((corrects (if flyspell-sort-corrections
+                               (sort (car (cdr (cdr poss))) 'string<)
+                             (car (cdr (cdr poss)))))
+                 ;; sssss
+                 ;; shljdsljhslhjslh 
+                 (cor-menu (if (consp corrects)
+                               (mapcar (lambda (correct)
+                                         (list correct correct))
+                                       corrects)
+                             '()))
+                 (affix (car (cdr (cdr (cdr poss)))))
+                 show-affix-info
+                 (base-menu  (let ((save (if (and (consp affix) show-affix-info)
+                                             (list
+                                              (list (concat "Save affix: " (car affix))
+                                                    'save)
+                                              '("Accept (session)" session)
+                                              '("Accept (buffer)" buffer))
+                                           '(("Save word" save)
+                                             ("Accept (session)" session)
+                                             ("Accept (buffer)" buffer)))))
+                               (if (consp cor-menu)
+                                   (append cor-menu (cons "" save))
+                                 save)))
+                 (menu (mapcar
+                        (lambda (arg) (if (consp arg) (car arg) arg))
+                        base-menu)))
+            (cadr (assoc (popup-menu* menu :scroll-bar t) base-menu))))
+        (eval-after-load "flyspell"
+          '(progn
+             (fset 'flyspell-emacs-popup 'flyspell-emacs-popup-textual))))
 
       ;; two-finger clicks for mac
       (eval-after-load "flyspell"
@@ -1332,7 +1253,6 @@
 *** Flycheck
     #+begin_src emacs-lisp
       (use-package flycheck
-        :ensure t
         :init (global-flycheck-mode))
     #+end_src
 *** Minibuffer auto-complete
@@ -1348,17 +1268,14 @@
     #+begin_src emacs-lisp
       (use-package bash-completion
         :defer t
-        :ensure t
         :config (bash-completion-setup))
     #+end_src
 *** selectrum
     #+begin_src emacs-lisp
       (use-package selectrum
-        :ensure t
         :config (selectrum-mode +1))
 
       (use-package selectrum-prescient
-        :ensure t
         :config
         ;; to make sorting and filtering more intelligent
         (selectrum-prescient-mode +1)
@@ -1370,7 +1287,6 @@
     #+begin_src emacs-lisp
       ;; Enable richer annotations using the Marginalia package
       (use-package marginalia
-        :ensure t
         ;; Either bind `marginalia-cycle` globally or only in the minibuffer
         :bind (("M-A" . marginalia-cycle)
                :map minibuffer-local-map
@@ -1386,7 +1302,6 @@
 *** Orderless
     #+begin_src emacs-lisp
       (use-package orderless
-        :ensure t
         :custom (completion-styles '(orderless)))
     #+end_src
 *** consult
@@ -1511,7 +1426,6 @@
 *** embark
     #+begin_src emacs-lisp
       (use-package embark
-        :ensure t
 
         :bind
         (("C-." . embark-act)         ;; pick some comfortable binding
@@ -1533,7 +1447,6 @@
 
       ;; Consult users will also want the embark-consult package.
       (use-package embark-consult
-        :ensure t
         :after (embark consult)
         :demand t ; only necessary if you have the hook below
         ;; if you want to have consult previews as you move around an
@@ -1595,7 +1508,6 @@
 *** js-comint
     #+begin_src emacs-lisp
       (use-package js-comint
-        :ensure t
         :config
         (setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
         (add-hook 'js2-mode-hook
@@ -1661,7 +1573,6 @@
               (setq prettier-js-args prettier-args)))))
 
       (use-package prettier-js
-        :ensure t
         :init (set-prettier-args))
 
       (defun init-prettier ()
@@ -1708,14 +1619,15 @@
 *** eslint-fix
     #+begin_src emacs-lisp
       (check-file-exists-or-clone "eslint-fix" "https://github.com/codesuki/eslint-fix.git")
-      (unless (file-exists-p (expand-file-name "/usr/local/bin/eslint"))
-        (shell-command "npm i -g eslint"))
+      (unless (or (file-exists-p (expand-file-name "/usr/local/bin/eslint"))
+                  (file-exists-p (expand-file-name "~/.nvm/versions/node/v16.11.1/bin/eslint")))
+        (when (internet-up-p (shell-command "npm i -g eslint"))))
       (use-package eslint-fix
-        :ensure t
         :load-path "eslint-fix")
       (defun eslint-hook ()
         '(add-hook 'before-save-hook 'eslint-fix nil t))
       (eval-after-web-mode-load 'eslint-hook)
+      (eval-after-js-mode-load 'eslint-hook)
     #+end_src
 *** jinja
     #+begin_src emacs-lisp
@@ -1725,8 +1637,7 @@
     #+end_src
 *** yaml
     #+begin_src emacs-lisp
-      (use-package yaml-mode
-        :ensure t)
+      (use-package yaml-mode)
     #+end_src
 *** js-mode
     #+begin_src emacs-lisp
@@ -1765,8 +1676,7 @@
 *** lsp-ui
     #+begin_src emacs-lisp
       (use-package lsp-ui
-        :commands lsp-ui-mode
-        :ensure t)
+        :commands lsp-ui-mode)
     #+end_src
 *** lsp-treemacs
     #+begin_src emacs-lisp
@@ -1801,13 +1711,11 @@
     #+begin_src emacs-lisp
       ;; slime
       (use-package slime
-        :ensure t
         :hook (slime-repl-mode-hook . slime-repl-ansi-color-mode))
     #+end_src
 *** slime-repl-ansi-color
     #+begin_src emacs-lisp
       (use-package slime-repl-ansi-color
-        :ensure t
         :after slime-repl
         :requires slime)
     #+end_src
@@ -1841,7 +1749,6 @@
 *** lisp extra font lock
     #+begin_src emacs-lisp
       (use-package lisp-extra-font-lock
-        :ensure t
         :config (lisp-extra-font-lock-global-mode 1)
         (font-lock-add-keywords
          'emacs-lisp-mode
@@ -1856,7 +1763,6 @@
       (use-package  auctex
         :defines (latex-help-cmd-alist latex-help-file)
         :mode ("\\.tex\\'" . TeX-latex-mode)
-        :ensure t
         :init
         (setq reftex-plug-into-AUCTeX t)
         (setenv "PATH" (concat "/Library/TeX/texbin:"
@@ -1949,7 +1855,6 @@
     #+begin_src emacs-lisp
       ;; Reveal.js + Org mode
       (use-package ox-reveal
-        :ensure t
         :config (setq Org-Reveal-root (concat "file://" (expand-file-name "~/reveal.js/"))
                       Org-Reveal-title-slide nil))
     #+end_src
@@ -1957,7 +1862,6 @@
     #+begin_src emacs-lisp
       (use-package org-bullets
         :if window-system
-        :ensure t
         :after org
         :hook (org-mode . org-bullets-mode)
         :custom
@@ -2091,7 +1995,6 @@
 *** diff
     #+begin_src emacs-lisp
       (use-package diff-hl
-        :ensure t
         :init (turn-on-diff-hl-mode)
         :hook ((prog-mode-hook vc-dir-mode-hook) . turn-on-diff-hl-mode))
     #+end_src
@@ -2112,22 +2015,19 @@
 *** shell highlight
     #+begin_src emacs-lisp
       (use-package shx
-        :ensure t
         :defer t
         :config (shx-global-mode 1))
     #+end_src
 *** vterm
     #+begin_src emacs-lisp
-      (use-package vterm
-        :ensure t)
+      (use-package vterm)
     #+end_src
 *** Eshell syntax highlighting
     Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
     #+begin_src emacs-lisp
       (use-package eshell-syntax-highlighting
         :if window-system
-        :after eshell-mode
-        :ensure t ;; Install if not already installed.
+        :after eshell-mode ;; Install if not already installed.
         :config
         ;; Enable in all Eshell buffers.
         (eshell-syntax-highlighting-global-mode +1))
