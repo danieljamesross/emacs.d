@@ -2038,6 +2038,13 @@
     #+begin_src emacs-lisp
       (use-package vterm)
     #+end_src
+**** multi-vterm
+    #+begin_src emacs-lisp
+      (use-package multi-vterm
+	:bind (("C-c vt" . multi-vterm-project)
+	       ("C-c vn" . multi-vterm-next)
+	       ("C-c vp" . multi-vterm-prev)))
+    #+end_src
 *** Eshell syntax highlighting
     Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
     #+begin_src emacs-lisp
