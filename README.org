@@ -1558,28 +1558,44 @@
 *** prettier-js-mode
     #+begin_src emacs-lisp
       (defun set-prettier-args ()
-        (let ((node-path "node_modules/.bin")
-              (prettier-args '("--arrow-parens" "always"
-                               "--semi" "true"
-                               "--bracket-spacing" "true"
-                               "--single-quote" "true"
-                               "--jsx-bracket-same-line" "true"
-                               "--print-width" "80"
-                               "--use-tabs" "false"
-                               "--tab-width" "2")))
-          (dolist (item exec-path)
-            (when (and (string-match node-path item)
-                       (file-exists-p (concat item "prettier")))
-              (setq prettier-js-args prettier-args)))))
+	(let ((node-path "node_modules/.bin")
+	      (prettier-args '("--arrow-parens" "always"
+		 "--semi" "true"
+		 "--bracket-spacing" "true"
+		 "--single-quote" "true"
+		 "--jsx-bracket-same-line" "true"
+		 "--print-width" "80"
+		 "--use-tabs" "false"
+		 "--tab-width" "2")
+
+	       ;; '(
+	       ;;   "--trailingComma": "es5",
+	       ;;   "--tabWidth": "2",
+	       ;;   "--semi": "true",
+	       ;;   "--singleQuote": "false",
+	       ;;   "--bracketSpacing": "true",
+	       ;;   "--arrowParens": "always",
+	       ;;   "--printWidth": "80",
+	       ;;   "--proseWrap": "preserve",
+	       ;;   "--quoteProps": "as-needed",
+	       ;;   "--use-tabs": "true")
+	       ))
+	  (dolist (item exec-path)
+	    (if (and (string-match node-path item)
+		       (file-exists-p (concat item "prettier"))
+		       (file-in-directory-p ".prettierrc*" "./"))
+		    (setq prettier-js-args nil)
+	      (setq prettier-js-args prettier-args)))))
 
       (use-package prettier-js
-        :init (set-prettier-args))
+	:init (set-prettier-args)
+	)
 
       (defun init-prettier ()
-        (interactive)
-        (enable-minor-mode
-         '("\\.js[x]?\\|\\.ts[x]?" . prettier-js-mode))
-        (message "prettier inited"))
+	(interactive)
+	(enable-minor-mode
+	 '("\\.js[x]?\\|\\.ts[x]?" . prettier-js-mode))
+	(message "prettier inited"))
 
       (eval-after-web-mode-load 'init-prettier)
 
