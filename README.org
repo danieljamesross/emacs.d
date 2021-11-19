@@ -53,7 +53,6 @@
      #+begin_src emacs-lisp
        ;; https://github.com/hrehfeld/emacs-smart-hungry-delete
        (use-package smart-hungry-delete
-         :ensure t
          :bind (("<backspace>" . smart-hungry-delete-backward-char)
                 ("<deletechar>" . smart-hungry-delete-forward-char))
          :defer nil ;; dont defer so we can add our functions to hooks
@@ -304,7 +303,6 @@
 **** Unicode
      #+begin_src emacs-lisp
        (use-package unicode-fonts
-         :ensure t
          :config
          (unicode-fonts-setup))
      #+end_src
@@ -708,7 +706,6 @@
 **** buffer-move
      #+begin_src emacs-lisp
        (use-package buffer-move
-         :ensure t
          :bind (("s-C-<up>" . buf-move-up)
                 ("s-C-<down>" . buf-move-down)
                 ("s-C-<left>" . buf-move-left)
@@ -1501,7 +1498,6 @@
 **** SASS
      #+begin_src emacs-lisp
        (use-package sass-mode
-         :ensure t
          :defer t
          :config
          (enable-minor-mode '("\\.sass?\\'" . sass-mode)))
@@ -1628,7 +1624,6 @@
           '("\\.ts[x]" . setup-tide-mode)))
 
        (use-package tide
-         :ensure t
          :after (typescript-mode company flycheck web-mode))
        ;; :hook ((before-save . tide-format-before-save))
        (eval-after-web-mode-load 'trigger-tide-setup)
