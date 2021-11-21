@@ -11,7 +11,9 @@
            gcs-done))
 
 (add-hook 'emacs-startup-hook #'efs/display-startup-time)
+
 (org-babel-load-file (expand-file-name (concat user-emacs-directory "functions.org")))
+
 (require 'package)
 
 (setq package-enable-at-startup t)

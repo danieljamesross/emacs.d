@@ -674,24 +674,10 @@
               ;; Only set after LIBRARY_PATH can find gcc libraries.
               (setq comp-deferred-compilation t))
           (message "Native comp is *not* available"))
-        ;; (exec-path-from-shell-initialize)
-        (add-to-list 'exec-path "/usr/local/bin")
         (add-to-list 'exec-path default-directory)
         (add-to-list 'exec-path user-emacs-directory)
         (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
-        (add-to-list 'exec-path "/sbin/")
-        (exec-path-from-shell-initialize)
-        ;; (exec-path-from-shell-copy-envs '("PATH"))
-        )
-
-
-      ;; (when (file-exists-p (expand-file-name  "/Library/TeX/texbin"))
-      ;;   (setenv "PATH" (concat "/Library/TeX/texbin:"
-      ;;                          (getenv "PATH")))
-      ;;   (add-to-list 'exec-path "/Library/TeX/texbin"))
-      ;; (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-
-
+        (exec-path-from-shell-initialize))
     #+end_src
 *** Buffers and Frames
 **** buffer boundaries
