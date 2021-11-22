@@ -53,7 +53,6 @@
      #+begin_src emacs-lisp
        ;; https://github.com/hrehfeld/emacs-smart-hungry-delete
        (use-package smart-hungry-delete
-         :ensure t
          :bind (("<backspace>" . smart-hungry-delete-backward-char)
                 ("<deletechar>" . smart-hungry-delete-forward-char))
          :defer nil ;; dont defer so we can add our functions to hooks
@@ -304,7 +303,6 @@
 **** Unicode
      #+begin_src emacs-lisp
        (use-package unicode-fonts
-         :ensure t
          :config
          (unicode-fonts-setup))
      #+end_src
@@ -387,7 +385,8 @@
     #+end_src
 *** line-num, highlight, toolbar & fringe
     #+begin_src emacs-lisp
-      (setq fringe-mode '((nil . 0) nil (fringe)))
+      (fringe-mode '(nil . 0))
+      (setq nlinum-highlight-current-line t)
       (tool-bar-mode -1)
       (global-hl-line-mode t)
       (global-linum-mode t)
@@ -675,24 +674,10 @@
               ;; Only set after LIBRARY_PATH can find gcc libraries.
               (setq comp-deferred-compilation t))
           (message "Native comp is *not* available"))
-        ;; (exec-path-from-shell-initialize)
-        (add-to-list 'exec-path "/usr/local/bin")
         (add-to-list 'exec-path default-directory)
         (add-to-list 'exec-path user-emacs-directory)
         (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
-        (add-to-list 'exec-path "/sbin/")
-        (exec-path-from-shell-initialize)
-        ;; (exec-path-from-shell-copy-envs '("PATH"))
-        )
-
-
-      ;; (when (file-exists-p (expand-file-name  "/Library/TeX/texbin"))
-      ;;   (setenv "PATH" (concat "/Library/TeX/texbin:"
-      ;;                          (getenv "PATH")))
-      ;;   (add-to-list 'exec-path "/Library/TeX/texbin"))
-      ;; (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-
-
+        (exec-path-from-shell-initialize))
     #+end_src
 *** Buffers and Frames
 **** buffer boundaries
@@ -707,7 +692,6 @@
 **** buffer-move
      #+begin_src emacs-lisp
        (use-package buffer-move
-         :ensure t
          :bind (("s-C-<up>" . buf-move-up)
                 ("s-C-<down>" . buf-move-down)
                 ("s-C-<left>" . buf-move-left)
@@ -1500,7 +1484,6 @@
 **** SASS
      #+begin_src emacs-lisp
        (use-package sass-mode
-         :ensure t
          :defer t
          :config
          (enable-minor-mode '("\\.sass?\\'" . sass-mode)))
@@ -1627,7 +1610,6 @@
           '("\\.ts[x]" . setup-tide-mode)))
 
        (use-package tide
-         :ensure t
          :after (typescript-mode company flycheck web-mode))
        ;; :hook ((before-save . tide-format-before-save))
        (eval-after-web-mode-load 'trigger-tide-setup)
