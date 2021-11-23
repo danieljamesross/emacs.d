@@ -586,7 +586,7 @@
                                               (name . "\\*terminal\\*")
                                               (name . "\\*slime-repl sbcl\\*")
                                               (name . "\\*shell\\*")
-                                              (name . "\\*vterm\\*")))
+                                              (name . "\\*vterminal")))
                 ("Logs" (or (name . "\\*Messages\\*")
                             (name . "\\*slime-events\\*")
                             (name . "\\*inferior-lisp\\*")
@@ -710,7 +710,24 @@
        (global-set-key (kbd "C-x <left>") 'windmove-left)
        (global-set-key (kbd "C-x <right>") 'windmove-right)
      #+end_src
+**** display all vterms
+#+begin_src emacs-lisp
+  (defun buffer-in-window-list ()
+    (let (buffers)
+      (walk-windows (lambda (window) (push (window-buffer window) buffers)) t t)
+      buffers))
+
+  (defun display-all-vterms ()
+    (interactive)
+    (let (buffers-in-window (buffer-in-window-list))
+      (dolist (buffer (buffer-list))
+        (when (and (string-match "\\*vterminal" (buffer-name buffer))
+                   (not (memq buffer buffers-in-window)))
+          (set-window-buffer (split-window (get-largest-window)) buffer)))
+      (balance-windows)))
+#+end_src
 *** Node
+
     #+begin_src emacs-lisp
       (use-package add-node-modules-path
         :config)
@@ -1545,7 +1562,7 @@
 	      (prettier-args '("--arrow-parens" "always"
 		 "--semi" "true"
 		 "--bracket-spacing" "true"
-		 "--single-quote" "true"
+		 "--single-quote" "false"
 		 "--jsx-bracket-same-line" "true"
 		 "--print-width" "80"
 		 "--use-tabs" "false"
