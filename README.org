@@ -1823,8 +1823,8 @@
    #+end_src
 *** org-agenda
     #+begin_src emacs-lisp
-      (setq org-agenda-files (list org-directory)
-            org-directory (expand-file-name "~/org")
+      (setq org-directory (expand-file-name "~/org")
+            org-agenda-files (list org-directory)
             org-log-into-drawer nil)
     #+end_src
 *** org-mode dates

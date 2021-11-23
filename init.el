@@ -12,7 +12,27 @@
 
 (add-hook 'emacs-startup-hook #'efs/display-startup-time)
 
-(org-babel-load-file (expand-file-name (concat user-emacs-directory "functions.org")))
+(defun last-modified (file)
+  (let ((last-mod-time (sixth (file-attributes (expand-file-name file)))))
+    (time-convert last-mod-time 'integer)))
+
+(defun check-newer-than (file1 file2)
+  (let ((lm1 (last-modified file1))
+        (lm2 (last-modified file2)))
+    (if (and (numberp lm1) (numberp lm2))
+        (> lm1 lm2)
+      nil)))
+
+(let* ((file (concat user-emacs-directory "functions"))
+       (org (concat file ".org"))
+       (el (concat file ".el")))
+  (if (check-newer-than org el)
+      (progn
+        (message (format "loading %s" org))
+        (org-babel-load-file org))
+    (progn
+      (message (format "loading %s" el))
+      (load-file el))))
 
 (require 'package)
 
@@ -38,7 +58,16 @@
   (let ((user-init-file custom-file))
     ad-do-it))
 
-(org-babel-load-file (expand-file-name (concat user-emacs-directory "README.org")))
+(let* ((file (concat user-emacs-directory "README"))
+       (org (concat file ".org"))
+       (el (concat file ".el")))
+  (if (check-newer-than org el)
+      (progn
+        (message (format "loading %s" org))
+        (org-babel-load-file org))
+    (progn
+      (message (format "loading %s" el))
+      (load-file el))))
 
 (server-start)
 
