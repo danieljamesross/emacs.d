@@ -182,8 +182,8 @@
     #+begin_src emacs-lisp
       ;; Persist history over Emacs restarts. Vertico sorts by history position.
       (use-package savehist
-	:init
-	(savehist-mode))
+        :init
+        (savehist-mode))
     #+end_src
 *** saveplace
     #+begin_src emacs-lisp
@@ -454,10 +454,10 @@
 *** Update
     #+begin_src emacs-lisp
       (use-package auto-package-update
-	:config
-	(setq auto-package-update-delete-old-versions t)
-	(setq auto-package-update-hide-results t)
-	(auto-package-update-maybe))
+        :config
+        (setq auto-package-update-delete-old-versions t)
+        (setq auto-package-update-hide-results t)
+        (auto-package-update-maybe))
     #+end_src
 *** Non Elpa/Melpa Package Modes
 **** antesc-mode
@@ -586,7 +586,7 @@
                                               (name . "\\*terminal\\*")
                                               (name . "\\*slime-repl sbcl\\*")
                                               (name . "\\*shell\\*")
-                                              (name . "\\*vterm\\*")))
+                                              (name . "\\*vterminal")))
                 ("Logs" (or (name . "\\*Messages\\*")
                             (name . "\\*slime-events\\*")
                             (name . "\\*inferior-lisp\\*")
@@ -710,7 +710,24 @@
        (global-set-key (kbd "C-x <left>") 'windmove-left)
        (global-set-key (kbd "C-x <right>") 'windmove-right)
      #+end_src
+**** display all vterms
+#+begin_src emacs-lisp
+  (defun buffer-in-window-list ()
+    (let (buffers)
+      (walk-windows (lambda (window) (push (window-buffer window) buffers)) t t)
+      buffers))
+
+  (defun display-all-vterms ()
+    (interactive)
+    (let (buffers-in-window (buffer-in-window-list))
+      (dolist (buffer (buffer-list))
+        (when (and (string-match "\\*vterminal" (buffer-name buffer))
+                   (not (memq buffer buffers-in-window)))
+          (set-window-buffer (split-window (get-largest-window)) buffer)))
+      (balance-windows)))
+#+end_src
 *** Node
+
     #+begin_src emacs-lisp
       (use-package add-node-modules-path
         :config)
@@ -1541,44 +1558,44 @@
 *** prettier-js-mode
     #+begin_src emacs-lisp
       (defun set-prettier-args ()
-	(let ((node-path "node_modules/.bin")
-	      (prettier-args '("--arrow-parens" "always"
-		 "--semi" "true"
-		 "--bracket-spacing" "true"
-		 "--single-quote" "true"
-		 "--jsx-bracket-same-line" "true"
-		 "--print-width" "80"
-		 "--use-tabs" "false"
-		 "--tab-width" "2")
+        (let ((node-path "node_modules/.bin")
+              (prettier-args '("--arrow-parens" "always"
+                 "--semi" "true"
+                 "--bracket-spacing" "true"
+                 "--single-quote" "true"
+                 "--jsx-bracket-same-line" "true"
+                 "--print-width" "80"
+                 "--use-tabs" "false"
+                 "--tab-width" "2")
 
-	       ;; '(
-	       ;;   "--trailingComma": "es5",
-	       ;;   "--tabWidth": "2",
-	       ;;   "--semi": "true",
-	       ;;   "--singleQuote": "false",
-	       ;;   "--bracketSpacing": "true",
-	       ;;   "--arrowParens": "always",
-	       ;;   "--printWidth": "80",
-	       ;;   "--proseWrap": "preserve",
-	       ;;   "--quoteProps": "as-needed",
-	       ;;   "--use-tabs": "true")
-	       ))
-	  (dolist (item exec-path)
-	    (if (and (string-match node-path item)
-		       (file-exists-p (concat item "prettier"))
-		       (file-in-directory-p ".prettierrc*" "./"))
-		    (setq prettier-js-args nil)
-	      (setq prettier-js-args prettier-args)))))
+               ;; '(
+               ;;   "--trailingComma": "es5",
+               ;;   "--tabWidth": "2",
+               ;;   "--semi": "true",
+               ;;   "--singleQuote": "false",
+               ;;   "--bracketSpacing": "true",
+               ;;   "--arrowParens": "always",
+               ;;   "--printWidth": "80",
+               ;;   "--proseWrap": "preserve",
+               ;;   "--quoteProps": "as-needed",
+               ;;   "--use-tabs": "true")
+               ))
+          (dolist (item exec-path)
+            (if (and (string-match node-path item)
+                       (file-exists-p (concat item "prettier"))
+                       (file-in-directory-p ".prettierrc*" "./"))
+                    (setq prettier-js-args nil)
+              (setq prettier-js-args prettier-args)))))
 
       (use-package prettier-js
-	:init (set-prettier-args)
-	)
+        :init (set-prettier-args)
+        )
 
       (defun init-prettier ()
-	(interactive)
-	(enable-minor-mode
-	 '("\\.js[x]?\\|\\.ts[x]?" . prettier-js-mode))
-	(message "prettier inited"))
+        (interactive)
+        (enable-minor-mode
+         '("\\.js[x]?\\|\\.ts[x]?" . prettier-js-mode))
+        (message "prettier inited"))
 
       (eval-after-web-mode-load 'init-prettier)
 
@@ -2023,9 +2040,9 @@
 **** multi-vterm
     #+begin_src emacs-lisp
       (use-package multi-vterm
-	:bind (("C-c vt" . multi-vterm-project)
-	       ("C-c vn" . multi-vterm-next)
-	       ("C-c vp" . multi-vterm-prev)))
+        :bind (("C-c vt" . multi-vterm-project)
+               ("C-c vn" . multi-vterm-next)
+               ("C-c vp" . multi-vterm-prev)))
     #+end_src
 *** Eshell syntax highlighting
     Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
