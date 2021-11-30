@@ -719,11 +719,12 @@
 
   (defun display-all-vterms ()
     (interactive)
+    (delete-other-windows)
     (let (buffers-in-window (buffer-in-window-list))
       (dolist (buffer (buffer-list))
         (when (and (string-match "\\*vterminal" (buffer-name buffer))
                    (not (memq buffer buffers-in-window)))
-          (set-window-buffer (split-window (get-largest-window)) buffer)))
+          (set-window-buffer (split-window-right (get-largest-window)) buffer)))
       (balance-windows)))
 #+end_src
 *** Node
