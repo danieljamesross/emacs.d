@@ -1558,39 +1558,39 @@
      #+end_src
 *** prettier-js-mode
     #+begin_src emacs-lisp
-      (defun set-prettier-args ()
-        (let ((node-path "node_modules/.bin")
-              (prettier-args '("--arrow-parens" "always"
-                 "--semi" "true"
-                 "--bracket-spacing" "true"
-                 "--single-quote" "true"
-                 "--jsx-bracket-same-line" "true"
-                 "--print-width" "80"
-                 "--use-tabs" "false"
-                 "--tab-width" "2")
+      (let ((prettier-path "~/.nvm/versions/node/v16.11.1/bin/prettier"))
+        (unless (file-exists-p (expand-file-name prettier-path))
+          (shell-command "npm i -g prettier")))
 
-               ;; '(
-               ;;   "--trailingComma": "es5",
-               ;;   "--tabWidth": "2",
-               ;;   "--semi": "true",
-               ;;   "--singleQuote": "false",
-               ;;   "--bracketSpacing": "true",
-               ;;   "--arrowParens": "always",
-               ;;   "--printWidth": "80",
-               ;;   "--proseWrap": "preserve",
-               ;;   "--quoteProps": "as-needed",
-               ;;   "--use-tabs": "true")
-               ))
-          (dolist (item exec-path)
-            (if (and (string-match node-path item)
-                       (file-exists-p (concat item "prettier"))
-                       (file-in-directory-p ".prettierrc*" "./"))
-                    (setq prettier-js-args nil)
-              (setq prettier-js-args prettier-args)))))
+      (defun args-from-prettier (prettierrc)
+        (let* ((json-key-type 'string)
+               (json (json-read-file prettierrc)))
+          (cl-loop for (a . b) in json
+                   collect (format "--%s" a)
+                   collect (if (null (json-encode-keyword b)) "false" (json-encode-keyword b)))))
+
+      (defun set-prettier-args ()
+        (require 'projectile)
+        (let* ((node-path "node_modules/.bin")
+               (prettier-args '("--arrow-parens" "always"
+                                "--semi" "true"
+                                "--bracket-spacing" "true"
+                                "--single-quote" "true"
+                                "--jsx-bracket-same-line" "true"
+                                "--print-width" "80"
+                                "--use-tabs" "false"
+                                "--tab-width" "2"))
+               (default-directory (projectile-acquire-root))
+               (prettier-config (file-expand-wildcards ".prettierrc*" t)))
+          (if (file-exists-p (first prettier-config))
+              (progn (message "local prettier found")
+                     (let ((local-prettier-args (args-from-prettier (first prettier-config))))
+                       (setq prettier-js-args local-prettier-args)))
+            (progn (message "no local prettier found")
+                   (setq prettier-js-args prettier-args)))))
 
       (use-package prettier-js
-        :init (set-prettier-args)
-        )
+        :init (set-prettier-args))
 
       (defun init-prettier ()
         (interactive)
