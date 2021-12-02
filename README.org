@@ -714,17 +714,24 @@
 #+begin_src emacs-lisp
   (defun buffer-in-window-list ()
     (let (buffers)
-      (walk-windows (lambda (window) (push (window-buffer window) buffers)) t t)
-      buffers))
+      (walk-windows
+       (lambda (window) (push (window-buffer window) buffers)) t t) buffers))
+
+  (defun delete-non-vterms-windows (window)
+    (when (not (string-match vterm-string (buffer-name (window-buffer window))))
+      (delete-window window)))
 
   (defun display-all-vterms ()
     (interactive)
     (delete-other-windows)
-    (let (buffers-in-window (buffer-in-window-list))
+    (let ((buffers-in-window (buffer-in-window-list))
+          (vterm-string "\\*vterminal"))
       (dolist (buffer (buffer-list))
-        (when (and (string-match "\\*vterminal" (buffer-name buffer))
+        (when (and (string-match vterm-string (buffer-name buffer))
                    (not (memq buffer buffers-in-window)))
-          (set-window-buffer (split-window-right (get-largest-window)) buffer)))
+          (set-window-buffer (split-window (get-largest-window)) buffer)))
+      (walk-windows #'delete-non-vterms-windows)
+      (transpose-frame)
       (balance-windows)))
 #+end_src
 *** Node
