@@ -1536,12 +1536,10 @@
     #+end_src
 *** web-mode
     #+begin_src emacs-lisp
-            (use-package web-mode
-              :ensure t
-              :mode ("\\.jsx$" "\\.html$" "\\.ejs$"
-                     "\\.htm$" "\\.shtml$" "\\.tsx$"
-                      "\\.ts$" "\\.njk$" "\\.jinja$")
-              :config (setq web-mode-enable-auto-quoting nil))
+      (use-package web-mode
+        :ensure t
+        :mode "\\.jsx\\|\\.ts[x]?\\|\\.html\\|\\.ejs\\|\\.htm\\|\\.shtml\\|\\.njk\\|\\.jinja"
+        :config (setq web-mode-enable-auto-quoting nil))
     #+end_src
 **** web-mode-indent
      #+begin_src emacs-lisp
@@ -1597,7 +1595,9 @@
                    (setq prettier-js-args prettier-args)))))
 
       (use-package prettier-js
-        :init (set-prettier-args))
+        :defer t
+        :mode "\\.js[x]?\\|\\.ts[x]?"
+        :config (set-prettier-args))
 
       (defun init-prettier ()
         (interactive)
