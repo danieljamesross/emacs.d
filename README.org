@@ -386,10 +386,9 @@
 *** line-num, highlight, toolbar & fringe
     #+begin_src emacs-lisp
       (fringe-mode '(nil . 0))
-      (setq nlinum-highlight-current-line t)
       (tool-bar-mode -1)
       (global-hl-line-mode t)
-      (global-linum-mode t)
+      (display-line-numbers-mode 1)
     #+end_src
 *** narrow-to-page
     #+begin_src emacs-lisp
