@@ -617,7 +617,8 @@
              '("%e" mode-line-front-space mode-line-buffer-identification " " mode-line-end-spaces)
              dired-sidebar-recenter-cursor-on-tui-update nil
              dired-sidebar-should-follow-file t
-             dired-sidebar-toggle-hidden-commands '(rotate-windows toggle-window-split balance-windows))
+             dired-sidebar-toggle-hidden-commands '(rotate-windows toggle-window-split balance-windows)
+             dired-dwim-target t)
        (put 'dired-find-alternate-file 'disabled nil)
      #+end_src
 ***** Dired Rainbow
