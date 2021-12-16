@@ -162,6 +162,15 @@
       (global-set-key (kbd "C-s-o") 'xah-open-in-external-app)
     #+end_src
 *** reveal in osx finder
+*** quit
+#+begin_src emacs-lisp
+  (setq confirm-kill-processes nil)
+
+  (defun kill-all-processes ()
+      (mapcar 'delete-process (process-list)))
+
+  (add-hook 'kill-emacs-hook 'kill-all-processes)
+#+end_src
     #+begin_src emacs-lisp
       (use-package reveal-in-osx-finder
         :if (eq system-type 'darwin)
