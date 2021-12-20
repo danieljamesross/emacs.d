@@ -161,12 +161,21 @@
                $file-list))))))
       (global-set-key (kbd "C-s-o") 'xah-open-in-external-app)
     #+end_src
+*** quit
+#+begin_src emacs-lisp
+  (setq confirm-kill-processes nil)
+
+  (defun kill-all-processes ()
+      (mapcar 'delete-process (process-list)))
+
+  (add-hook 'kill-emacs-hook 'kill-all-processes)
+#+end_src
 *** reveal in osx finder
-    #+begin_src emacs-lisp
-      (use-package reveal-in-osx-finder
-        :if (eq system-type 'darwin)
-        :bind ("C-c o" . reveal-in-osx-finder))
-    #+end_src
+#+begin_src emacs-lisp
+  (use-package reveal-in-osx-finder
+    :if (eq system-type 'darwin)
+    :bind ("C-c o" . reveal-in-osx-finder))
+#+end_src
 *** Rainbow delimiters
     #+begin_src emacs-lisp
       (use-package rainbow-delimiters
@@ -386,10 +395,9 @@
 *** line-num, highlight, toolbar & fringe
     #+begin_src emacs-lisp
       (fringe-mode '(nil . 0))
-      (setq nlinum-highlight-current-line t)
       (tool-bar-mode -1)
       (global-hl-line-mode t)
-      (global-linum-mode t)
+      (display-line-numbers-mode 1)
     #+end_src
 *** narrow-to-page
     #+begin_src emacs-lisp
@@ -617,7 +625,8 @@
              '("%e" mode-line-front-space mode-line-buffer-identification " " mode-line-end-spaces)
              dired-sidebar-recenter-cursor-on-tui-update nil
              dired-sidebar-should-follow-file t
-             dired-sidebar-toggle-hidden-commands '(rotate-windows toggle-window-split balance-windows))
+             dired-sidebar-toggle-hidden-commands '(rotate-windows toggle-window-split balance-windows)
+             dired-dwim-target t)
        (put 'dired-find-alternate-file 'disabled nil)
      #+end_src
 ***** Dired Rainbow
