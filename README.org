@@ -1624,18 +1624,30 @@
         (tide-hl-identifier-mode +1)
         (message "setup-tide-mode"))
 
+(use-package rjsx-mode :ensure t)
+
+
       ;; aligns annotation to the right hand side
       (setq company-tooltip-align-annotations t)
     #+end_src
+**** rsjx-mode
+     #+begin_src emacs-lisp
+       (use-package rjsx-mode)
+     #+end_src
 **** tide
      #+begin_src emacs-lisp
        (defun trigger-tide-setup ()
          (interactive)
          (enable-minor-mode
-          '("\\.ts[x]" . setup-tide-mode)))
+          '("\\.ts[x]?" . setup-tide-mode)))
 
        (use-package tide
-         :after (typescript-mode company flycheck web-mode))
+         :after
+         (rjsx-mode company flycheck)
+         (typescript-mode company flycheck)
+         :hook (typescript-mode . setup-tide-mode)
+         (js-mode . setup-tide-mode)
+         (rjsx-mode . setup-tide-mode))
        ;; :hook ((before-save . tide-format-before-save))
        (eval-after-web-mode-load 'trigger-tide-setup)
      #+end_src
