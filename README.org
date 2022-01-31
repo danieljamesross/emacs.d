@@ -1603,7 +1603,7 @@
                                 "--tab-width" "2"))
                (default-directory (projectile-acquire-root))
                (prettier-config (file-expand-wildcards ".prettierrc*" t)))
-          (if (file-exists-p (first prettier-config))
+          (if (and (first prettier-config) (file-exists-p (first prettier-config)))
               (progn (message "local prettier found")
                      (let ((local-prettier-args (args-from-prettier (first prettier-config))))
                        (setq prettier-js-args local-prettier-args)))
