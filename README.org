@@ -1640,9 +1640,6 @@
         (tide-hl-identifier-mode +1)
         (message "setup-tide-mode"))
 
-(use-package rjsx-mode :ensure t)
-
-
       ;; aligns annotation to the right hand side
       (setq company-tooltip-align-annotations t)
     #+end_src
@@ -1835,13 +1832,13 @@
                                                  (match-end 2))))
                     (add-to-list 'latex-help-cmd-alist (cons key value))))))
           latex-help-cmd-alist))
-
+      ;; (use-package preview)
+      (use-package info-look)
       (use-package latex
         :ensure auctex
         :defer t
         :config
-        (use-package preview)
-        (use-package info-look)
+
         (add-hook 'LaTeX-mode-hook 'reftex-mode)
         (info-lookup-add-help :mode 'LaTeX-mode
                               :regexp ".*"
