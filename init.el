@@ -29,7 +29,8 @@
   (let* ((file (concat user-emacs-directory file-name))
          (org (concat file ".org"))
          (el (concat file ".el")))
-    (if (check-newer-than org el)
+    (if (or (not (file-exists-p el))
+	    (check-newer-than org el))
         (progn
           (message (format "loading %s" org))
           (org-babel-load-file org))
