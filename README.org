@@ -1554,7 +1554,7 @@
     #+begin_src emacs-lisp
       (use-package web-mode
         :ensure t
-        :mode "\\.jsx\\|\\.ts[x]?\\|\\.html\\|\\.ejs\\|\\.htm\\|\\.shtml\\|\\.njk\\|\\.jinja"
+        :mode "\\.ts[x]?\\'"
         :config (setq web-mode-enable-auto-quoting nil))
     #+end_src
 **** web-mode-indent
@@ -1618,7 +1618,7 @@
       (defun init-prettier ()
         (interactive)
         (enable-minor-mode
-         '("\\.js[x]?\\|\\.ts[x]?" . prettier-js-mode))
+         '("\\.js[x]?\\'\\|\\.ts[x]?\\'" . prettier-js-mode))
         (message "prettier inited"))
 
       (eval-after-web-mode-load 'init-prettier)
@@ -1658,6 +1658,7 @@
          :after
          (rjsx-mode company flycheck)
          (typescript-mode company flycheck)
+         (web-mode company flycheck)
          :hook (typescript-mode . setup-tide-mode)
          (js-mode . setup-tide-mode)
          (rjsx-mode . setup-tide-mode))
