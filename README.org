@@ -2087,3 +2087,40 @@
         ;; Enable in all Eshell buffers.
         (eshell-syntax-highlighting-global-mode +1))
     #+end_src
+** polymode
+   #+begin_src emacs-lisp
+     (use-package polymode)
+   #+end_src
+*** poly-styled-components-mode
+    #+begin_src emacs-lisp
+      ;; (setq css-indent-offset 2)
+      ;; (define-hostmode styled-components-hostmode
+      ;;   :mode 'tree-sitter-mode
+      ;;   :protect-font-lock t)
+
+      ;; (define-innermode poly-css-styled-components-innermode
+      ;;   :mode 'scss-mode
+      ;;   :head-matcher "[(?<!\\$){ css keyframes styled]\[^\n\t \]*`\n"
+      ;;   :tail-matcher (cons "^\\s-*\\(`;\\)" 1)
+      ;;   :body-indent-offset css-indent-offset
+      ;;   :head-mode 'host
+      ;;   :tail-mode 'host)
+
+      ;; (define-innermode poly-js-inner-block-innermode
+      ;;   :mode 'host
+      ;;   :head-matcher "\\${"
+      ;;   :tail-matcher #'pm-forward-sexp-tail-matcher
+      ;;   :body-indent-offset css-indent-offset
+      ;;   :can-nest t
+      ;;   :head-mode 'host
+      ;;   :tail-mode 'host)
+
+      ;; (define-polymode styled-components-mode
+      ;;   :hostmode 'styled-components-hostmode
+      ;;   :innermodes '(poly-css-styled-components-innermode
+      ;;                 poly-js-inner-block-innermode))
+
+      ;; (setq auto-mode-alist
+      ;;       (append '(("style\\.[jt]?s[x]?\\'". styled-components-mode))
+      ;;               auto-mode-alist))
+    #+end_src
