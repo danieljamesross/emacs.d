@@ -218,33 +218,6 @@
       (setq-default tab-always-indent 'complete)
       (global-set-key (kbd "S-M-t") 'indent-rigidly-left)
     #+end_src
-*** tree-sitter
-    #+begin_src emacs-lisp
-      (use-package tree-sitter
-        :config (global-tree-sitter-mode 1))
-
-      (use-package tree-sitter-langs
-        :after tree-sitter-mode)
-    #+end_src
-*** too-long-mode
-    #+begin_src emacs-lisp
-      (global-so-long-mode 1)
-    #+end_src
-*** transpose-frame
-    #+begin_src emacs-lisp
-      (use-package transpose-frame
-        :if window-system
-        :bind ("C-x tf" . transpose-frame))
-    #+end_src
-*** y-or-no-p
-    #+begin_src emacs-lisp
-      (fset 'yes-or-no-p 'y-or-n-p)
-    #+end_src
-*** zoom mode
-    #+begin_src emacs-lisp
-      (custom-set-variables
-       '(zoom-mode t))
-    #+end_src
 ** Views
 *** all-the-icons
     #+begin_src emacs-lisp
@@ -448,6 +421,40 @@
       (use-package whitespace-cleanup-mode
         :config (setq 'whitespace-cleanup-mode t)
         :hook (prog-mode . whitespace-cleanup))
+    #+end_src
+** tree-sitter
+   #+begin_src emacs-lisp
+     (use-package tree-sitter
+       :init (global-tree-sitter-mode 1)
+       :hook (tree-sitter-after-on-hook . #'tree-sitter-hl-mode))
+
+     (use-package tree-sitter-langs
+       :after tree-sitter)
+
+     (with-eval-after-load
+         'tree-sitter-langs (tree-sitter-require 'tsx)
+         'tree-sitter-langs (tree-sitter-require 'json)
+         (add-to-list 'tree-sitter-major-mode-language-alist '(web-mode . tsx))
+         (add-to-list 'tree-sitter-major-mode-language-alist '(json-mode . json)))
+   #+end_src
+*** too-long-mode
+    #+begin_src emacs-lisp
+      (global-so-long-mode 1)
+    #+end_src
+*** transpose-frame
+    #+begin_src emacs-lisp
+      (use-package transpose-frame
+        :if window-system
+        :bind ("C-x tf" . transpose-frame))
+    #+end_src
+*** y-or-no-p
+    #+begin_src emacs-lisp
+      (fset 'yes-or-no-p 'y-or-n-p)
+    #+end_src
+*** zoom mode
+    #+begin_src emacs-lisp
+      (custom-set-variables
+       '(zoom-mode t))
     #+end_src
 ** Packages and Managers
 *** Quelpa
