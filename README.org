@@ -1837,11 +1837,14 @@
                     (add-to-list 'latex-help-cmd-alist (cons key value))))))
           latex-help-cmd-alist))
 
+      (use-package latex-preview-pane
+        :after auctex)
+
       (use-package latex
         :ensure auctex
         :defer t
         :config
-        (use-package preview)
+        (latex-preview-pane-enable)
         (use-package info-look)
         (add-hook 'LaTeX-mode-hook 'reftex-mode)
         (info-lookup-add-help :mode 'LaTeX-mode
