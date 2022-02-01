@@ -535,7 +535,6 @@
                       ("\\.asd\\'"     . lisp-mode)
                       ("\\.yaml\\'"    . yaml-mode)
                       ("\\.py\\'"      . python-mode)
-                      ("\\.json\\'"    . json-mode)
                       ("\\.tex\\'"     . latex-mode)
                       ("\\.cls\\'"     . latex-mode)
                       ("\\.java\\'"    . java-mode)
@@ -577,7 +576,7 @@
                 ("JSON/YAML/Config" (or (mode . json-mode)
                                         (name . "\\.json")
                                         (mode . yaml-mode)
-                                        (name . "\\.json")
+                                        (name . "\\.yaml")
                                         (mode . kintaro-mode)
                                         (name . "\\.ksdl")))
                 ("SVG" (name . "\\.svg"))
@@ -896,7 +895,6 @@
 
       (use-package prettier-js
         :defer t
-        :mode "\\.js[x]?\\|\\.ts[x]?\\|\\.json"
         :config (set-prettier-args))
 
       (defun init-prettier ()
@@ -979,8 +977,7 @@
           (init-prettier)
           (lsp)
           (setup-tide-mode)
-          (tree-sitter-mode 1)
-          (tree-sitter-hl-mode 1))
+          (tree-sitter-mode 1))
 
       (add-to-list 'auto-mode-alist '("\\.js\\'" . js-mode))
       (add-hook 'js-mode-hook #'init-js)
@@ -1742,9 +1739,8 @@
 ** JSON
    #+begin_src emacs-lisp
      (use-package json-mode
-       :mode "\\.json\\'"
-       :hook (init-js)
-       :defer t)
+       :mode "\\.json"
+       :hook (init-js))
    #+end_src
 ** Lisp
 *** paren-mode
