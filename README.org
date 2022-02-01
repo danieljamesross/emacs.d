@@ -2049,6 +2049,15 @@
         :init (turn-on-diff-hl-mode)
         :hook ((prog-mode-hook vc-dir-mode-hook) . turn-on-diff-hl-mode))
     #+end_src
+*** smerge
+#+begin_src emacs-lisp
+  (use-package smerge-mode
+    :bind (("C-c C-n" . smerge-next)
+           ("C-c C-p" . smerge-prev)
+           ("C-c C-a" . smerge-keep-all)
+           ("C-c C-u" . smerge-keep-upper)
+           ("C-c C-l" . smerge-keep-lower)))
+#+end_src
 ** shader-mode
    #+begin_src emacs-lisp
      (use-package shader-mode
