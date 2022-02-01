@@ -218,33 +218,6 @@
       (setq-default tab-always-indent 'complete)
       (global-set-key (kbd "S-M-t") 'indent-rigidly-left)
     #+end_src
-*** tree-sitter
-    #+begin_src emacs-lisp
-      (use-package tree-sitter
-        :config (global-tree-sitter-mode 1))
-
-      (use-package tree-sitter-langs
-        :after tree-sitter-mode)
-    #+end_src
-*** too-long-mode
-    #+begin_src emacs-lisp
-      (global-so-long-mode 1)
-    #+end_src
-*** transpose-frame
-    #+begin_src emacs-lisp
-      (use-package transpose-frame
-        :if window-system
-        :bind ("C-x tf" . transpose-frame))
-    #+end_src
-*** y-or-no-p
-    #+begin_src emacs-lisp
-      (fset 'yes-or-no-p 'y-or-n-p)
-    #+end_src
-*** zoom mode
-    #+begin_src emacs-lisp
-      (custom-set-variables
-       '(zoom-mode t))
-    #+end_src
 ** Views
 *** all-the-icons
     #+begin_src emacs-lisp
@@ -448,6 +421,40 @@
       (use-package whitespace-cleanup-mode
         :config (setq 'whitespace-cleanup-mode t)
         :hook (prog-mode . whitespace-cleanup))
+    #+end_src
+** tree-sitter
+   #+begin_src emacs-lisp
+     (use-package tree-sitter
+       :init (global-tree-sitter-mode 1)
+       :hook (tree-sitter-after-on-hook . #'tree-sitter-hl-mode))
+
+     (use-package tree-sitter-langs
+       :after tree-sitter)
+
+     (with-eval-after-load
+         'tree-sitter-langs (tree-sitter-require 'tsx)
+         'tree-sitter-langs (tree-sitter-require 'json)
+         (add-to-list 'tree-sitter-major-mode-language-alist '(web-mode . tsx))
+         (add-to-list 'tree-sitter-major-mode-language-alist '(json-mode . json)))
+   #+end_src
+*** too-long-mode
+    #+begin_src emacs-lisp
+      (global-so-long-mode 1)
+    #+end_src
+*** transpose-frame
+    #+begin_src emacs-lisp
+      (use-package transpose-frame
+        :if window-system
+        :bind ("C-x tf" . transpose-frame))
+    #+end_src
+*** y-or-no-p
+    #+begin_src emacs-lisp
+      (fset 'yes-or-no-p 'y-or-n-p)
+    #+end_src
+*** zoom mode
+    #+begin_src emacs-lisp
+      (custom-set-variables
+       '(zoom-mode t))
     #+end_src
 ** Packages and Managers
 *** Quelpa
@@ -755,6 +762,230 @@
     #+begin_src emacs-lisp
       (use-package add-node-modules-path
         :config)
+    #+end_src
+** Web Dev
+*** CSS
+**** Indenting & brackets
+     #+begin_src emacs-lisp
+       (setq css-electric-semi-behavior t
+             css-indent-offset  2
+             css-tab-mode 'auto)
+     #+end_src
+**** Prettier CSS
+     #+begin_src emacs-lisp
+       (add-hook 'css-mode-hook #'prettier-js-mode)
+     #+end_src
+**** Remove leading zeros
+     This undoes the formatting by `prettier` to conform with Google's style guide.
+     i.e. `0.3s` becomes `.3s`
+     #+begin_src emacs-lisp
+       (defun remove-decimal-zero ()
+         (interactive)
+         (save-excursion
+           (beginning-of-buffer)
+           (replace-regexp "0\\." ".")))
+
+       ;; (add-hook 'css-mode-hook
+       ;;           #'(lambda ()
+       ;;               (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
+       ;; (add-hook 'scss-mode-hook
+       ;;           #'(lambda ()
+       ;;               (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
+     #+end_src
+**** Css sort
+     #+begin_src emacs-lisp
+       ;; (use-package com-css-sort
+       ;;   :ensure t
+       ;;   :config
+       ;;   (setq com-css-sort-sort-type 'alphabetic-sort))
+
+       ;; (add-hook 'css-mode-hook
+       ;;           #'(lambda ()
+       ;;               (add-hook 'before-save-hook 'com-css-sort-attributes-document nil 'local)))
+       ;; (add-hook 'scss-mode-hook
+       ;;           #'(lambda ()
+       ;;               (add-hook 'before-save-hook 'com-css-sort-attributes-document nil 'local)))
+     #+end_src
+**** SASS
+     #+begin_src emacs-lisp
+       (use-package sass-mode
+         :defer t
+         :config
+         (enable-minor-mode '("\\.sass?\\'" . sass-mode)))
+     #+end_src
+*** js-comint
+    #+begin_src emacs-lisp
+      (use-package js-comint
+        :config
+        (setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
+        (add-hook 'js2-mode-hook
+                  #'(lambda ()
+                      (local-set-key "\C-x\C-e" 'js-send-last-sexp)
+                      (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
+                      (local-set-key "\C-cb" 'js-send-buffer)
+                      (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
+                      (local-set-key "\C-cl" 'js-load-file-and-go))))
+    #+end_src
+*** emmet
+    #+begin_src emacs-lisp
+      ;; (use-package emmet-mode
+      ;;   :ensure t
+      ;;   :hook ((web-mode . (lambda () (emmet-mode)))
+      ;;          (css-mode . (lambda () (emmet-mode)))
+      ;;          local-write-file-hooks . (lambda () (delete-trailing-whitespace) nil)))
+    #+end_src
+*** web-mode
+    #+begin_src emacs-lisp
+      (use-package web-mode
+        :ensure t
+        :mode "\\.ts[x]?\\'"
+        :config (setq web-mode-enable-auto-quoting nil))
+    #+end_src
+**** web-mode-indent
+     #+begin_src emacs-lisp
+               (defun my-setup-indent (n)
+                 ;; java/c/c++
+                 (setq-local c-basic-offset n)
+                 ;; web development
+                 (setq-local indent-tabs-mode nil)
+                 (setq-local tab-width n)
+                 (setq typescript-indent-level n)
+                 (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
+                 (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
+                 (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
+                 (setq-local css-indent-offset n)) ; css-mode
+
+       (defun my-web-code-style ()
+         (interactive)
+         (my-setup-indent 2))
+
+       (add-hook 'web-mode-hook 'my-web-code-style)
+     #+end_src
+*** prettier-js-mode
+    #+begin_src emacs-lisp
+      (let ((prettier-path "~/.nvm/versions/node/v16.11.1/bin/prettier"))
+        (unless (file-exists-p (expand-file-name prettier-path))
+          (shell-command "npm i -g prettier")))
+
+      (defun args-from-prettier (prettierrc)
+        (let* ((json-key-type 'string)
+               (json (json-read-file prettierrc)))
+          (cl-loop for (a . b) in json
+                   collect (format "--%s" a)
+                   collect (if (null (json-encode-keyword b)) "false" (json-encode-keyword b)))))
+
+      (defun set-prettier-args ()
+        (require 'projectile)
+        (let* ((node-path "node_modules/.bin")
+               (prettier-args '("--arrow-parens" "always"
+                                "--semi" "true"
+                                "--bracket-spacing" "true"
+                                "--single-quote" "true"
+                                "--jsx-bracket-same-line" "true"
+                                "--print-width" "80"
+                                "--use-tabs" "false"
+                                "--tab-width" "2"))
+               (default-directory (projectile-acquire-root))
+               (prettier-config (file-expand-wildcards ".prettierrc*" t)))
+          (if (and (first prettier-config) (file-exists-p (first prettier-config)))
+              (progn (message "local prettier found")
+                     (let ((local-prettier-args (args-from-prettier (first prettier-config))))
+                       (setq prettier-js-args local-prettier-args)))
+            (progn (message "no local prettier found")
+                   (setq prettier-js-args prettier-args)))))
+
+      (use-package prettier-js
+        :defer t
+        :mode "\\.js[x]?\\|\\.ts[x]?\\|\\.json"
+        :config (set-prettier-args))
+
+      (defun init-prettier ()
+        (interactive)
+        (enable-minor-mode
+         '("\\.(jsx?)(tsx?)(json)\\'" . prettier-js-mode))
+        (message "prettier inited"))
+
+      (eval-after-web-mode-load 'init-prettier)
+
+    #+end_src
+*** tide-mode
+    #+begin_src emacs-lisp
+      (defun setup-tide-mode ()
+        (interactive)
+        (tide-setup)
+        (flycheck-mode +1)
+        (setq flycheck-check-syntax-automatically '(save mode-enabled))
+        (eldoc-mode +1)
+        (tide-hl-identifier-mode +1)
+        (company-mode +1)
+        (setq company-tooltip-align-annotations t
+              tide-completion-ignore-case t)
+        (eldoc-mode +1)
+        (tide-hl-identifier-mode +1)
+        (message "setup-tide-mode"))
+
+      ;; aligns annotation to the right hand side
+      (setq company-tooltip-align-annotations t)
+    #+end_src
+**** rsjx-mode
+     #+begin_src emacs-lisp
+       (use-package rjsx-mode)
+     #+end_src
+**** tide
+     #+begin_src emacs-lisp
+       (defun trigger-tide-setup ()
+         (interactive)
+         (enable-minor-mode
+          '("\\.ts[x]?" . setup-tide-mode)))
+
+       (use-package tide
+         :after
+         (rjsx-mode company flycheck)
+         (typescript-mode company flycheck)
+         (web-mode company flycheck)
+         :hook (typescript-mode . setup-tide-mode)
+         (js-mode . setup-tide-mode)
+         (rjsx-mode . setup-tide-mode))
+       ;; :hook ((before-save . tide-format-before-save))
+       (eval-after-web-mode-load 'trigger-tide-setup)
+     #+end_src
+*** eslint-fix
+    #+begin_src emacs-lisp
+      (check-file-exists-or-clone "eslint-fix" "https://github.com/codesuki/eslint-fix.git")
+      (unless (or (file-exists-p (expand-file-name "/usr/local/bin/eslint"))
+                  (file-exists-p (expand-file-name "~/.nvm/versions/node/v16.11.1/bin/eslint")))
+        (when (internet-up-p (shell-command "npm i -g eslint"))))
+      (use-package eslint-fix
+        :load-path "eslint-fix")
+      (defun eslint-hook ()
+        '(add-hook 'before-save-hook 'eslint-fix nil t))
+      (eval-after-web-mode-load 'eslint-hook)
+      (eval-after-js-mode-load 'eslint-hook)
+    #+end_src
+*** jinja
+    #+begin_src emacs-lisp
+;;      (use-package jinja2-mode
+;;        :ensure t
+;;        :mode "\\.jinja\\'")
+    #+end_src
+*** yaml
+    #+begin_src emacs-lisp
+      (use-package yaml-mode)
+    #+end_src
+*** js-mode
+    #+begin_src emacs-lisp
+        (defun init-js ()
+          (interactive)
+          (init-prettier)
+          (lsp)
+          (setup-tide-mode)
+          (tree-sitter-mode 1)
+          (tree-sitter-hl-mode 1))
+
+      (add-to-list 'auto-mode-alist '("\\.js\\'" . js-mode))
+      (add-hook 'js-mode-hook #'init-js)
+      (with-eval-after-load 'js-mode
+        (define-key js-mode-map (kbd "M-.") nil))
     #+end_src
 ** Shortcuts
 *** lorem
@@ -1479,232 +1710,6 @@
         :hook
         (embark-collect-mode . consult-preview-at-point-mode))
     #+end_src
-** Web Dev
-*** CSS
-**** Indenting & brackets
-     #+begin_src emacs-lisp
-       (setq css-electric-semi-behavior t
-             css-indent-offset  2
-             css-tab-mode 'auto)
-     #+end_src
-**** Prettier CSS
-     #+begin_src emacs-lisp
-       (add-hook 'css-mode-hook #'prettier-js-mode)
-     #+end_src
-**** Remove leading zeros
-     This undoes the formatting by `prettier` to conform with Google's style guide.
-     i.e. `0.3s` becomes `.3s`
-     #+begin_src emacs-lisp
-       (defun remove-decimal-zero ()
-         (interactive)
-         (save-excursion
-           (beginning-of-buffer)
-           (replace-regexp "0\\." ".")))
-
-       ;; (add-hook 'css-mode-hook
-       ;;           #'(lambda ()
-       ;;               (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
-       ;; (add-hook 'scss-mode-hook
-       ;;           #'(lambda ()
-       ;;               (add-hook 'before-save-hook 'remove-decimal-zero nil 'local)))
-     #+end_src
-**** Css sort
-     #+begin_src emacs-lisp
-       ;; (use-package com-css-sort
-       ;;   :ensure t
-       ;;   :config
-       ;;   (setq com-css-sort-sort-type 'alphabetic-sort))
-
-       ;; (add-hook 'css-mode-hook
-       ;;           #'(lambda ()
-       ;;               (add-hook 'before-save-hook 'com-css-sort-attributes-document nil 'local)))
-       ;; (add-hook 'scss-mode-hook
-       ;;           #'(lambda ()
-       ;;               (add-hook 'before-save-hook 'com-css-sort-attributes-document nil 'local)))
-     #+end_src
-**** SASS
-     #+begin_src emacs-lisp
-       (use-package sass-mode
-         :defer t
-         :config
-         (enable-minor-mode '("\\.sass?\\'" . sass-mode)))
-     #+end_src
-*** js-comint
-    #+begin_src emacs-lisp
-      (use-package js-comint
-        :config
-        (setq inferior-js-program-command "/usr/bin/java org.mozilla.javascript.tools.shell.Main")
-        (add-hook 'js2-mode-hook
-                  #'(lambda ()
-                      (local-set-key "\C-x\C-e" 'js-send-last-sexp)
-                      (local-set-key "\C-\M-x" 'js-send-last-sexp-and-go)
-                      (local-set-key "\C-cb" 'js-send-buffer)
-                      (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
-                      (local-set-key "\C-cl" 'js-load-file-and-go))))
-    #+end_src
-*** emmet
-    #+begin_src emacs-lisp
-      ;; (use-package emmet-mode
-      ;;   :ensure t
-      ;;   :hook ((web-mode . (lambda () (emmet-mode)))
-      ;;          (css-mode . (lambda () (emmet-mode)))
-      ;;          local-write-file-hooks . (lambda () (delete-trailing-whitespace) nil)))
-    #+end_src
-*** web-mode
-    #+begin_src emacs-lisp
-      (use-package web-mode
-        :ensure t
-        :mode "\\.jsx\\|\\.ts[x]?\\|\\.html\\|\\.ejs\\|\\.htm\\|\\.shtml\\|\\.njk\\|\\.jinja"
-        :config (setq web-mode-enable-auto-quoting nil))
-    #+end_src
-**** web-mode-indent
-     #+begin_src emacs-lisp
-               (defun my-setup-indent (n)
-                 ;; java/c/c++
-                 (setq-local c-basic-offset n)
-                 ;; web development
-                 (setq-local indent-tabs-mode nil)
-                 (setq-local tab-width n)
-                 (setq typescript-indent-level n)
-                 (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
-                 (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
-                 (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
-                 (setq-local css-indent-offset n)) ; css-mode
-
-       (defun my-web-code-style ()
-         (interactive)
-         (my-setup-indent 2))
-
-       (add-hook 'web-mode-hook 'my-web-code-style)
-     #+end_src
-*** prettier-js-mode
-    #+begin_src emacs-lisp
-      (let ((prettier-path "~/.nvm/versions/node/v16.11.1/bin/prettier"))
-        (unless (file-exists-p (expand-file-name prettier-path))
-          (shell-command "npm i -g prettier")))
-
-      (defun args-from-prettier (prettierrc)
-        (let* ((json-key-type 'string)
-               (json (json-read-file prettierrc)))
-          (cl-loop for (a . b) in json
-                   collect (format "--%s" a)
-                   collect (if (null (json-encode-keyword b)) "false" (json-encode-keyword b)))))
-
-      (defun set-prettier-args ()
-        (require 'projectile)
-        (let* ((node-path "node_modules/.bin")
-               (prettier-args '("--arrow-parens" "always"
-                                "--semi" "true"
-                                "--bracket-spacing" "true"
-                                "--single-quote" "true"
-                                "--jsx-bracket-same-line" "true"
-                                "--print-width" "80"
-                                "--use-tabs" "false"
-                                "--tab-width" "2"))
-               (default-directory (projectile-acquire-root))
-               (prettier-config (file-expand-wildcards ".prettierrc*" t)))
-          (if (file-exists-p (first prettier-config))
-              (progn (message "local prettier found")
-                     (let ((local-prettier-args (args-from-prettier (first prettier-config))))
-                       (setq prettier-js-args local-prettier-args)))
-            (progn (message "no local prettier found")
-                   (setq prettier-js-args prettier-args)))))
-
-      (use-package prettier-js
-        :defer t
-        :mode "\\.js[x]?\\|\\.ts[x]?\\|\\.json"
-        :config (set-prettier-args))
-
-      (defun init-prettier ()
-        (interactive)
-        (enable-minor-mode
-         '("\\.js[x]?\\|\\.ts[x]?\\|\\.json" . prettier-js-mode))
-        (message "prettier inited"))
-
-      (eval-after-web-mode-load 'init-prettier)
-
-    #+end_src
-*** tide-mode
-    #+begin_src emacs-lisp
-      (defun setup-tide-mode ()
-        (interactive)
-        (tide-setup)
-        (flycheck-mode +1)
-        (setq flycheck-check-syntax-automatically '(save mode-enabled))
-        (eldoc-mode +1)
-        (tide-hl-identifier-mode +1)
-        (company-mode +1)
-        (setq company-tooltip-align-annotations t
-              tide-completion-ignore-case t)
-        (eldoc-mode +1)
-        (tide-hl-identifier-mode +1)
-        (message "setup-tide-mode"))
-
-(use-package rjsx-mode :ensure t)
-
-
-      ;; aligns annotation to the right hand side
-      (setq company-tooltip-align-annotations t)
-    #+end_src
-**** rsjx-mode
-     #+begin_src emacs-lisp
-       (use-package rjsx-mode)
-     #+end_src
-**** tide
-     #+begin_src emacs-lisp
-       (defun trigger-tide-setup ()
-         (interactive)
-         (enable-minor-mode
-          '("\\.ts[x]?" . setup-tide-mode)))
-
-       (use-package tide
-         :after
-         (rjsx-mode company flycheck)
-         (typescript-mode company flycheck)
-         :hook (typescript-mode . setup-tide-mode)
-         (js-mode . setup-tide-mode)
-         (rjsx-mode . setup-tide-mode))
-       ;; :hook ((before-save . tide-format-before-save))
-       (eval-after-web-mode-load 'trigger-tide-setup)
-     #+end_src
-*** eslint-fix
-    #+begin_src emacs-lisp
-      (check-file-exists-or-clone "eslint-fix" "https://github.com/codesuki/eslint-fix.git")
-      (unless (or (file-exists-p (expand-file-name "/usr/local/bin/eslint"))
-                  (file-exists-p (expand-file-name "~/.nvm/versions/node/v16.11.1/bin/eslint")))
-        (when (internet-up-p (shell-command "npm i -g eslint"))))
-      (use-package eslint-fix
-        :load-path "eslint-fix")
-      (defun eslint-hook ()
-        '(add-hook 'before-save-hook 'eslint-fix nil t))
-      (eval-after-web-mode-load 'eslint-hook)
-      (eval-after-js-mode-load 'eslint-hook)
-    #+end_src
-*** jinja
-    #+begin_src emacs-lisp
-;;      (use-package jinja2-mode
-;;        :ensure t
-;;        :mode "\\.jinja\\'")
-    #+end_src
-*** yaml
-    #+begin_src emacs-lisp
-      (use-package yaml-mode)
-    #+end_src
-*** js-mode
-    #+begin_src emacs-lisp
-        (defun init-js ()
-          (interactive)
-          (init-prettier)
-          (lsp)
-          (setup-tide-mode)
-          (tree-sitter-mode 1)
-          (tree-sitter-hl-mode 1))
-
-      (add-to-list 'auto-mode-alist '("\\.js\\'" . js-mode))
-      (add-hook 'js-mode-hook #'init-js)
-      (with-eval-after-load 'js-mode
-        (define-key js-mode-map (kbd "M-.") nil))
-    #+end_src
 ** lsp-mode
    Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
    #+begin_src emacs-lisp
@@ -1839,7 +1844,8 @@
 
       (use-package latex-preview-pane
         :after auctex)
-
+      ;; (use-package preview)
+      (use-package info-look)
       (use-package latex
         :ensure auctex
         :defer t
@@ -2102,4 +2108,41 @@
         :config
         ;; Enable in all Eshell buffers.
         (eshell-syntax-highlighting-global-mode +1))
+    #+end_src
+** polymode
+   #+begin_src emacs-lisp
+     (use-package polymode)
+   #+end_src
+*** poly-styled-components-mode
+    #+begin_src emacs-lisp
+      ;; (setq css-indent-offset 2)
+      ;; (define-hostmode styled-components-hostmode
+      ;;   :mode 'tree-sitter-mode
+      ;;   :protect-font-lock t)
+
+      ;; (define-innermode poly-css-styled-components-innermode
+      ;;   :mode 'scss-mode
+      ;;   :head-matcher "[(?<!\\$){ css keyframes styled]\[^\n\t \]*`\n"
+      ;;   :tail-matcher (cons "^\\s-*\\(`;\\)" 1)
+      ;;   :body-indent-offset css-indent-offset
+      ;;   :head-mode 'host
+      ;;   :tail-mode 'host)
+
+      ;; (define-innermode poly-js-inner-block-innermode
+      ;;   :mode 'host
+      ;;   :head-matcher "\\${"
+      ;;   :tail-matcher #'pm-forward-sexp-tail-matcher
+      ;;   :body-indent-offset css-indent-offset
+      ;;   :can-nest t
+      ;;   :head-mode 'host
+      ;;   :tail-mode 'host)
+
+      ;; (define-polymode styled-components-mode
+      ;;   :hostmode 'styled-components-hostmode
+      ;;   :innermodes '(poly-css-styled-components-innermode
+      ;;                 poly-js-inner-block-innermode))
+
+      ;; (setq auto-mode-alist
+      ;;       (append '(("style\\.[jt]?s[x]?\\'". styled-components-mode))
+      ;;               auto-mode-alist))
     #+end_src

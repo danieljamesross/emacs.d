@@ -23,16 +23,22 @@
         (> lm1 lm2)
       nil)))
 
-(let* ((file (concat user-emacs-directory "functions"))
-       (org (concat file ".org"))
-       (el (concat file ".el")))
-  (if (check-newer-than org el)
+(defun compile-org-or-load-precompiled-el (file-name)
+  "org-babel-load `file-name' if has been edited recently, otherwise load the already
+  compiled .el file. `file-name' is in `user-emacs-directory'."
+  (let* ((file (concat user-emacs-directory file-name))
+         (org (concat file ".org"))
+         (el (concat file ".el")))
+    (if (or (not (file-exists-p el))
+	    (check-newer-than org el))
+        (progn
+          (message (format "loading %s" org))
+          (org-babel-load-file org))
       (progn
-        (message (format "loading %s" org))
-        (org-babel-load-file org))
-    (progn
-      (message (format "loading %s" el))
-      (load-file el))))
+        (message (format "loading %s" el))
+        (load-file el)))))
+
+(compile-org-or-load-precompiled-el "functions")
 
 (require 'package)
 
@@ -58,18 +64,11 @@
   (let ((user-init-file custom-file))
     ad-do-it))
 
-(let* ((file (concat user-emacs-directory "README"))
-       (org (concat file ".org"))
-       (el (concat file ".el")))
-  (if (check-newer-than org el)
-      (progn
-        (message (format "loading %s" org))
-        (org-babel-load-file org))
-    (progn
-      (message (format "loading %s" el))
-      (load-file el))))
+(compile-org-or-load-precompiled-el "README")
 
-(server-start)
+(require 'server)
+(unless (server-running-p)
+  (server-start))
 
 ;; Make gc pauses faster by decreasing the threshold.
 (setq gc-cons-threshold (* 2 1000 1000))
