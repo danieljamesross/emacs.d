@@ -1612,13 +1612,13 @@
 
       (use-package prettier-js
         :defer t
-        :mode "\\.js[x]?\\|\\.ts[x]?"
+        :mode "\\.js[x]?\\|\\.ts[x]?\\|\\.json"
         :config (set-prettier-args))
 
       (defun init-prettier ()
         (interactive)
         (enable-minor-mode
-         '("\\.js[x]?\\|\\.ts[x]?" . prettier-js-mode))
+         '("\\.js[x]?\\|\\.ts[x]?\\|\\.json" . prettier-js-mode))
         (message "prettier inited"))
 
       (eval-after-web-mode-load 'init-prettier)
@@ -1737,7 +1737,8 @@
 ** JSON
    #+begin_src emacs-lisp
      (use-package json-mode
-       :ensure t
+       :mode "\\.json\\'"
+       :hook (init-js)
        :defer t)
    #+end_src
 ** Lisp
