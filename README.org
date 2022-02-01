@@ -397,7 +397,7 @@
       (fringe-mode '(nil . 0))
       (tool-bar-mode -1)
       (global-hl-line-mode t)
-      (display-line-numbers-mode 1)
+      (global-display-line-numbers-mode 1)
     #+end_src
 *** narrow-to-page
     #+begin_src emacs-lisp
