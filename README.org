@@ -176,6 +176,10 @@
     :if (eq system-type 'darwin)
     :bind ("C-c o" . reveal-in-osx-finder))
 #+end_src
+*** recentf
+#+begin_src emacs-lisp
+  (recentf-mode 1)
+#+end_src
 *** Rainbow delimiters
     #+begin_src emacs-lisp
       (use-package rainbow-delimiters
