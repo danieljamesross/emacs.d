@@ -429,8 +429,7 @@
 ** tree-sitter
    #+begin_src emacs-lisp
      (use-package tree-sitter
-       :init (global-tree-sitter-mode 1)
-       :hook (tree-sitter-after-on-hook . #'tree-sitter-hl-mode))
+       :init (global-tree-sitter-mode 1))
 
      (use-package tree-sitter-langs
        :after tree-sitter)
@@ -903,8 +902,9 @@
 
       (defun init-prettier ()
         (interactive)
-        (enable-minor-mode
-         '("\\.(jsx?)(tsx?)(json)\\'" . prettier-js-mode))
+        ;; (enable-minor-mode
+        ;;  '("\\.(jsx?\\|tsx?\\|json)\\'" . prettier-js-mode))
+        (prettier-js-mode 1)
         (message "prettier inited"))
 
       (eval-after-web-mode-load 'init-prettier)
@@ -976,12 +976,13 @@
     #+end_src
 *** js-mode
     #+begin_src emacs-lisp
-        (defun init-js ()
-          (interactive)
-          (init-prettier)
-          (lsp)
-          (setup-tide-mode)
-          (tree-sitter-mode 1))
+      (defun init-js ()
+        (interactive)
+        (init-prettier)
+        (lsp)
+        (setup-tide-mode)
+        (tree-sitter-mode 1)
+        (tree-sitter-hl-mode 1))
 
       (add-to-list 'auto-mode-alist '("\\.js\\'" . js-mode))
       (add-hook 'js-mode-hook #'init-js)
@@ -1726,19 +1727,42 @@
        :commands (lsp lsp-deferred)
        :config (setq lsp-keymap-prefix "C-c l"
                      lsp-headerline-breadcrumb-mode t
-                     lsp-log-io nil))
+                     lsp-log-io nil
+                     lsp-auto-guess-root t
+                     lsp-restart 'auto-restart
+                     lsp-enable-symbol-highlighting nil
+                     lsp-enable-on-type-formatting nil
+                     lsp-signature-auto-activate nil
+                     lsp-signature-render-documentation nil
+                     lsp-eldoc-hook nil
+                     lsp-modeline-code-actions-enable nil
+                     lsp-modeline-diagnostics-enable nil
+                     lsp-semantic-tokens-enable nil
+                     lsp-enable-folding nil
+                     lsp-enable-imenu nil
+                     lsp-enable-snippet nil
+                     read-process-output-max (* 1024 1024) ;; 1MB
+                     lsp-idle-delay 0.5))
 
      (eval-after-web-mode-load 'enable-lsp-for-web-mode)
    #+end_src
 *** lsp-ui
     #+begin_src emacs-lisp
       (use-package lsp-ui
-        :commands lsp-ui-mode)
+        :commands lsp-ui-mode
+        :after lsp-mode
+        :config
+        (setq lsp-ui-doc-enable nil)
+        (setq lsp-ui-doc-header t)
+        (setq lsp-ui-doc-include-signature t)
+        (setq lsp-ui-doc-border (face-foreground 'default))
+        (setq lsp-ui-sideline-show-code-actions t)
+        (setq lsp-ui-sideline-delay 0.05))
     #+end_src
 *** lsp-treemacs
     #+begin_src emacs-lisp
       (use-package lsp-treemacs
-       :ensure t)
+       :after lsp-mode)
     #+end_src
 ** JSON
    #+begin_src emacs-lisp
