@@ -2047,6 +2047,12 @@
         :init (turn-on-diff-hl-mode)
         :hook ((prog-mode-hook vc-dir-mode-hook) . turn-on-diff-hl-mode))
     #+end_src
+** glsl-mode
+   #+begin_src emacs-lisp
+     (check-file-exists-or-clone "glsl/" "https://github.com/jimhourihan/glsl-mode.git")
+     (dolist (file '("\\.glsl\\'" "\\.frag\\'" "\\.vert\\'"))
+       (add-to-list 'auto-mode-alist `(,file . glsl-mode)))
+   #+end_src
 ** shader-mode
    #+begin_src emacs-lisp
      (use-package shader-mode
