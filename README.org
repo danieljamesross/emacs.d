@@ -288,9 +288,9 @@
      #+end_src
 **** Unicode
      #+begin_src emacs-lisp
-       (use-package unicode-fonts
-         :config
-         (unicode-fonts-setup))
+       ;; (use-package unicode-fonts
+       ;;   :config
+       ;;   (unicode-fonts-setup))
      #+end_src
 **** fira-code-mode
      Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emulation-in-emacs/post.md#appendix-b-update-1-firacode-integration][here]]
