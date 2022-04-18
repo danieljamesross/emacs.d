@@ -989,6 +989,37 @@
       (with-eval-after-load 'js-mode
         (define-key js-mode-map (kbd "M-.") nil))
     #+end_src
+*** tsx-mode
+**** tsi.el
+     #+begin_src emacs-lisp
+       (check-file-exists-or-clone "tsi/" "https://github.com/orzechowskid/tsi.el.git")
+       (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/")))
+       (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/tsi-css.el")))
+       (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/tsi-json.el")))
+       (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/tsi-typescript.el")))
+       (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/tsi.el")))
+       (load-file (expand-file-name (concat user-emacs-directory "tsi/tsi-css.el")))
+       (load-file (expand-file-name (concat user-emacs-directory "tsi/tsi-json.el")))
+       (load-file (expand-file-name (concat user-emacs-directory "tsi/tsi-typescript.el")))
+       (load-file (expand-file-name (concat user-emacs-directory "tsi/tsi.el")))
+     #+end_src
+**** origami.el
+     #+begin_src emacs-lisp
+       (check-file-exists-or-clone "origami/" "https://github.com/gregsexton/origami.el.git")
+       (add-to-list 'load-path (expand-file-name "origami/"))
+       (add-to-list 'load-path (expand-file-name "origami/origami-parsers.el"))
+       (add-to-list 'load-path (expand-file-name "origami/origami.el"))
+       (load-file (expand-file-name "origami/origami-parsers.el"))
+       (load-file (expand-file-name "origami/origami.el"))
+       (require 'origami)
+     #+end_src
+**** tsx.el
+     #+begin_src emacs-lisp
+       (check-file-exists-or-clone "tsx/" "https://github.com/orzechowskid/tsx-mode.el.git")
+       (add-to-list 'load-path (expand-file-name "tsx/tsx-mode.el"))
+       (load-file "tsx/tsx-mode.el")
+       (require 'tsx-mode)
+     #+end_src
 ** Shortcuts
 *** lorem
     #+begin_src emacs-lisp
