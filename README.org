@@ -2128,28 +2128,35 @@
                                         (insert-file-contents "~/.zsh_history")
                                         (split-string (buffer-string) "\n" t))))
 
-                    (delete-dups (append program-list file-directory-list history-list))))
+                    (delete-dups (append ;;program-list file-directory-list
+                                         history-list))))
 
-        (defun vterm-completion-choose-item ()
-          (completing-read "Choose: " (get-full-list) nil nil (thing-at-point 'word 'no-properties)))
+        ;;         (defun vterm-completion-choose-item ()
+        ;;           (completing-read "Choose: " (get-full-list) nil nil  (thing-at-point 'word 'no-properties))
+        ;;           )
+        ;; (setq-local thing-at-point-provider-alist
+        ;;             (append thing-at-point-provider-alist
+        ;;                     \\='((candidate . remove-before-semi-colon))))
+        ;;         (defun vterm-completion ()
+        ;;           (interactive)
+        ;;           ;; (vterm-directory-sync)
+        ;;           (let ((vterm-chosen-item (vterm-completion-choose-item)))
+        ;;             (when (thing-at-point 'word)
+        ;;               (vterm-send-meta-backspace))
+        ;;             (when (stringp vterm-chosen-item)
+        ;;               (setq vterm-chosen-item (cdr (split-string vterm-chosen-item ";"))))
+        ;;             (vterm-send-string vterm-chosen-item ";")))
 
-        (defun vterm-completion ()
-          (interactive)
-      ;    (vterm-directory-sync)
-          (let ((vterm-chosen-item (vterm-completion-choose-item)))
-            (when (thing-at-point 'word)
-              (vterm-send-meta-backspace))
-            (vterm-send-string vterm-chosen-item)))
+        ;;         (defun vterm-directory-sync ()
+        ;;           "Synchronize current working directory."
+        ;;           (interactive)
+        ;;           (when vterm--process
+        ;;             (let* ((pid (process-id vterm--process))
+        ;;                    (dir (file-truename (format "/proc/%d/cwd/" pid))))
+        ;;               (setq default-directory dir))))
 
-        (defun vterm-directory-sync ()
-          "Synchronize current working directory."
-          (interactive)
-          (when vterm--process
-            (let* ((pid (process-id vterm--process))
-                   (dir (file-truename (format "/proc/%d/cwd/" pid))))
-              (setq default-directory dir))))
-
-        :bind (:map vterm-mode-map ("<tab>" . 'vterm-completion)))
+        ;;         :bind (:map vterm-mode-map ("<tab>" . 'vterm-completion))
+        )
     #+end_src
 **** multi-vterm
     #+begin_src emacs-lisp
