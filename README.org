@@ -2262,3 +2262,11 @@
       ;;       (append '(("style\\.[jt]?s[x]?\\'". styled-components-mode))
       ;;               auto-mode-alist))
     #+end_src
+** emacs-webkit
+#+begin_src emacs-lisp
+  ;; (use-package webkit
+  ;;   :bind (("s-b" . xwidget-webkit-browse-url)) ;; Bind to whatever global key binding you want if you want
+  ;;   :config
+  ;;   (require 'webkit-ace) ;; If you want link hinting
+  ;;   (require 'webkit-dark)) ;; If you want to use the simple dark mode
+#+end_src
