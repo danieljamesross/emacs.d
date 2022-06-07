@@ -1824,6 +1824,8 @@
     #+end_src
 *** SBCL
     #+begin_src emacs-lisp
+      (when (not (executable-find "sbcl"))
+        (shell-command "brew install sbcl"))
       ;; Set your lisp system and, optionally, some contribs
       (setq inferior-lisp-program "/opt/sbcl/bin/sbcl")
       (let ((sbcl-local (car (file-expand-wildcards
