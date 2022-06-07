@@ -843,23 +843,23 @@
 *** web-mode
     #+begin_src emacs-lisp
       (use-package web-mode
-        :ensure t
-        :mode "\\.ts[x]?\\'"
+        ;; :mode "\\.ts[x]?\\'"
+        :init (tree-sitter-hl-mode 1)
         :config (setq web-mode-enable-auto-quoting nil))
     #+end_src
 **** web-mode-indent
      #+begin_src emacs-lisp
-               (defun my-setup-indent (n)
-                 ;; java/c/c++
-                 (setq-local c-basic-offset n)
-                 ;; web development
-                 (setq-local indent-tabs-mode nil)
-                 (setq-local tab-width n)
-                 (setq typescript-indent-level n)
-                 (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
-                 (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
-                 (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
-                 (setq-local css-indent-offset n)) ; css-mode
+       (defun my-setup-indent (n)
+         ;; java/c/c++
+         (setq-local c-basic-offset n)
+         ;; web development
+         (setq-local indent-tabs-mode nil)
+         (setq-local tab-width n)
+         (setq typescript-indent-level n)
+         (setq-local web-mode-markup-indent-offset n) ; web-mode, html tag in html file
+         (setq-local web-mode-css-indent-offset n) ; web-mode, css in html file
+         (setq-local web-mode-code-indent-offset n) ; web-mode, js code in html file
+         (setq-local css-indent-offset n)) ; css-mode
 
        (defun my-web-code-style ()
          (interactive)
@@ -988,41 +988,54 @@
         (tree-sitter-mode 1)
         (tree-sitter-hl-mode 1))
 
-      (add-to-list 'auto-mode-alist '("\\.js\\'" . js-mode))
+      ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js-mode))
       (add-hook 'js-mode-hook #'init-js)
       (with-eval-after-load 'js-mode
         (define-key js-mode-map (kbd "M-.") nil))
     #+end_src
 *** tsx-mode
+#+begin_src emacs-lisp
+  (check-file-exists-or-clone "tsx/" "https://github.com/orzechowskid/tsx-mode.el.git")
+  (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsx/")))
+
+  (use-package tsx-mode
+    :init (check-file-exists-or-clone "tsi/" "https://github.com/orzechowskid/tsi.el.git")
+    (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/")))
+    (check-file-exists-or-clone "origami/" "https://github.com/gregsexton/origami.el.git")
+    (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "origami/")))
+    :load-path "~/.emacs.d/tsx"
+    :hook (tsx-mode . init-prettier)
+    :mode (("\\.js\\'" . tsx-mode)
+           ("\\.jsx\\'" . tsx-mode)
+           ("\\.ts\\'" . tsx-mode)
+           ("\\.tsx\\'" . tsx-mode)))
+
+  ;; (with-eval-after-load 'tsx-mode
+  ;;   (define-key tsx-mode-map (kbd "M-.") nil))
+#+end_src
 **** tsi.el
      #+begin_src emacs-lisp
-       (check-file-exists-or-clone "tsi/" "https://github.com/orzechowskid/tsi.el.git")
-       (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/")))
-       (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/tsi-css.el")))
-       (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/tsi-json.el")))
-       (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/tsi-typescript.el")))
-       (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/tsi.el")))
-       (load-file (expand-file-name (concat user-emacs-directory "tsi/tsi-css.el")))
-       (load-file (expand-file-name (concat user-emacs-directory "tsi/tsi-json.el")))
-       (load-file (expand-file-name (concat user-emacs-directory "tsi/tsi-typescript.el")))
-       (load-file (expand-file-name (concat user-emacs-directory "tsi/tsi.el")))
+       ;; (check-file-exists-or-clone "tsi/" "https://github.com/orzechowskid/tsi.el.git")
+       ;; (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/")))
      #+end_src
 **** origami.el
      #+begin_src emacs-lisp
-       (check-file-exists-or-clone "origami/" "https://github.com/gregsexton/origami.el.git")
-       (add-to-list 'load-path (expand-file-name "origami/"))
-       (add-to-list 'load-path (expand-file-name "origami/origami-parsers.el"))
-       (add-to-list 'load-path (expand-file-name "origami/origami.el"))
-       (load-file (expand-file-name "origami/origami-parsers.el"))
-       (load-file (expand-file-name "origami/origami.el"))
-       (require 'origami)
+       ;; (check-file-exists-or-clone "origami/" "https://github.com/gregsexton/origami.el.git")
+       ;; (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "origami/")))
      #+end_src
 **** tsx.el
      #+begin_src emacs-lisp
-       (check-file-exists-or-clone "tsx/" "https://github.com/orzechowskid/tsx-mode.el.git")
-       (add-to-list 'load-path (expand-file-name "tsx/tsx-mode.el"))
-       (load-file "tsx/tsx-mode.el")
-       (require 'tsx-mode)
+       ;; (check-file-exists-or-clone "tsx/" "https://github.com/orzechowskid/tsx-mode.el.git")
+       ;; (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsx/")))
+       ;; (load-file "tsx/tsx-mode.el")
+       ;; (add-hook 'tsx-mode-hook 'init-prettier)
+       ;; (with-eval-after-load 'tsx-mode
+       ;;   (define-key tsx-mode-map (kbd "M-.") nil))
+       ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . tsx-mode))
+       ;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . tsx-mode))
+       ;; (add-to-list 'auto-mode-alist '("\\.ts\\'" . tsx-mode))
+       ;; (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-mode))
+       ;; (require 'tsx-mode)
      #+end_src
 ** Shortcuts
 *** lorem
@@ -1757,11 +1770,10 @@
 
      (use-package lsp-mode
        :if window-system
-       :ensure t
        :no-require t
        :commands (lsp lsp-deferred)
        :config (setq lsp-keymap-prefix "C-c l"
-                     lsp-headerline-breadcrumb-mode t
+                     lsp-headerline-breadcrumb-mode nil
                      lsp-log-io nil
                      lsp-auto-guess-root t
                      lsp-restart 'auto-restart
