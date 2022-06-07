@@ -63,6 +63,10 @@
       (use-package expand-region
         :bind ("C-`" . er/expand-region))
     #+end_src
+*** hippie-expand
+#+begin_src emacs-lisp
+(global-set-key [remap dabbrev-expand] 'hippie-expand)
+#+end_src
 *** keychord
     https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
     #+begin_src emacs-lisp
