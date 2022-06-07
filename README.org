@@ -2233,7 +2233,7 @@
     #+begin_src emacs-lisp
       ;; (setq css-indent-offset 2)
       ;; (define-hostmode styled-components-hostmode
-      ;;   :mode 'tree-sitter-mode
+      ;;   :mode 'web-mode
       ;;   :protect-font-lock t)
 
       ;; (define-innermode poly-css-styled-components-innermode
