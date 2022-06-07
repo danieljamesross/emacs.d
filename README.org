@@ -231,8 +231,8 @@
     #+begin_src emacs-lisp
       (use-package all-the-icons
         :defer nil
-        :config (if (and (internet-up-p)
-                         (not (member "all-the-icons" (font-family-list))))
+        :config (when (and (internet-up-p)
+                           (not (member "all-the-icons" (font-family-list))))
                     (all-the-icons-install-fonts t))
         :hook ((ibuffer-mode . all-the-icons-ibuffer-mode)
                (dired-mode . all-the-icons-dired-mode)))
