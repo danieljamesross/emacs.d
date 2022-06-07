@@ -844,8 +844,11 @@
     #+begin_src emacs-lisp
       (use-package web-mode
         ;; :mode "\\.ts[x]?\\'"
-        :init (tree-sitter-hl-mode 1)
-        :config (setq web-mode-enable-auto-quoting nil))
+        :after (tree-sitter-mode tree-sitter-langs)
+        :config
+        (setq web-mode-enable-auto-quoting nil)
+        (tree-sitter-mode 1)
+        (tree-sitter-hl-mode 1))
     #+end_src
 **** web-mode-indent
      #+begin_src emacs-lisp
