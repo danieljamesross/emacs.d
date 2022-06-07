@@ -1,8 +1,6 @@
 ;; The default is 800 kilobytes.  Measured in bytes.
 (setq gc-cons-threshold (* 50 1000 1000))
 
-(set-background-color "#2d2c2d")
-
 (defun efs/display-startup-time ()
   (message "Emacs loaded in %s with %d garbage collections."
            (format "%.2f seconds"
@@ -13,7 +11,8 @@
 (add-hook 'emacs-startup-hook #'efs/display-startup-time)
 
 (defun last-modified (file)
-  (let ((last-mod-time (sixth (file-attributes (expand-file-name file)))))
+  (let* ((file-attrs (file-attributes (expand-file-name file)))
+	 (last-mod-time (cl-sixth file-attrs)))
     (time-convert last-mod-time 'integer)))
 
 (defun check-newer-than (file1 file2)
