@@ -6,7 +6,7 @@
   compiled at startup, but not these titles or this text.
 ** Optimisations
    #+begin_src emacs-lisp
-     (setq gc-cons-threshold (* 100 1024 1024)
+     (setq ;; gc-cons-threshold (* 100 1024 1024)
            read-process-output-max (* 1024 1024)
            create-lockfiles nil ;; lock files will kill `npm start'
            warning-suppress-log-types '((comp) (server)))
@@ -65,7 +65,7 @@
     #+end_src
 *** hippie-expand
 #+begin_src emacs-lisp
-(global-set-key [remap dabbrev-expand] 'hippie-expand)
+  (global-set-key [remap dabbrev-expand] 'hippie-expand)
 #+end_src
 *** keychord
     https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
@@ -479,7 +479,8 @@
         :config
         (setq auto-package-update-delete-old-versions t)
         (setq auto-package-update-hide-results t)
-        (auto-package-update-maybe))
+        (when (internet-up-p
+               (auto-package-update-maybe))))
     #+end_src
 *** Non Elpa/Melpa Package Modes
 **** antesc-mode
@@ -2272,4 +2273,23 @@
   ;;   :config
   ;;   (require 'webkit-ace) ;; If you want link hinting
   ;;   (require 'webkit-dark)) ;; If you want to use the simple dark mode
+#+end_src
+* co-pilo
+#+begin_src emacs-lisp
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+  (use-package copilot
+    :straight (:host github :repo "zerolfx/copilot.el" :files ("dist" "*.el"))
+    :ensure t)
+  ;; you can utilize :map :hook and :config to customize copilot
 #+end_src
