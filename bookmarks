@@ -2,7 +2,12 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("Downloads"
+(("clarity-post-production"
+ (filename . "~/iris/clarity-post-production/")
+ (front-context-string . ".babelrc\n  -rw-r")
+ (rear-context-string . "08 15 Jun 11:02 ")
+ (position . 199))
+("Downloads"
  (filename . "~/Downloads/")
  (front-context-string . ".DS_Store\n  -rw-")
  (rear-context-string . "44  7 Apr 01:46 ")
