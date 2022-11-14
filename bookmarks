@@ -2,7 +2,31 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("clarity-post-production"
+(("dotenv"
+ (filename . "~/iris/dotenv/")
+ (front-context-string . "account-dashboar")
+ (rear-context-string . "60 23 Aug 10:06 ")
+ (position . 367)
+ (last-modified 25430 22469 631147 0))
+("dash-ts"
+ (filename . "~/iris/account-dashboard-ts/")
+ (front-context-string . ".babelrc\n  -rw-r")
+ (rear-context-string . "08 21 Sep 14:24 ")
+ (position . 212)
+ (last-modified 25388 4883 904513 0))
+("post-processing-frontend"
+ (filename . "~/iris/post-processing-frontend/")
+ (front-context-string . ".babelrc\n  -rw-r")
+ (rear-context-string . "08 23 Aug 10:06 ")
+ (position . 213)
+ (last-modified 25349 8926 609324 0))
+("license-service"
+ (filename . "~/iris/license-service/")
+ (front-context-string . ".firebaserc\n  dr")
+ (rear-context-string . "04 23 Aug 10:06 ")
+ (position . 198)
+ (last-modified 25348 51419 594948 0))
+("clarity-post-production"
  (filename . "~/iris/clarity-post-production/")
  (front-context-string . ".babelrc\n  -rw-r")
  (rear-context-string . "08 15 Jun 11:02 ")
@@ -21,7 +45,8 @@
  (filename . "~/iris/authentication/")
  (front-context-string . ".DS_Store\n  -rw-")
  (rear-context-string . "48  9 Nov 16:41 ")
- (position . 228))
+ (position . 228)
+ (last-modified 25348 50995 452204 0))
 ("back"
  (filename . "~/iris/account-backend/")
  (front-context-string . ".DS_Store\n  -rw-")
