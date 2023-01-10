@@ -237,6 +237,11 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
   (setq-default tab-always-indent 'complete)
   (global-set-key (kbd "S-M-t") 'indent-rigidly-left)
 #+end_src
+** iedit
+#+begin_src emacs-lisp
+    (use-package iedit
+      :bind ("C-:" . iedit-mode))
+#+end_src
 ** Views
 *** all-the-icons
 #+begin_src emacs-lisp
