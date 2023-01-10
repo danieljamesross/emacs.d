@@ -2,7 +2,13 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("dotenv"
+(("iris-template-next"
+ (filename . "~/iris/iris-template-next/")
+ (front-context-string . ".eslintrc.json\n ")
+ (rear-context-string . "11  3 Jan 13:54 ")
+ (position . 210)
+ (last-modified 25525 19825 901585 0))
+("dotenv"
  (filename . "~/iris/dotenv/")
  (front-context-string . "account-dashboar")
  (rear-context-string . "60 23 Aug 10:06 ")
