@@ -1487,7 +1487,7 @@ i.e. `0.3s` becomes `.3s`
   ;; Enable vertico
   (use-package vertico
     :init
-    ;; (vertico-mode)
+    (vertico-mode)
 
     ;; Grow and shrink the Vertico minibuffer
     (setq vertico-resize t)
@@ -1670,9 +1670,9 @@ with `brew install aspell`.
            ("C-c k" . consult-kmacro)
            ;; C-x bindings (ctl-x-map)
            ("C-x M-:" . consult-complex-command)     ;; orig. repeat-complex-command
-           ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
-           ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
-           ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
+           ;; ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+           ;; ("C-x 4 b" . consult-buffer-other-window) ;; orig. switch-to-buffer-other-window
+           ;; ("C-x 5 b" . consult-buffer-other-frame)  ;; orig. switch-to-buffer-other-frame
            ;; Custom M-# bindings for fast register access
            ("M-#" . consult-register-load)
            ;; ("M-'" . consult-register-store)          ;; orig. abbrev-prefix-mark (unrelated)
@@ -1712,7 +1712,7 @@ with `brew install aspell`.
     ;; Enable automatic preview at point in the *Completions* buffer.
     ;; This is relevant when you use the default completion UI,
     ;; and not necessary for Vertico, Selectrum, etc.
-    :hook (completion-list-mode . consult-preview-at-point-mode)
+    ;; :hook (completion-list-mode . consult-preview-at-point-mode)
 
     ;; The :init configuration is always executed (Not lazy)
     :init
@@ -1731,8 +1731,8 @@ with `brew install aspell`.
     (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
 
     ;; Use Consult to select xref locations with preview
-    (setq xref-show-xrefs-function #'consult-xref
-          xref-show-definitions-function #'consult-xref)
+    ;; (setq xref-show-xrefs-function #'consult-xref
+    ;;       xref-show-definitions-function #'consult-xref)
 
     ;; Configure other variables and modes in the :config section,
     ;; after lazily loading the package.
@@ -1982,6 +1982,8 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
 #+end_src
 *** markdown pandoc
 #+begin_src emacs-lisp
+  (unless (executable-find "pandoc")
+    (shell-command "brew install pandoc"))
   (setq markdown-command "/usr/local/bin/pandoc")
 #+end_src
 *** LaTeX
