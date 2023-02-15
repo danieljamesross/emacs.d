@@ -39,7 +39,7 @@ compiled at startup, but not these titles or this text.
 *** custom file
 #+begin_src emacs-lisp
   (setq custom-file (expand-file-name (concat user-emacs-directory "djr-custom.el")))
-  (load custom-file)
+  (when (file-exists-p custom-file) (load custom-file))
 #+end_src
 *** debug
 #+begin_src emacs-lisp
@@ -302,7 +302,8 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
 *** doom-mode-line
 #+begin_src emacs-lisp
   (use-package doom-modeline
-    :init (doom-modeline-mode 1))
+    :after (doom-themes all-the-icons)
+    :hook (after-init . doom-modeline-mode))
 #+end_src
 *** fast-scroll
 #+begin_src emacs-lisp

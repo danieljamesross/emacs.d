@@ -33,15 +33,18 @@
     (if (or (not (file-exists-p el))
 	    (check-newer-than org el))
         (progn
-          (message (format "loading %s" org))
-          (org-babel-load-file org))
+          (message (format "loading and compiling %s" org))
+          (org-babel-load-file org)
+	  (message (format "loaded %s" org)))
       (progn
         (message (format "loading %s" el))
-        (load-file el)))))
+        (load-file el)
+	(message (format "loaded %s" el))))))
 
 (compile-org-or-load-precompiled-el "functions")
 
 (require 'package)
+(package-initialize)
 
 (setq package-enable-at-startup t)
 
@@ -50,7 +53,7 @@
                '("melpa" . "https://melpa.org/packages/")))
 
 ;; Bootstrap `use-package'
-(unless (package-installed-p 'use-package)
+(unless (package-installed-p "use-package")
   (if (internet-up-p)
       (progn
 	(message "no use-package, installing...")
