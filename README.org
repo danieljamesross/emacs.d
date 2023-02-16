@@ -985,19 +985,6 @@ i.e. `0.3s` becomes `.3s`
   ;; :hook ((before-save . tide-format-before-save))
   (eval-after-web-mode-load 'trigger-tide-setup)
 #+end_src
-*** eslint-fix
-#+begin_src emacs-lisp
-  (check-file-exists-or-clone "eslint-fix" "https://github.com/codesuki/eslint-fix.git")
-  (unless (or (file-exists-p (expand-file-name "/usr/local/bin/eslint"))
-              (file-exists-p (expand-file-name "~/.nvm/versions/node/v16.11.1/bin/eslint")))
-    (when (internet-up-p) (shell-command "npm i -g eslint")))
-  (use-package eslint-fix
-    :load-path "eslint-fix")
-  (defun eslint-hook ()
-    '(add-hook 'before-save-hook 'eslint-fix nil t))
-  (eval-after-web-mode-load 'eslint-hook)
-  (eval-after-js-mode-load 'eslint-hook)
-#+end_src
 *** jinja
 #+begin_src emacs-lisp
   ;;      (use-package jinja2-mode
@@ -1025,13 +1012,12 @@ i.e. `0.3s` becomes `.3s`
 #+end_src
 *** tsx-mode
 #+begin_src emacs-lisp
-  (use-package graphql-mode)
-  (use-package coverlay)
-  (check-file-exists-or-clone "tsx/" "https://github.com/orzechowskid/tsx-mode.el.git")
-  (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsx/")))
-
   (use-package tsx-mode
-    :init (check-file-exists-or-clone "tsi/" "https://github.com/orzechowskid/tsi.el.git")
+    :after (coverlay graphql-mode)
+    :init
+    (check-file-exists-or-clone "tsx/" "https://github.com/orzechowskid/tsx-mode.el.git")
+    (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsx/")))
+    (check-file-exists-or-clone "tsi/" "https://github.com/orzechowskid/tsi.el.git")
     (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/")))
     (check-file-exists-or-clone "origami/" "https://github.com/gregsexton/origami.el.git")
     (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "origami/")))
@@ -1041,30 +1027,6 @@ i.e. `0.3s` becomes `.3s`
 
   ;; (with-eval-after-load 'tsx-mode
   ;;   (define-key tsx-mode-map (kbd "M-.") nil))
-#+end_src
-**** tsi.el
-#+begin_src emacs-lisp
-  ;; (check-file-exists-or-clone "tsi/" "https://github.com/orzechowskid/tsi.el.git")
-  ;; (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/")))
-#+end_src
-**** origami.el
-#+begin_src emacs-lisp
-  ;; (check-file-exists-or-clone "origami/" "https://github.com/gregsexton/origami.el.git")
-  ;; (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "origami/")))
-#+end_src
-**** tsx.el
-#+begin_src emacs-lisp
-  ;; (check-file-exists-or-clone "tsx/" "https://github.com/orzechowskid/tsx-mode.el.git")
-  ;; (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsx/")))
-  ;; (load-file "tsx/tsx-mode.el")
-  ;; (add-hook 'tsx-mode-hook 'init-prettier)
-  ;; (with-eval-after-load 'tsx-mode
-  ;;   (define-key tsx-mode-map (kbd "M-.") nil))
-  ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . tsx-mode))
-  ;; (add-to-list 'auto-mode-alist '("\\.jsx\\'" . tsx-mode))
-  ;; (add-to-list 'auto-mode-alist '("\\.ts\\'" . tsx-mode))
-  ;; (add-to-list 'auto-mode-alist '("\\.tsx\\'" . tsx-mode))
-  ;; (require 'tsx-mode)
 #+end_src
 ** Shortcuts
 *** lorem
