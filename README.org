@@ -789,7 +789,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
     (interactive)
     (delete-other-windows)
     (let ((buffers-in-window (buffer-in-window-list))
-          (vterm-string "\\*vterminal"))
+          (vterm-string "\\*vterm"))
       (dolist (buffer (buffer-list))
         (when (and (string-match vterm-string (buffer-name buffer))
                    (not (memq buffer buffers-in-window)))
