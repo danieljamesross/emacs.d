@@ -1,5 +1,7 @@
 * functions
-  :header-args: :results silent :tangle yes
+:PROPERTIES:
+:header-args: :results silent :tangle yes
+:END:
 ** internet-up-p
      Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-check-for-internet-connection][great thread]].
      #+begin_src emacs-lisp
