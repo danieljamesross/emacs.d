@@ -49,14 +49,14 @@ compiled at startup, but not these titles or this text.
 #+begin_src emacs-lisp
   (delete-selection-mode 1)
 #+end_src
-**** smart-hungry-delete
+*** smart-hungry-delete
 #+begin_src emacs-lisp
   ;; https://github.com/hrehfeld/emacs-smart-hungry-delete
   (use-package smart-hungry-delete
     :bind (("<backspace>" . smart-hungry-delete-backward-char)
            ("<deletechar>" . smart-hungry-delete-forward-char))
     :defer nil ;; dont defer so we can add our functions to hooks
-    :config (smart-hungry-delete-add-default-hooks))
+    :config (when (internet-up-p) (smart-hungry-delete-add-default-hooks)))
 #+end_src
 *** expand-region
 #+begin_src emacs-lisp
