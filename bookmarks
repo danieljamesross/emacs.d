@@ -2,7 +2,31 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("iris-design-system"
+(("work"
+ (filename . "~/iris/")
+ (front-context-string . ".DS_Store\n  drwx")
+ (rear-context-string . "36  9 May 18:15 ")
+ (position . 185)
+ (last-modified 25691 21528 307559 0))
+("studio-backend"
+ (filename . "~/iris/studio-backend/")
+ (front-context-string . "src\n  -rw-r--r--")
+ (rear-context-string . "52 28 Mar 09:51 ")
+ (position . 812)
+ (last-modified 25638 46098 751497 0))
+("studio-checkout"
+ (filename . "~/iris/studio-checkout/")
+ (front-context-string . ".env\n  -rw-r--r-")
+ (rear-context-string . "49 27 Oct 08:07 ")
+ (position . 207)
+ (last-modified 25591 14757 673127 0))
+("studio-frontend"
+ (filename . "~/iris/studio-frontend/")
+ (front-context-string . ".DS_Store\n  -rw-")
+ (rear-context-string . "96 16 Sep 09:47 ")
+ (position . 207)
+ (last-modified 25591 14126 480339 0))
+("iris-design-system"
  (filename . "~/iris/iris-design-system/")
  (front-context-string . ".DS_Store\n  -rw-")
  (rear-context-string . "48 20 Jan 16:04 ")
@@ -26,23 +50,12 @@
  (rear-context-string . "08 21 Sep 14:24 ")
  (position . 212)
  (last-modified 25388 4883 904513 0))
-("post-processing-frontend"
- (filename . "~/iris/post-processing-frontend/")
- (front-context-string . ".babelrc\n  -rw-r")
- (rear-context-string . "08 23 Aug 10:06 ")
- (position . 213)
- (last-modified 25349 8926 609324 0))
 ("license-service"
  (filename . "~/iris/license-service/")
  (front-context-string . ".firebaserc\n  dr")
  (rear-context-string . "04 23 Aug 10:06 ")
  (position . 198)
  (last-modified 25348 51419 594948 0))
-("clarity-post-production"
- (filename . "~/iris/clarity-post-production/")
- (front-context-string . ".babelrc\n  -rw-r")
- (rear-context-string . "08 15 Jun 11:02 ")
- (position . 199))
 ("Downloads"
  (filename . "~/Downloads/")
  (front-context-string . ".DS_Store\n  -rw-")
