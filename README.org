@@ -909,9 +909,9 @@ i.e. `0.3s` becomes `.3s`
 #+end_src
 *** prettier-js-mode
 #+begin_src emacs-lisp
-  (let ((prettier-path "~/.nvm/versions/node/v16.11.1/bin/prettier"))
-    (unless (file-exists-p (expand-file-name prettier-path))
-      (shell-command "npm i -g prettier")))
+  (let ((prettier-path "~/.nvm/versions/node/**/bin/prettier"))
+    (unless (file-exists-p (expand-file-name (cl-first (file-expand-wildcards prettier-path))))
+      (async-shell-command "npm i -g prettier")))
 
   (defun args-from-prettier (prettierrc)
     (let* ((json-key-type 'string)
