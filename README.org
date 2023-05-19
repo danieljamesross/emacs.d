@@ -406,7 +406,8 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 #+begin_src emacs-lisp
   (fringe-mode '(nil . 0))
   (tool-bar-mode -1)
-  (global-hl-line-mode t)
+  (global-hl-line-mode 1)
+  (set-face-background hl-line-face "OrangeRed4")
   (global-display-line-numbers-mode 1)
 #+end_src
 *** narrow-to-page
