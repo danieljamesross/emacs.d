@@ -15,14 +15,31 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
   (defun kill-async-shell-when-done (proc buffer-name)
     (when (process-live-p proc)
       (message (format "Process live %s %s" proc buffer-name))
-      (set-process-sentinel proc
-			    (lambda (process signal)
-			      (progn (message (format "process status: %s"
-						      (process-status process)))
-				     (when (memq (process-status process) '(exit signal))
-				       (message (format "Killed buffer %s" (buffer-name (process-buffer process))))
-				       (shell-command-sentinel process signal)
-				       (kill-buffer (buffer-name (process-buffer process)))))))))
+      (set-process-sentinel
+       proc
+       (lambda (process signal)
+         (progn (message (format "process status: %s"
+                                 (process-status process)))
+                (when (memq (process-status process) '(exit signal))
+                  (message (format "Killed buffer %s" (buffer-name (process-buffer process))))
+                  (shell-command-sentinel process signal)
+                  (kill-buffer (buffer-name (process-buffer process)))))))))
+#+end_src
+** kill-port
+#+begin_src emacs-lisp
+  (defun kill-port (port)
+    (interactive "n")
+    (let* ((buffer-name (generate-new-buffer-name "*Async Shell Command*"))
+           (async-shell-buffer
+            (generate-new-buffer buffer-name))
+           proc)
+      (setf proc
+            (progn (async-shell-command
+                    (format "kill -9 $(lsof -t -i:%d)" port)
+                    async-shell-buffer)
+                   (get-buffer-process async-shell-buffer)))
+      (message (format "Killing port %d" port))
+      (kill-async-shell-when-done proc buffer-name)))
 #+end_src
 ** check-file-exists-or-clone
 #+begin_src emacs-lisp
