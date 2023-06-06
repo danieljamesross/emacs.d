@@ -1019,22 +1019,25 @@ i.e. `0.3s` becomes `.3s`
 #+end_src
 *** tsx-mode
 #+begin_src emacs-lisp
-    (use-package tsx-mode
-      :init
-      (use-package coverlay)
-      (use-package graphql-mode)
-      (check-file-exists-or-clone "tsx/" "https://github.com/orzechowskid/tsx-mode.el.git")
-      (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsx/")))
-      (check-file-exists-or-clone "tsi/" "https://github.com/orzechowskid/tsi.el.git")
-      (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/")))
-      (check-file-exists-or-clone "origami/" "https://github.com/gregsexton/origami.el.git")
-      (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "origami/")))
-      :load-path "~/.emacs.d/tsx"
-      :hook (tsx-mode . init-prettier)
-      :mode (("\\.[tj]sx?\\'" . tsx-mode)))
-
-    ;; (with-eval-after-load 'tsx-mode
-    ;;   (define-key tsx-mode-map (kbd "M-.") nil))
+  (use-package tsx-mode
+    :init
+    (use-package coverlay)
+    (use-package graphql-mode)
+    (check-file-exists-or-clone
+     (concat user-emacs-directory "tsx/")
+     "https://github.com/orzechowskid/tsx-mode.el.git")
+    (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsx/")))
+    (check-file-exists-or-clone
+     (concat user-emacs-directory "tsi/")
+     "https://github.com/orzechowskid/tsi.el.git")
+    (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/")))
+    (check-file-exists-or-clone
+     (concat user-emacs-directory "origami/")
+     "https://github.com/gregsexton/origami.el.git")
+    (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "origami/")))
+    :load-path "~/.emacs.d/tsx"
+    :hook (tsx-mode . init-prettier)
+    :mode (("\\.[tj]sx?\\'" . tsx-mode)))
 #+end_src
 ** Shortcuts
 *** lorem
@@ -2156,7 +2159,8 @@ Details here: [[https://github.com/ahungry/org-jira]]
 #+end_src
 ** glsl-mode
 #+begin_src emacs-lisp
-  (check-file-exists-or-clone "glsl/" "https://github.com/jimhourihan/glsl-mode.git")
+  (check-file-exists-or-clone (concat user-emacs-directory "glsl/")
+                              "https://github.com/jimhourihan/glsl-mode.git")
   (dolist (file '("\\.glsl\\'" "\\.frag\\'" "\\.vert\\'"))
     (add-to-list 'auto-mode-alist `(,file . glsl-mode)))
 #+end_src
