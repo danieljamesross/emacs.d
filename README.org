@@ -774,32 +774,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
   (global-set-key (kbd "s-C-M-j") 'windmove-left)
   (global-set-key (kbd "s-C-M-l") 'windmove-right)
 #+end_src
-**** display all vterms
-#+begin_src emacs-lisp
-  (defun buffer-in-window-list ()
-    (let (buffers)
-      (walk-windows
-       (lambda (window) (push (window-buffer window) buffers)) t t)
-      buffers))
 
-  (defun delete-non-vterms-windows (window)
-    (when (not (string-match vterm-string (buffer-name (window-buffer window))))
-      (delete-window window)))
-
-  (defun display-all-vterms ()
-    (interactive)
-    (delete-other-windows)
-    (let ((buffers-in-window (buffer-in-window-list))
-          (vterm-string "\\*vterm"))
-      (dolist (buffer (buffer-list))
-        (when (and (string-match vterm-string (buffer-name buffer))
-                   (not (memq buffer buffers-in-window)))
-          (set-window-buffer (split-window (get-largest-window)) buffer)))
-      (walk-windows #'delete-non-vterms-windows)
-      (if (< (frame-outer-width) (x-display-pixel-width))
-          (transpose-frame))
-      (balance-windows)))
-#+end_src
 *** Node
 
 #+begin_src emacs-lisp
