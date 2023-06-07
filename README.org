@@ -855,7 +855,7 @@ i.e. `0.3s` becomes `.3s`
 *** web-mode
 #+begin_src emacs-lisp
   (use-package web-mode
-    ;; :mode "\\.ts[x]?\\'"
+    :mode "\\.html\\'"
     :after (tree-sitter-mode tree-sitter-langs)
     :config
     (setq web-mode-enable-auto-quoting nil)
