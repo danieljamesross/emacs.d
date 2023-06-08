@@ -638,7 +638,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
                                          (name . "\\*terminal\\*")
                                          (name . "\\*slime-repl sbcl\\*")
                                          (name . "\\*shell\\*")
-                                         (name . "\\*vterminal")))
+                                         (name . "\\*vterm")))
            ("Logs" (or (name . "\\*Messages\\*")
                        (name . "\\*slime-events\\*")
                        (name . "\\*inferior-lisp\\*")
