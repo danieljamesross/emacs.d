@@ -40,6 +40,10 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
                    (get-buffer-process async-shell-buffer)))
       (message (format "Killing port %d" port))
       (kill-async-shell-when-done proc buffer-name)))
+
+  (defun kill-ports ()
+    (interactive)
+    (mapcar #'kill-port '(3000 3001 3002 3003 3004 3005 3020 4000 4001 4002 4003 4004 4005 4400 4401 4400 4500 4501 5001 5002 5003 5004 9299)))
 #+end_src
 ** check-file-exists-or-clone
 #+begin_src emacs-lisp
