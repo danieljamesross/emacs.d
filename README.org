@@ -1012,7 +1012,7 @@ i.e. `0.3s` becomes `.3s`
     (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "origami/")))
     :load-path "~/.emacs.d/tsx"
     :hook (tsx-mode . init-prettier)
-    :mode (("\\.[tj]sx?\\'" . tsx-mode)))
+    :mode (("\\.[mc]?[tj]sx?\\'" . tsx-mode)))
 #+end_src
 ** Shortcuts
 *** lorem
