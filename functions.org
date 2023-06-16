@@ -93,7 +93,7 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
       (if (internet-up-p)
           (let* ((temp-folder (expand-file-name "/private/tmp/hack"))
                  (font-folder (expand-file-name "/Library/Fonts/"))
-                 (buffer-name (format "font-shell-%d" (unique-random-number)))
+                 (buffer-name (generate-new-buffer-name "*Async Shell Command*"))
                  (shell-command-string
                   (concat (format "git clone -q %s %s" font-repo temp-folder)
                           " && "
