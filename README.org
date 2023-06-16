@@ -781,6 +781,30 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
   (use-package add-node-modules-path
     :config)
 #+end_src
+** C, C++
+#+begin_src emacs-lisp
+  (unless (shell-command "which clang-format")
+    (async-shell-command "brew install clang-format"))
+  (use-package clang-format)
+
+  (defun clang-tidy-buffer ()
+      (when (locate-dominating-file default-directory ".clang-format")
+        (clang-format-buffer)
+      ;; Continue to save.
+      nil)
+    nil
+    ;; Buffer local hook.
+    t)
+
+  (defun clang-format-save-hook-for-this-buffer ()
+    "Create a buffer local save hook."
+    (add-hook 'before-save-hook #'clang-tidy-buffer))
+
+  ;; Run this for each mode you want to use the hook.
+  (add-hook 'c-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
+  (add-hook 'c++-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
+  (add-hook 'glsl-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
+#+end_src
 ** Web Dev
 *** CSS
 **** Indenting & brackets
@@ -1760,35 +1784,36 @@ with `brew install aspell`.
 ** lsp-mode
 Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
 #+begin_src emacs-lisp
-  (defun enable-lsp-for-web-mode ()
-    (interactive)
-    (enable-minor-mode
-     '("\\.js[x]?\\|\\.ts[x]?" . lsp-deferred)))
+    (defun enable-lsp-for-web-mode ()
+      (interactive)
+      (enable-minor-mode
+       '("\\.js[x]?\\|\\.ts[x]?" . lsp-deferred)))
 
-  (use-package lsp-mode
-    :if window-system
-    :no-require t
-    :commands (lsp lsp-deferred)
-    :config (setq lsp-keymap-prefix "C-c l"
-                  lsp-headerline-breadcrumb-mode nil
-                  lsp-log-io nil
-                  lsp-auto-guess-root t
-                  lsp-restart 'auto-restart
-                  lsp-enable-symbol-highlighting nil
-                  lsp-enable-on-type-formatting nil
-                  lsp-signature-auto-activate nil
-                  lsp-signature-render-documentation nil
-                  lsp-eldoc-hook nil
-                  lsp-modeline-code-actions-enable nil
-                  lsp-modeline-diagnostics-enable nil
-                  lsp-semantic-tokens-enable nil
-                  lsp-enable-folding nil
-                  lsp-enable-imenu nil
-                  lsp-enable-snippet nil
-                  read-process-output-max (* 1024 1024) ;; 1MB
-                  lsp-idle-delay 0.5))
+    (use-package lsp-mode
+      :if window-system
+      :no-require t
+      :commands (lsp lsp-deferred)
+      :config (setq lsp-keymap-prefix "C-c l"
+                    lsp-headerline-breadcrumb-mode nil
+                    lsp-log-io nil
+                    lsp-auto-guess-root t
+                    lsp-restart 'auto-restart
+                    lsp-enable-symbol-highlighting nil
+                    lsp-enable-on-type-formatting nil
+                    lsp-signature-auto-activate nil
+                    lsp-signature-render-documentation nil
+                    lsp-eldoc-hook nil
+                    lsp-modeline-code-actions-enable nil
+                    lsp-modeline-diagnostics-enable nil
+                    lsp-semantic-tokens-enable nil
+                    lsp-enable-folding nil
+                    lsp-enable-imenu nil
+                    lsp-enable-snippet nil
+                    read-process-output-max (* 1024 1024) ;; 1MB
+                    lsp-idle-delay 0.5)
+          (add-to-list 'lsp-language-id-configuration  '("\\.[mc]js$" . "javascript")))
 
-  (eval-after-web-mode-load 'enable-lsp-for-web-mode)
+    (eval-after-web-mode-load 'enable-lsp-for-web-mode)
 #+end_src
 *** lsp-ui
 #+begin_src emacs-lisp
@@ -1949,7 +1974,8 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
   (use-package projectile
     :ensure t
     :bind-keymap ("C-c p" . projectile-command-map)
-    :config (setq projectile-switch-project-action #'projectile-dired)
+    :config (setq projectile-switch-project-action #'projectile-dired
+                  projectile-indexing-method 'native)
     :init (projectile-mode +1))
 #+end_src
 ** Org
