@@ -1980,7 +1980,8 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
     :ensure t
     :bind-keymap ("C-c p" . projectile-command-map)
     :config (setq projectile-switch-project-action #'projectile-dired
-                  projectile-indexing-method 'native)
+                  projectile-indexing-method 'native
+                  projectile-enable-caching t)
     :init (projectile-mode +1))
 #+end_src
 ** Org
