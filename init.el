@@ -14,7 +14,7 @@
 
 (defun last-modified (file)
   (let* ((file-attrs (file-attributes (expand-file-name file)))
-	 (last-mod-time (cl-sixth file-attrs)))
+	 (last-mod-time (nth 5 file-attrs)))
     (time-convert last-mod-time 'integer)))
 
 (defun check-newer-than (file1 file2)
