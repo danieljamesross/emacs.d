@@ -749,19 +749,22 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
             #'(lambda ()
                 (ibuffer-auto-mode 1)
                 (ibuffer-switch-to-saved-filter-groups "home")))
-  (setq dired-auto-revert-buffer t
-        auto-revert-verbose nil)
 
 #+end_src
 **** Dired
 #+begin_src emacs-lisp
+  (setq trash-directory "~/.Trash")
+
   (setq dired-sidebar-icon-scale 0.1
         dired-sidebar-mode-line-format
         '("%e" mode-line-front-space mode-line-buffer-identification " " mode-line-end-spaces)
         dired-sidebar-recenter-cursor-on-tui-update nil
         dired-sidebar-should-follow-file t
         dired-sidebar-toggle-hidden-commands '(rotate-windows toggle-window-split balance-windows)
-        dired-dwim-target t)
+        dired-dwim-target t
+        delete-by-moving-to-trash t)
+
+
   (put 'dired-find-alternate-file 'disabled nil)
   (add-hook 'dired-mode-hook
         (lambda ()
