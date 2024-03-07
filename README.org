@@ -800,104 +800,35 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
       (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
       (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*")))
 #+end_src
-**** ls
+***** ls
 #+begin_src emacs-lisp
   (when (string= system-type "darwin")
     (setq dired-use-ls-dired nil))
-#+end_src
-*** exec-path-from-shell
-#+begin_src emacs-lisp
-  (use-package exec-path-from-shell
-    :if (memq window-system '(mac ns x))
-    :config (setq default-directory (expand-file-name "~/"))
-    (setenv "SHELL" "/bin/zsh")
-    (if (and (fboundp 'native-comp-available-p)
-             (native-comp-available-p))
-        (progn
-          (message "Native comp is available")
-          ;; Using Emacs.app/Contents/MacOS/bin since it was compiled with
-          ;; ./configure --prefix="$PWD/nextstep/Emacs.app/Contents/MacOS"
-          (add-to-list 'exec-path (concat invocation-directory "bin") t)
-          (setenv "LIBRARY_PATH" (concat (getenv "LIBRARY_PATH")
-                                         (when (getenv "LIBRARY_PATH")
-                                           ":")
-                                         ;; This is where Homebrew puts gcc libraries.
-                                         (car (file-expand-wildcards
-                                               (expand-file-name "/usr/local/opt/gcc/lib/gcc/*")))))
-          ;; Only set after LIBRARY_PATH can find gcc libraries.
-          (setq comp-deferred-compilation t))
-      (message "Native comp is *not* available"))
-    (add-to-list 'exec-path default-directory)
-    (add-to-list 'exec-path user-emacs-directory)
-    (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
-    (exec-path-from-shell-initialize))
-#+end_src
-*** Buffers and Frames
-**** buffer boundaries
-#+begin_src emacs-lisp
-  (setq indicate-buffer-boundaries 'left)
-#+end_src
-**** Buffer opening
-#+begin_src emacs-lisp
-  ;; ignore case when switching buffers with C-x b
-  (setq read-buffer-completion-ignore-case t)
-#+end_src
-**** buffer-move
-#+begin_src emacs-lisp
-  (use-package buffer-move
-    :bind (("s-C-<up>" . buf-move-up)
-           ("s-C-<down>" . buf-move-down)
-           ("s-C-<left>" . buf-move-left)
-           ("s-C-<right>" . buf-move-right)))
-#+end_src
-**** Frames
-#+begin_src emacs-lisp
-  (when (display-graphic-p)
-    (add-to-list 'initial-frame-alist '(fullscreen . maximized))
-    (add-to-list 'default-frame-alist '(fullscreen . maximized)))
-  (setq one-buffer-one-frame-mode nil)
-        ;;; Use the commands "control+x" followed by an arrow to
-        ;;; navigate between panes
-  ;; (global-set-key (kbd "C-x <up>") 'windmove-up)
-  ;; (global-set-key (kbd "C-x <down>") 'windmove-down)
-  ;; (global-set-key (kbd "C-x <left>") 'windmove-left)
-  ;; (global-set-key (kbd "C-x <right>") 'windmove-right)
-
-  (global-set-key (kbd "s-C-M-i") 'windmove-up)
-  (global-set-key (kbd "s-C-M-k") 'windmove-down)
-  (global-set-key (kbd "s-C-M-j") 'windmove-left)
-  (global-set-key (kbd "s-C-M-l") 'windmove-right)
-#+end_src
-
-*** Node
-
-#+begin_src emacs-lisp
-  (use-package add-node-modules-path
-    :config)
 #+end_src
 ** C, C++
 #+begin_src emacs-lisp
   (unless (shell-command "which clang-format")
     (async-shell-command "brew install clang-format"))
   (use-package clang-format :ensure t)
+  ;; (use-package clang-format)
 
-  (defun clang-tidy-buffer ()
-      (when (locate-dominating-file default-directory ".clang-format")
-        (clang-format-buffer)
-      ;; Continue to save.
-      nil)
-    nil
-    ;; Buffer local hook.
-    t)
+  ;; (defun clang-tidy-buffer ()
+  ;;   (when (locate-dominating-file default-directory ".clang-format")
+  ;;     (clang-format-buffer)
+  ;;     ;; Continue to save.
+  ;;     nil)
+  ;;   nil
+  ;;   ;; Buffer local hook.
+  ;;   t)
 
-  (defun clang-format-save-hook-for-this-buffer ()
-    "Create a buffer local save hook."
-    (add-hook 'before-save-hook #'clang-tidy-buffer))
+  ;; (defun clang-format-save-hook-for-this-buffer ()
+  ;;   "Create a buffer local save hook."
+  ;;   (add-hook 'before-save-hook #'clang-tidy-buffer))
 
   ;; Run this for each mode you want to use the hook.
-  (add-hook 'c-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
-  (add-hook 'c++-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
-  (add-hook 'glsl-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
+  ;; (add-hook 'c-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
+  ;; (add-hook 'c++-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
+  ;; (add-hook 'glsl-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
 #+end_src
 *** ccls
 #+begin_src emacs-lisp
@@ -1142,6 +1073,19 @@ i.e. `0.3s` becomes `.3s`
     :load-path "~/.emacs.d/tsx"
     :hook (tsx-mode . init-prettier)
     :mode (("\\.[mc]?[tj]sx?\\'" . tsx-mode)))
+#+end_src
+*** flowjs
+#+begin_src emacs-lisp
+  ;; (let ((flow-path (concat user-emacs-directory "flow/"))
+  ;;      (flow-binary-path "~/.nvm/versions/node/**/bin/flow"))
+  ;;   (unless (file-expand-wildcards flow-binary-path)
+  ;;     (async-shell-command "npm i -g flow-bin"))
+  ;;   (check-file-exists-or-clone flow-path "https://github.com/flowtype/flow-for-emacs.git")
+  ;;   (add-to-list 'load-path (expand-file-name flow-path))
+  ;;   (load (concat flow-path "flow.el"))
+  ;;   (setq flow_binary flow-binary-path)
+  ;;   (global-unset-key (kbd "M->") 'flow-get-def)
+  ;;   )
 #+end_src
 ** Shortcuts
 *** lorem
