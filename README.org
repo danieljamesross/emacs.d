@@ -26,6 +26,15 @@ compiled at startup, but not these titles or this text.
   (remove-hook 'jinja2-mode-hook #'turn-on-auto-fill)
   (remove-hook 'yaml-mode-hook #'turn-on-auto-fill)
 #+end_src
+*** autorevert
+#+begin_src emacs-lisp
+;; Auto refresh buffers
+(global-auto-revert-mode 1)
+
+;; Also auto refresh dired, but be quiet about it
+(setq global-auto-revert-non-file-buffers t)
+(setq auto-revert-verbose nil)
+#+end_src
 *** backups
 #+begin_src emacs-lisp
   (setq backup-directory-alist
