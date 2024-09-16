@@ -790,7 +790,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 #+begin_src emacs-lisp
   (unless (shell-command "which clang-format")
     (async-shell-command "brew install clang-format"))
-  (use-package clang-format)
+  (use-package clang-format :ensure t)
 
   (defun clang-tidy-buffer ()
       (when (locate-dominating-file default-directory ".clang-format")
@@ -1464,9 +1464,10 @@ i.e. `0.3s` becomes `.3s`
 #+begin_src emacs-lisp
   ;; Enable vertico
   (use-package vertico
+    :ensure t
     :init
     (vertico-mode)
-
+    :config
     ;; Grow and shrink the Vertico minibuffer
     (setq vertico-resize t)
 
