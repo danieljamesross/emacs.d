@@ -130,6 +130,8 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
 #+end_src
 ** display all vterms
 #+begin_src emacs-lisp
+  (setq vterm-string "\\*vterm")
+  
   (defun buffer-in-window-list ()
     (let (buffers)
       (walk-windows
@@ -143,8 +145,7 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
   (defun display-all-vterms ()
     (interactive)
     (delete-other-windows)
-    (let ((buffers-in-window (buffer-in-window-list))
-          (vterm-string "\\*vterm"))
+    (let ((buffers-in-window (buffer-in-window-list)))
       (dolist (buffer (buffer-list))
         (when (and (string-match vterm-string (buffer-name buffer))
                    (not (memq buffer buffers-in-window)))
