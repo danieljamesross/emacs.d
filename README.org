@@ -904,6 +904,12 @@ i.e. `0.3s` becomes `.3s`
                   (local-set-key "\C-c\C-b" 'js-send-buffer-and-go)
                   (local-set-key "\C-cl" 'js-load-file-and-go))))
 #+end_src
+*** jest
+#+begin_src emacs-lisp
+  (use-package jest-test-mode
+    :commands jest-test-mode
+    :hook (typescript-mode js-mode typescript-tsx-mode))
+#+end_src
 *** emmet
 #+begin_src emacs-lisp
   ;; (use-package emmet-mode
