@@ -806,11 +806,11 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
     (setq dired-use-ls-dired nil))
 #+end_src
 ** C, C++
+*** clang-format
 #+begin_src emacs-lisp
   (unless (shell-command "which clang-format")
     (async-shell-command "brew install clang-format"))
   (use-package clang-format :ensure t)
-  ;; (use-package clang-format)
 
   ;; (defun clang-tidy-buffer ()
   ;;   (when (locate-dominating-file default-directory ".clang-format")
