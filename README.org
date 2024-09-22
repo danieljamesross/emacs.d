@@ -841,6 +841,24 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
   :hook ((c-mode c++-mode objc-mode) .
          (lambda () (require 'ccls) (lsp))))
 #+end_src
+*** cmake
+#+begin_src emacs-lisp
+  (defvar *text-mode-buffer-regexp* '("CMakeLists\\.txt" "cmakelists\\.txt"))
+
+  (defun regexp-match-p (regexps string)
+    (and string
+         (catch 'matched
+           (let ((inhibit-changing-match-data t)) ; small optimization
+             (dolist (regexp regexps)
+               (when (string-match regexp string)
+                 (throw 'matched t)))))))
+  (use-package cmake-mode)
+  (add-hook 'cmake-mode-hook
+            (lambda ()
+              (when (regexp-match-p *text-mode-buffer-regexp*
+                                    (buffer-name))
+                (cmake-mode))))
+#+end_src
 ** Web Dev
 *** CSS
 **** Indenting & brackets
