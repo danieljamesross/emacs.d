@@ -1852,30 +1852,33 @@ Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP sup
 #+end_src
 *** SBCL
 #+begin_src emacs-lisp
-  (when (not (executable-find "sbcl"))
-    (shell-command "brew install sbcl"))
-  ;; Set your lisp system and, optionally, some contribs
-  (setq inferior-lisp-program "/opt/sbcl/bin/sbcl")
-  (let ((sbcl-local (car (file-expand-wildcards
-                          "/usr/local/Cellar/sbcl/*/lib/sbcl/sbcl.core"))))
-    (setq slime-lisp-implementations
-          `((sbcl ("/usr/local/bin/sbcl"
-                   "--core"
-                   ;; replace with correct path of sbcl
-                   ,sbcl-local
-                   "--dynamic-space-size" "2147")))))
+  (let ((sbcl (executable-find "sbcl")))
+    (when (not sbcl)
+      (shell-command "brew install sbcl")
+      (setq sbcl (executable-find "sbcl")))
+    ;; Set your lisp system and, optionally, some contribs
+    (setq inferior-lisp-program sbcl)
+    (let ((sbcl-local (car (file-expand-wildcards
+                            "/usr/local/Cellar/sbcl/*/lib/sbcl/sbcl.core"))))
+      (setq slime-lisp-implementations
+            `((sbcl ("/usr/local/bin/sbcl"
+                     "--core"
+                     ;; replace with correct path of sbcl
+                     ,sbcl-local
+                     "--dynamic-space-size" "2147"))))))
 #+end_src
 *** slime
 #+begin_src emacs-lisp
   ;; slime
-  ;; (use-package slime
+  (use-package slime)
   ;;   :hook (slime-repl-mode-hook . slime-repl-ansi-color-mode))
 #+end_src
 *** slime-repl-ansi-color
 #+begin_src emacs-lisp
-  ;; (use-package slime-repl-ansi-color
-  ;;   :after slime-repl
-  ;;   :requires slime)
+  (use-package slime-repl-ansi-color
+    :after slime-repl
+    :requires slime
+    :hook (slime-repl-mode-hook . slime-repl-ansi-color-mode))
 #+end_src
 *** paredit
 Man, this is slow. Removing it for now.
