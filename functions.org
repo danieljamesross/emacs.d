@@ -28,7 +28,7 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
 ** kill-port
 #+begin_src emacs-lisp
   (defun kill-port (port)
-    (interactive "n")
+    (interactive "nPort to kill: ")
     (let* ((buffer-name (generate-new-buffer-name "*Async Shell Command*"))
            (async-shell-buffer
             (generate-new-buffer buffer-name))
