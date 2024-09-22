@@ -254,15 +254,6 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
 ** Views
 *** all-the-icons
 #+begin_src emacs-lisp
-  (use-package all-the-icons-ibuffer
-    :hook (ibuffer-mode . all-the-icons-ibuffer-mode))
-
-  (use-package all-the-icons
-    :defer nil
-    :init (when (and (internet-up-p)
-                     (not (member "all-the-icons" (font-family-list))))
-            (all-the-icons-install-fonts t)))
-
   (defun load-all-the-icons-dired ()
     (interactive)
     (let ((icons-dired (expand-file-name (concat user-emacs-directory "all-the-icons-dired/")))
@@ -272,7 +263,18 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
       (load (concat icons-dired "all-the-icons-dired.el")))
     (all-the-icons-dired-mode 1))
 
-  (add-hook 'dired-mode-hook 'load-all-the-icons-dired)
+  (use-package all-the-icons-ibuffer
+    :hook (ibuffer-mode . all-the-icons-ibuffer-mode))
+
+  (use-package all-the-icons
+    :defer nil
+    :if (internet-up-p)
+    :init (progn
+            (when (and (internet-up-p)
+                       (not (member "all-the-icons" (font-family-list))))
+              (all-the-icons-install-fonts t))
+            (load-all-the-icons-dired))
+    :hook (dired-mode . (lambda () (all-the-icons-dired-mode 1))))
 #+end_src
 *** dimmer-mode
 #+begin_src emacs-lisp
