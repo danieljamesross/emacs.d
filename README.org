@@ -810,6 +810,17 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
   (add-hook 'c++-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
   (add-hook 'glsl-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
 #+end_src
+*** ccls
+#+begin_src emacs-lisp
+(use-package ccls
+  :ensure t
+  :config
+  (setq ccls-executable "ccls")
+  (setq lsp-prefer-flymake nil)
+  (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
+  :hook ((c-mode c++-mode objc-mode) .
+         (lambda () (require 'ccls) (lsp))))
+#+end_src
 ** Web Dev
 *** CSS
 **** Indenting & brackets
