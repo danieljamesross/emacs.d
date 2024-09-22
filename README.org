@@ -246,6 +246,11 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
   (setq-default tab-always-indent 'complete)
   (global-set-key (kbd "S-M-t") 'indent-rigidly-left)
 #+end_src
+*** zygospore
+#+begin_src emacs-lisp
+  (use-package zygospore
+    :config (global-set-key (kbd "C-x 1") 'zygospore-toggle-delete-other-windows))
+#+end_src
 ** iedit
 #+begin_src emacs-lisp
     (use-package iedit
