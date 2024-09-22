@@ -2360,3 +2360,10 @@ Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
   ;;   (require 'webkit-ace) ;; If you want link hinting
   ;;   (require 'webkit-dark)) ;; If you want to use the simple dark mode
 #+end_src
+** lm
+#+begin_src emacs-lisp
+  (use-package lms
+    :config (setq lms-url "http://192.168.0.13:9000"
+                  lms-default-player "Hallway"))
+#+end_src
+
