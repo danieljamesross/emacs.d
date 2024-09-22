@@ -2,7 +2,61 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("work"
+(("licence"
+ (filename . "~/iris/licence/")
+ (front-context-string . "fish42\n  -rw-r--")
+ (rear-context-string . "28 15 Jan 15:43 ")
+ (position . 452)
+ (last-modified 26127 61926 301257 0))
+("clarity-chrome-extension"
+ (filename . "~/iris/clarity-chrome-extension/")
+ (front-context-string . ".DS_Store\n  -rw-")
+ (rear-context-string . "48 25 Mar 16:09 ")
+ (position . 216)
+ (last-modified 26123 44797 943118 0))
+("iris-sdk"
+ (filename . "~/iris/iris-sdk/")
+ (front-context-string . ".DS_Store\n  -rw-")
+ (rear-context-string . "44 30 Jan 17:05 ")
+ (position . 194)
+ (last-modified 26051 18246 854676 0))
+("iris-web-sdk"
+ (filename . "~/iris/iris-web-sdk/")
+ (front-context-string . ".DS_Store\n  -rw-")
+ (rear-context-string . "48 15 Dec 22:15 ")
+ (position . 204)
+ (last-modified 25984 5173 558581 0))
+("iris-audio"
+ (filename . "~/iris/iris-audio/")
+ (front-context-string)
+ (rear-context-string . "fig.tsbuildinfo\n")
+ (position . 2097)
+ (last-modified 25969 46537 64117 0))
+("iris-cms"
+ (filename . "~/iris/iris-cms/")
+ (front-context-string . ".DS_Store\n  drwx")
+ (rear-context-string . "96 20 Nov 09:39 ")
+ (position . 203)
+ (last-modified 25947 10943 167974 0))
+("analytics-backend"
+ (filename . "~/iris/analytics-backend/")
+ (front-context-string . ".DS_Store\n  -rw-")
+ (rear-context-string . "48 31 Jul 10:49 ")
+ (position . 280)
+ (last-modified 25809 1428 842058 0))
+("bundle-sdk"
+ (filename . "~/iris/bundle-sdk/")
+ (front-context-string . ".DS_Store\n  drwx")
+ (rear-context-string . "44 31 Jul 10:50 ")
+ (position . 205)
+ (last-modified 25799 36025 981612 0))
+("iris-sdk-demo-wasm"
+ (filename . "~/iris/iris-sdk-demo-wasm/")
+ (front-context-string . ".DS_Store\n  drwx")
+ (rear-context-string . "48 28 Jul 15:56 ")
+ (position . 213)
+ (last-modified 25799 32786 430031 0))
+("work"
  (filename . "~/iris/")
  (front-context-string . ".DS_Store\n  drwx")
  (rear-context-string . "36  9 May 18:15 ")
@@ -38,12 +92,6 @@
  (rear-context-string . "11  3 Jan 13:54 ")
  (position . 210)
  (last-modified 25525 19825 901585 0))
-("dotenv"
- (filename . "~/iris/dotenv/")
- (front-context-string . "account-dashboar")
- (rear-context-string . "60 23 Aug 10:06 ")
- (position . 367)
- (last-modified 25430 22469 631147 0))
 ("dash-ts"
  (filename . "~/iris/account-dashboard-ts/")
  (front-context-string . ".babelrc\n  -rw-r")
@@ -82,11 +130,6 @@
  (front-context-string . ".env\n  drwxr-xr-")
  (rear-context-string . "52 27 Oct 10:11 ")
  (position . 250))
-("iris"
- (filename . "~/iris/iris-audio/")
- (front-context-string . "pages\n  drwxr-xr")
- (rear-context-string . "88 18 Oct 17:13 ")
- (position . 1217))
 ("seem-events"
  (filename . "~/ReactApps/seem-events/")
  (front-context-string . "client\n  drwxr-x")
