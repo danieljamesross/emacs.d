@@ -92,3 +92,5 @@
 
 ;; Make gc pauses faster by decreasing the threshold.
 (setq gc-cons-threshold (* 2 1024 1024))
+
+(recentf-open-files)
