@@ -54,6 +54,11 @@ compiled at startup, but not these titles or this text.
 #+begin_src emacs-lisp
   (setq debug-on-error t)
 #+end_src
+*** duplicate-thing
+#+begin_src emacs-lisp
+  (use-package duplicate-thing
+    :bind ("M-c" . duplicate-thing))
+#+end_src
 *** delete
 #+begin_src emacs-lisp
   (delete-selection-mode 1)
