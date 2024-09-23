@@ -485,7 +485,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
   (with-eval-after-load
       'tree-sitter-langs (tree-sitter-require 'tsx)
       'tree-sitter-langs (tree-sitter-require 'json)
-      (add-to-list 'tree-sitter-major-mode-language-alist '(web-mode . tsx))
+      (add-to-list 'tree-sitter-major-mode-language-alist '(web-mode . typescript))
       (add-to-list 'tree-sitter-major-mode-language-alist '(json-mode . json)))
 #+end_src
 *** too-long-mode
@@ -996,9 +996,9 @@ i.e. `0.3s` becomes `.3s`
                             "--tab-width" "2"))
            (default-directory (projectile-acquire-root))
            (prettier-config (file-expand-wildcards ".prettierrc*" t)))
-      (if (and prettier-config (first prettier-config) (file-exists-p (first prettier-config)))
+      (if (and prettier-config (nth 0 prettier-config) (file-exists-p (nth 0 prettier-config)))
           (progn (message "local prettier found")
-                 (let ((local-prettier-args (args-from-prettier (first prettier-config))))
+                 (let ((local-prettier-args (args-from-prettier (nth 0 prettier-config))))
                    (setq prettier-js-args local-prettier-args)))
         (progn (message "no local prettier found")
                (setq prettier-js-args prettier-args)))))
@@ -1009,8 +1009,7 @@ i.e. `0.3s` becomes `.3s`
 
   (defun init-prettier ()
     (interactive)
-    ;; (enable-minor-mode
-    ;;  '("\\.(jsx?\\|tsx?\\|json)\\'" . prettier-js-mode))
+    (set-prettier-args)
     (prettier-js-mode 1)
     (message "prettier inited"))
 
