@@ -1075,33 +1075,34 @@ i.e. `0.3s` becomes `.3s`
     (tree-sitter-mode 1)
     (tree-sitter-hl-mode 1))
 
-  ;; (add-to-list 'auto-mode-alist '("\\.js\\'" . js-mode))
   (add-hook 'js-mode-hook #'init-js)
+  (add-to-list 'auto-mode-alist '("\\.[mc]?[tj]sx?\\'" . js-mode))
+
   (with-eval-after-load 'js-mode
     (define-key js-mode-map (kbd "M-.") nil))
 #+end_src
-*** tsx-mode
-#+begin_src emacs-lisp
-  (use-package tsx-mode
-    :init
-    (use-package coverlay)
-    (use-package graphql-mode)
-    (check-file-exists-or-clone
-     (concat user-emacs-directory "tsx/")
-     "https://github.com/orzechowskid/tsx-mode.el.git")
-    (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsx/")))
-    (check-file-exists-or-clone
-     (concat user-emacs-directory "tsi/")
-     "https://github.com/orzechowskid/tsi.el.git")
-    (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/")))
-    (check-file-exists-or-clone
-     (concat user-emacs-directory "origami/")
-     "https://github.com/gregsexton/origami.el.git")
-    (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "origami/")))
-    :load-path "~/.emacs.d/tsx"
-    :hook (tsx-mode . init-prettier)
-    :mode (("\\.[mc]?[tj]sx?\\'" . tsx-mode)))
-#+end_src
+# *** tsx-mode
+# #+begin_src emacs-lisp
+#   (use-package tsx-mode
+#     :init
+#     (use-package coverlay)
+#     (use-package graphql-mode)
+#     (check-file-exists-or-clone
+#      (concat user-emacs-directory "tsx/")
+#      "https://github.com/orzechowskid/tsx-mode.el.git")
+#     (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsx/")))
+#     (check-file-exists-or-clone
+#      (concat user-emacs-directory "tsi/")
+#      "https://github.com/orzechowskid/tsi.el.git")
+#     (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "tsi/")))
+#     (check-file-exists-or-clone
+#      (concat user-emacs-directory "origami/")
+#      "https://github.com/gregsexton/origami.el.git")
+#     (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "origami/")))
+#     :load-path "~/.emacs.d/tsx"
+#     :hook (tsx-mode . init-prettier)
+#     :mode (("\\.[mc]?[tj]sx?\\'" . tsx-mode)))
+# #+end_src
 *** flowjs
 #+begin_src emacs-lisp
   ;; (let ((flow-path (concat user-emacs-directory "flow/"))
