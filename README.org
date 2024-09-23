@@ -264,11 +264,17 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
 ** Views
 *** all-the-icons
 #+begin_src emacs-lisp
-  (use-package all-the-icons-completion)
-  (use-package all-the-icons-dired)
-  (use-package all-the-icons-nerd-fonts)
+  (use-package all-the-icons-completion
+    :hook (corfu-mode . all-the-icons-completion-mode)
+    :after all-the-icons)
+  (use-package all-the-icons-dired
+    :hook (dired-mode . all-the-icons-dired-mode)
+    :after all-the-icons)
+  (use-package all-the-icons-nerd-fonts
+    :after all-the-icons)
   (use-package all-the-icons-ibuffer
-    :hook (ibuffer-mode . all-the-icons-ibuffer-mode))
+    :hook (ibuffer-mode . all-the-icons-ibuffer-mode)
+    :after all-the-icons)
 
   (use-package all-the-icons
     :defer nil
