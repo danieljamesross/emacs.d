@@ -278,7 +278,7 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
 
   (use-package all-the-icons
     :defer nil
-    :if (internet-up-p)
+    :if (display-graphic-p)
     :init (progn
             (when (and (internet-up-p)
                        (not (member "all-the-icons" (font-family-list))))
@@ -529,8 +529,8 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
     :config
     (setq auto-package-update-delete-old-versions t)
     (setq auto-package-update-hide-results t)
-    (when (internet-up-p
-           (auto-package-update-maybe))))
+    (when (internet-up-p)
+           (auto-package-update-maybe)))
 #+end_src
 *** Non Elpa/Melpa Package Modes
 **** antesc-mode
