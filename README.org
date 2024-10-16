@@ -75,7 +75,7 @@ compiled at startup, but not these titles or this text.
 *** expand-region
 #+begin_src emacs-lisp
   (use-package expand-region
-    :bind ("C-`" . er/expand-region))
+    :bind ("C-}" . er/expand-region))
 #+end_src
 *** hippie-expand
 #+begin_src emacs-lisp
