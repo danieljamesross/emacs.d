@@ -86,11 +86,12 @@
 
 (compile-org-or-load-precompiled-el "README")
 
+;; Make gc pauses faster by decreasing the threshold.
+(setq gc-cons-threshold (* 2 1024 1024))
+
 (require 'server)
 (unless (server-running-p)
   (server-start))
 
-;; Make gc pauses faster by decreasing the threshold.
-(setq gc-cons-threshold (* 2 1024 1024))
-
+(popper--bury-all)
 (recentf-open-files)
