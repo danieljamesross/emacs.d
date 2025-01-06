@@ -2198,7 +2198,13 @@ Details here: [[https://github.com/ahungry/org-jira]]
   ;;           ("Ready for QA" . "Done")
   ;;           ("Ready for Deployment" . "Closed"))))
 #+end_src
-
+*** org-babel
+#+begin_src emacs-lisp
+  ;; active Babel languages
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '((shell . t)))
+#+end_src
 ** Regexp
 #+begin_src emacs-lisp
   (defvar my/re-builder-positions nil
