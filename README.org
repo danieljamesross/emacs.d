@@ -1180,8 +1180,8 @@ i.e. `0.3s` becomes `.3s`
 #+begin_src emacs-lisp
   (global-set-key "\M-3" #'(lambda() (interactive) (insert "#")))
   (global-set-key (kbd "C-c n") #'djr-new-buffer-frame)
-  (global-set-key "\C-x\l" #'(lambda () (interactive)
-                               (switch-to-buffer "*slime-repl sbcl*")))
+  ;; (global-set-key "\C-x\l" #'(lambda () (interactive)
+  ;;                              (switch-to-buffer "*slime-repl sbcl*")))
   (global-set-key (kbd "C-x C-b") 'ibuffer) ;; Use Ibuffer for Buffer List
   ;; Becasue I just can't quite those MacOS bindings, and why should I?
   (global-set-key (kbd "s-<right>") 'move-end-of-line)
