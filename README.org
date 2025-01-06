@@ -1150,6 +1150,13 @@ i.e. `0.3s` becomes `.3s`
 #+begin_src emacs-lisp
 (use-package graphql)
 #+end_src
+** HTTP Reqs
+#+begin_src emacs-lisp
+  (use-package verb
+    :config
+    (with-eval-after-load 'org
+      (define-key org-mode-map (kbd "C-c C-r") verb-command-map)))
+#+end_src
 ** Shortcuts
 *** lorem
 #+begin_src emacs-lisp
