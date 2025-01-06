@@ -1097,10 +1097,13 @@ i.e. `0.3s` becomes `.3s`
   (defun init-js ()
     (interactive)
     (init-prettier)
-    (lsp-deferred)
+    (eglot-ensure)
     (setup-tide-mode)
     (tree-sitter-mode 1)
     (tree-sitter-hl-mode 1))
+
+    (when (not (executable-find "typescript-language-server"))
+      (shell-command "npm install -g typescript-language-server typescript"))
 
   (add-hook 'js-mode-hook #'init-js)
   (add-to-list 'auto-mode-alist '("\\.[mc]?[tj]sx?\\'" . js-mode))
@@ -1890,37 +1893,36 @@ with `brew install aspell`.
 ** lsp-mode
 Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP support for Emacs]] site
 #+begin_src emacs-lisp
-  (defun enable-lsp-for-web-mode ()
-    (interactive)
-    (enable-minor-mode
-     '("\\.js[x]?\\|\\.ts[x]?" . lsp-deferred)))
+  ;; (defun enable-lsp-for-web-mode ()
+  ;;   (interactive)
+  ;;   (enable-minor-mode
+  ;;    '("\\.js[x]?\\|\\.ts[x]?" . lsp-deferred)))
 
-  (use-package lsp-mode
-    :if window-system
-    :no-require t
-    :commands (lsp lsp-deferred)
-    :config (setq lsp-keymap-prefix "C-c l"
-                  lsp-headerline-breadcrumb-mode nil
-                  lsp-ui-sideline-mode nil
-                  lsp-log-io nil
-                  lsp-auto-guess-root t
-                  lsp-restart 'auto-restart
-                  lsp-enable-symbol-highlighting nil
-                  lsp-enable-on-type-formatting nil
-                  lsp-signature-auto-activate nil
-                  lsp-signature-render-documentation nil
-                  lsp-eldoc-hook nil
-                  lsp-modeline-code-actions-enable nil
-                  lsp-modeline-diagnostics-enable nil
-                  lsp-semantic-tokens-enable nil
-                  lsp-enable-folding nil
-                  lsp-enable-imenu nil
-                  lsp-enable-snippet nil
-                  read-process-output-max (* 1024 1024) ;; 1MB
-                  lsp-idle-delay 0.5)
-        (add-to-list 'lsp-language-id-configuration  '("\\.[mc]js$" . "javascript")))
+  ;; (use-package lsp-mode
+  ;;   :if window-system
+  ;;   :no-require t
+  ;;   :commands (lsp lsp-deferred)
+  ;;   :config (setq lsp-keymap-prefix "C-c l"
+  ;;                 lsp-headerline-breadcrumb-mode nil
+  ;;                 lsp-log-io nil
+  ;;                 lsp-auto-guess-root t
+  ;;                 lsp-restart 'auto-restart
+  ;;                 lsp-enable-symbol-highlighting nil
+  ;;                 lsp-enable-on-type-formatting nil
+  ;;                 lsp-signature-auto-activate nil
+  ;;                 lsp-signature-render-documentation nil
+  ;;                 lsp-eldoc-hook nil
+  ;;                 lsp-modeline-code-actions-enable nil
+  ;;                 lsp-modeline-diagnostics-enable nil
+  ;;                 lsp-semantic-tokens-enable nil
+  ;;                 lsp-enable-folding nil
+  ;;                 lsp-enable-imenu nil
+  ;;                 lsp-enable-snippet nil
+  ;;                 read-process-output-max (* 1024 1024) ;; 1MB
+  ;;                 lsp-idle-delay 0.5)
+  ;;       (add-to-list 'lsp-language-id-configuration  '("\\.[mc]js$" . "javascript")))
 
-  (eval-after-web-mode-load 'enable-lsp-for-web-mode)
+  ;; (eval-after-web-mode-load 'enable-lsp-for-web-mode)
 #+end_src
 *** lsp-ui
 #+begin_src emacs-lisp
@@ -1939,6 +1941,10 @@ Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP sup
 #+begin_src emacs-lisp
   (use-package lsp-treemacs
     :after lsp-mode)
+#+end_src
+** eglot
+#+begin_src emacs-lisp
+  (use-package eglot :hook (prog-mode . eglot-ensure))
 #+end_src
 ** JSON
 #+begin_src emacs-lisp
