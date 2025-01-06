@@ -1146,6 +1146,10 @@ i.e. `0.3s` becomes `.3s`
   ;;   (global-unset-key (kbd "M->") 'flow-get-def)
   ;;   )
 #+end_src
+*** graphql
+#+begin_src emacs-lisp
+(use-package graphql)
+#+end_src
 ** Shortcuts
 *** lorem
 #+begin_src emacs-lisp
