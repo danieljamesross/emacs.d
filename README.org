@@ -871,21 +871,25 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 #+end_src
 *** cmake
 #+begin_src emacs-lisp
-  (defvar *text-mode-buffer-regexp* '("CMakeLists\\.txt" "cmakelists\\.txt"))
+   ;; (defvar *text-mode-buffer-regexp* '("CMakeLists\\.txt" "cmakelists\\.txt"))
 
-  (defun regexp-match-p (regexps string)
-    (and string
-         (catch 'matched
-           (let ((inhibit-changing-match-data t)) ; small optimization
-             (dolist (regexp regexps)
-               (when (string-match regexp string)
-                 (throw 'matched t)))))))
-  (use-package cmake-mode)
-  (add-hook 'cmake-mode-hook
-            (lambda ()
-              (when (regexp-match-p *text-mode-buffer-regexp*
-                                    (buffer-name))
-                (cmake-mode))))
+   ;; (defun regexp-match-p (regexps string)
+   ;;   (and string
+   ;;        (catch 'matched
+   ;;          (let ((inhibit-changing-match-data t)) ; small optimization
+   ;;            (dolist (regexp regexps)
+   ;;              (when (string-match regexp string)
+   ;;                (throw 'matched t)))))))
+   ;; (use-package cmake-mode)
+   ;; (add-hook 'cmake-mode-hook
+   ;;           (lambda ()
+   ;;             (when (regexp-match-p *text-mode-buffer-regexp*
+   ;;                                   (buffer-name))
+   ;;               (cmake-mode))))
+  (use-package cmake-font-lock)
+  (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "djr-cmake-mode/")))
+  (require 'djr-cmake-mode)
+  (add-to-list 'auto-mode-alist '("\[Cc][Mm]ake[Ll]ists\.txt\\'" . djr-cmake-mode))
 #+end_src
 ** Web Dev
 *** CSS
