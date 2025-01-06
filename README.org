@@ -387,11 +387,26 @@ Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emula
 #+end_src
 **** Fonts
 <<fonts>>
+***** Hack Nerd
 #+begin_src emacs-lisp
-  (check-font-exists-or-download
-   "Hack Nerd Font Mono"
-   "https://github.com/pyrho/hack-font-ligature-nerd-font.git"
-   13)
+  ;; (check-font-exists-or-download
+  ;;  "Hack Nerd Font Mono"
+  ;;  "https://github.com/pyrho/hack-font-ligature-nerd-font.git"
+  ;;  13)
+#+end_src
+***** Monaspace
+#+begin_src emacs-lisp
+  ;; (progn
+  ;;   (unless (member  "Monaspace Xenon" (font-family-list))
+  ;;     (shell-command "brew install font-monaspace"))
+  ;;   (set-default-font "Monaspace Xenon Light" 13))
+#+end_src
+***** Iosevka
+#+begin_src emacs-lisp
+  "https://github.com/be5invis/Iosevka/blob/v32.3.1/doc/PACKAGE-LIST.md"
+  (unless (member  "Iosevka" (font-family-list))
+    (message "You need to install this font https://github.com/be5invis/Iosevka/blob/v32.3.1/doc/PACKAGE-LIST.md")
+    (set-default-font "Iosevka Fixed" 14))
 #+end_src
 **** Emoji
 #+begin_src emacs-lisp
