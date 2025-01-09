@@ -4,6 +4,158 @@
 :END:
 This is my initialisation file for Emacs. Behold!, the code blocks will be
 compiled at startup, but not these titles or this text.
+** exec-path-from-shell
+If we build with emacs-plus we don't need this. Keep just in case.
+https://github.com/d12frosted/homebrew-emacs-plus?tab=readme-ov-file#injected-path
+#+begin_src emacs-lisp
+  (use-package exec-path-from-shell
+    :if (and (not (string-match-p (regexp-quote  "/usr/local/bin:") (getenv "PATH")))
+             (memq window-system '(mac ns x)))
+    :config (setq default-directory (expand-file-name "~/"))
+    (setenv "SHELL" "/bin/zsh")
+    (if (and (fboundp 'native-comp-available-p)
+             (native-comp-available-p))
+        (progn
+          (message "Native comp is available")
+          ;; Using Emacs.app/Contents/MacOS/bin since it was compiled with
+          ;; ./configure --prefix="$PWD/nextstep/Emacs.app/Contents/MacOS"
+          (add-to-list 'exec-path (concat invocation-directory "bin") t)
+          (setenv "LIBRARY_PATH"
+                  (concat (getenv "LIBRARY_PATH")
+                          (when (getenv "LIBRARY_PATH")
+                            ":")
+                          ;; This is where Homebrew puts gcc libraries.
+                          (car (file-expand-wildcards
+                                (expand-file-name
+                                 (if (string-equal
+                                      (string-trim (shell-command-to-string "uname -m"))
+                                      "arm64")
+                                     "/opt/homebrew/Cellar/gcc/*" ; arm64
+                                   "/usr/local/opt/gcc/lib/gcc/*")))))) ; intel
+          ;; Only set after LIBRARY_PATH can find gcc libraries.
+          (setq comp-deferred-compilation t))
+      (message "Native comp is *not* available"))
+    (add-to-list 'exec-path default-directory)
+    (add-to-list 'exec-path user-emacs-directory)
+    (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
+    (exec-path-from-shell-initialize))
+#+end_src
+*** Buffers and Frames
+**** buffer boundaries
+#+begin_src emacs-lisp
+  (setq indicate-buffer-boundaries 'left)
+#+end_src
+**** Buffer opening
+#+begin_src emacs-lisp
+  ;; ignore case when switching buffers with C-x b
+  (setq read-buffer-completion-ignore-case t)
+#+end_src
+**** buffer-move
+#+begin_src emacs-lisp
+  (use-package buffer-move
+    :bind (("s-C-<up>" . buf-move-up)
+           ("s-C-<down>" . buf-move-down)
+           ("s-C-<left>" . buf-move-left)
+           ("s-C-<right>" . buf-move-right)))
+#+end_src
+**** Frames
+#+begin_src emacs-lisp
+  (when (display-graphic-p)
+    (add-to-list 'initial-frame-alist '(fullscreen . maximized))
+    (add-to-list 'default-frame-alist '(fullscreen . maximized)))
+  (setq one-buffer-one-frame-mode nil)
+        ;;; Use the commands "control+x" followed by an arrow to
+        ;;; navigate between panes
+  ;; (global-set-key (kbd "C-x <up>") 'windmove-up)
+  ;; (global-set-key (kbd "C-x <down>") 'windmove-down)
+  ;; (global-set-key (kbd "C-x <left>") 'windmove-left)
+  ;; (global-set-key (kbd "C-x <right>") 'windmove-right)
+
+  (global-set-key (kbd "s-C-M-i") 'windmove-up)
+  (global-set-key (kbd "s-C-M-k") 'windmove-down)
+  (global-set-key (kbd "s-C-M-j") 'windmove-left)
+  (global-set-key (kbd "s-C-M-l") 'windmove-right)
+#+end_src
+*** Node
+#+begin_src emacs-lisp
+  (use-package add-node-modules-path
+    :config)
+#+end_src
+** Packages and Managers
+*** Quelpa
+#+begin_src emacs-lisp
+  (use-package quelpa
+    :if window-system)
+
+  (use-package quelpa-use-package
+    :if window-system
+    :after quelpa)
+#+end_src
+*** straight
+#+begin_src emacs-lisp
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name
+          "straight/repos/straight.el/bootstrap.el"
+          (or (bound-and-true-p straight-base-dir)
+              user-emacs-directory)))
+        (bootstrap-version 7))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+  	   "https://radian-software.github.io/straight.el/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+#+end_src
+*** Non Elpa/Melpa Package Modes
+**** antesc-mode
+#+begin_src emacs-lisp
+  (let ((antesc-path (concat user-emacs-directory "antesc-mode-master/")))
+    (check-file-exists-or-clone antesc-path "https://github.com/programLyrique/antesc-mode.git")
+    ;; Antescofo text highlighting
+    ;; Thanks to Pierre Donat-Bouillud
+    ;; https://github.com/programLyrique/antesc-mode
+    (add-to-list 'load-path (expand-file-name antesc-path))
+    ;; (autoload 'antesc-mode "antesc-mode" "Major mode for editing Antescofo code" t)
+
+    ;; Extensions for antescofo mode
+    (setq auto-mode-alist
+          (append '(("\\.\\(score\\|asco\\)\\.txt$" . antesc-mode))
+                  auto-mode-alist)))
+#+end_src
+**** lilypond-mode
+#+begin_src emacs-lisp
+  (let ((lily-path (concat user-emacs-directory "lilypond-mode/")))
+    (check-file-exists-or-clone lily-path "https://github.com/jmgpena/lilypond-mode.git")
+    ;; (add-to-list 'load-path (expand-file-name lily-path))
+    ;; (load (expand-file-name (concat lily-path "lilypond-init.el")))
+    ;; (setq auto-mode-alist (append '(("\\.ly\\'" . lilypond-mode))
+    ;;                               auto-mode-alist))
+
+    (use-package lilypond
+      :load-path "lilypond-mode/lilypond-init.el"
+      :defer t
+      :mode "\\.ly\\'"))
+#+end_src
+**** kintaro-mode
+#+begin_src emacs-lisp
+  ;; (let ((kintaro-path (concat user-emacs-directory "kintaro-mode")))
+  ;;   (check-file-exists-or-clone kintaro-path "https://github.com/danieljamesross/kintaro-mode.git")
+  ;;   (setq load-path (cons (expand-file-name kintaro-path) load-path))
+  ;;   (require 'kintaro-mode)
+  ;;   (add-to-list 'auto-mode-alist '("\\.ksdl\\'" . kintaro-mode)))
+#+end_src
+*** Update
+#+begin_src emacs-lisp
+  (use-package auto-package-update
+    :config
+    (setq auto-package-update-delete-old-versions t)
+    (setq auto-package-update-hide-results t)
+    (when (internet-up-p)
+           (auto-package-update-maybe)))
+#+end_src
 ** Optimisations
 #+begin_src emacs-lisp
   (setq ;; gc-cons-threshold (* 100 1024 1024)
@@ -546,63 +698,6 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
   (custom-set-variables
    '(zoom-mode t))
 #+end_src
-** Packages and Managers
-*** Quelpa
-#+begin_src emacs-lisp
-  (use-package quelpa
-    :if window-system)
-
-  (use-package quelpa-use-package
-    :if window-system
-    :after quelpa)
-#+end_src
-*** Update
-#+begin_src emacs-lisp
-  (use-package auto-package-update
-    :config
-    (setq auto-package-update-delete-old-versions t)
-    (setq auto-package-update-hide-results t)
-    (when (internet-up-p)
-           (auto-package-update-maybe)))
-#+end_src
-*** Non Elpa/Melpa Package Modes
-**** antesc-mode
-#+begin_src emacs-lisp
-  (let ((antesc-path (concat user-emacs-directory "antesc-mode-master/")))
-    (check-file-exists-or-clone antesc-path "https://github.com/programLyrique/antesc-mode.git")
-    ;; Antescofo text highlighting
-    ;; Thanks to Pierre Donat-Bouillud
-    ;; https://github.com/programLyrique/antesc-mode
-    (add-to-list 'load-path (expand-file-name antesc-path))
-    ;; (autoload 'antesc-mode "antesc-mode" "Major mode for editing Antescofo code" t)
-
-    ;; Extensions for antescofo mode
-    (setq auto-mode-alist
-          (append '(("\\.\\(score\\|asco\\)\\.txt$" . antesc-mode))
-                  auto-mode-alist)))
-#+end_src
-**** lilypond-mode
-#+begin_src emacs-lisp
-  (let ((lily-path (concat user-emacs-directory "lilypond-mode/")))
-    (check-file-exists-or-clone lily-path "https://github.com/jmgpena/lilypond-mode.git")
-    ;; (add-to-list 'load-path (expand-file-name lily-path))
-    ;; (load (expand-file-name (concat lily-path "lilypond-init.el")))
-    ;; (setq auto-mode-alist (append '(("\\.ly\\'" . lilypond-mode))
-    ;;                               auto-mode-alist))
-
-    (use-package lilypond
-      :load-path "lilypond-mode/lilypond-init.el"
-      :defer t
-      :mode "\\.ly\\'"))
-#+end_src
-**** kintaro-mode
-#+begin_src emacs-lisp
-  ;; (let ((kintaro-path (concat user-emacs-directory "kintaro-mode")))
-  ;;   (check-file-exists-or-clone kintaro-path "https://github.com/danieljamesross/kintaro-mode.git")
-  ;;   (setq load-path (cons (expand-file-name kintaro-path) load-path))
-  ;;   (require 'kintaro-mode)
-  ;;   (add-to-list 'auto-mode-alist '("\\.ksdl\\'" . kintaro-mode)))
-#+end_src
 ** Files, paths, buffers
 *** File Types & modes
 #+begin_src emacs-lisp
@@ -639,78 +734,6 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
                   ("\\.svg\\'"     . nxml-mode)
                   ("\\.mdx\\'"     . markdown-mode))
                 auto-mode-alist))
-#+end_src
-*** exec-path-from-shell
-If we build with emacs-plus we don't need this. Keep just in case.
-https://github.com/d12frosted/homebrew-emacs-plus?tab=readme-ov-file#injected-path
-# #+begin_src emacs-lisp
-#   (use-package exec-path-from-shell
-#     :if (memq window-system '(mac ns x))
-#     :config (setq default-directory (expand-file-name "~/"))
-#     (setenv "SHELL" "/bin/zsh")
-#     (if (and (fboundp 'native-comp-available-p)
-#              (native-comp-available-p))
-#         (progn
-#           (message "Native comp is available")
-#           ;; Using Emacs.app/Contents/MacOS/bin since it was compiled with
-#           ;; ./configure --prefix="$PWD/nextstep/Emacs.app/Contents/MacOS"
-#           (add-to-list 'exec-path (concat invocation-directory "bin") t)
-#           (setenv "LIBRARY_PATH" (concat (getenv "LIBRARY_PATH")
-#                                          (when (getenv "LIBRARY_PATH")
-#                                            ":")
-#                                          ;; This is where Homebrew puts gcc libraries.
-#                                          (car (file-expand-wildcards
-#                                                (expand-file-name "/usr/local/opt/gcc/lib/gcc/*")))))
-#           ;; Only set after LIBRARY_PATH can find gcc libraries.
-#           (setq comp-deferred-compilation t))
-#       (message "Native comp is *not* available"))
-#     (add-to-list 'exec-path default-directory)
-#     (add-to-list 'exec-path user-emacs-directory)
-#     (add-to-list 'exec-path (expand-file-name "~/.local/bin"))
-#     (exec-path-from-shell-initialize))
-# #+end_src
-*** Buffers and Frames
-**** buffer boundaries
-#+begin_src emacs-lisp
-  (setq indicate-buffer-boundaries 'left)
-#+end_src
-**** Buffer opening
-#+begin_src emacs-lisp
-  ;; ignore case when switching buffers with C-x b
-  (setq read-buffer-completion-ignore-case t)
-#+end_src
-**** buffer-move
-#+begin_src emacs-lisp
-  (use-package buffer-move
-    :bind (("s-C-<up>" . buf-move-up)
-           ("s-C-<down>" . buf-move-down)
-           ("s-C-<left>" . buf-move-left)
-           ("s-C-<right>" . buf-move-right)))
-#+end_src
-**** Frames
-#+begin_src emacs-lisp
-  (when (display-graphic-p)
-    (add-to-list 'initial-frame-alist '(fullscreen . maximized))
-    (add-to-list 'default-frame-alist '(fullscreen . maximized)))
-  (setq one-buffer-one-frame-mode nil)
-        ;;; Use the commands "control+x" followed by an arrow to
-        ;;; navigate between panes
-  ;; (global-set-key (kbd "C-x <up>") 'windmove-up)
-  ;; (global-set-key (kbd "C-x <down>") 'windmove-down)
-  ;; (global-set-key (kbd "C-x <left>") 'windmove-left)
-  ;; (global-set-key (kbd "C-x <right>") 'windmove-right)
-
-  (global-set-key (kbd "s-C-M-i") 'windmove-up)
-  (global-set-key (kbd "s-C-M-k") 'windmove-down)
-  (global-set-key (kbd "s-C-M-j") 'windmove-left)
-  (global-set-key (kbd "s-C-M-l") 'windmove-right)
-#+end_src
-
-*** Node
-
-#+begin_src emacs-lisp
-  (use-package add-node-modules-path
-    :config)
 #+end_src
 ** iBuffer & Dired
 **** iBuffer
@@ -887,6 +910,12 @@ https://github.com/d12frosted/homebrew-emacs-plus?tab=readme-ov-file#injected-pa
          (lambda () (require 'ccls) (lsp))))
 #+end_src
 *** cmake
+**** cmake
+#+begin_src emacs-lisp
+  (unless (executable-find "cmake")
+    (async-shell-command "brew install cmake"))
+#+end_src
+**** djr-cmake-mode
 #+begin_src emacs-lisp
    ;; (defvar *text-mode-buffer-regexp* '("CMakeLists\\.txt" "cmakelists\\.txt"))
 
@@ -907,6 +936,19 @@ https://github.com/d12frosted/homebrew-emacs-plus?tab=readme-ov-file#injected-pa
   (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "djr-cmake-mode/")))
   (require 'djr-cmake-mode)
   (add-to-list 'auto-mode-alist '("\[Cc][Mm]ake[Ll]ists\.txt\\'" . djr-cmake-mode))
+#+end_src
+** node
+#+begin_src emacs-lisp
+  (unless (and (executable-find "npm")(executable-find "node"))
+    (async-shell-command "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash")
+    (async-shell-command "source ~/.zshrc")
+    
+    (async-shell-command "nvm install node"))
+#+end_src
+** brew
+#+begin_src emacs-lisp
+  (unless (executable-find "brew")
+    (message "Go get brew"))
 #+end_src
 ** Web Dev
 *** CSS
@@ -1017,8 +1059,8 @@ i.e. `0.3s` becomes `.3s`
 #+end_src
 *** prettier-js-mode
 #+begin_src emacs-lisp
-  (let ((prettier-path "~/.nvm/versions/node/**/bin/prettier"))
-    (unless (file-exists-p (expand-file-name (cl-first (file-expand-wildcards prettier-path))))
+  (let ((prettier-path (executable-find "prettier")))
+    (unless prettier-path
       (async-shell-command "npm i -g prettier")))
 
   (defun args-from-prettier (prettierrc)
@@ -2457,7 +2499,7 @@ Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
   ;;   (require 'webkit-ace) ;; If you want link hinting
   ;;   (require 'webkit-dark)) ;; If you want to use the simple dark mode
 #+end_src
-** lm
+** lms
 #+begin_src emacs-lisp
   (use-package lms
     :config (setq lms-url "http://192.168.0.13:9000"
