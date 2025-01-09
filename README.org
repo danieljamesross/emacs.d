@@ -5,7 +5,9 @@
 This is my initialisation file for Emacs. Behold!, the code blocks will be
 compiled at startup, but not these titles or this text.
 ** exec-path-from-shell
-If we build with emacs-plus we don't need this. Keep just in case.
+If we build with emacs-plus and we launch from the terminal, we don't need
+this. But if we launch from the finder then we do. The `:if` statement accoutns
+for this.
 https://github.com/d12frosted/homebrew-emacs-plus?tab=readme-ov-file#injected-path
 #+begin_src emacs-lisp
   (use-package exec-path-from-shell
