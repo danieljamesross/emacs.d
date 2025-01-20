@@ -2144,9 +2144,11 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
 #+end_src
 *** markdown pandoc
 #+begin_src emacs-lisp
-  (unless (executable-find "pandoc")
-    (shell-command "brew install pandoc"))
-  (setq markdown-command "/usr/local/bin/pandoc")
+  (setq pandoc (executable-find "pandoc"))
+  (unless pandoc
+    (shell-command "brew install pandoc")
+    (setq pandoc (executable-find "pandoc")))
+  (setq markdown-command pandoc)
 #+end_src
 *** LaTeX
 #+begin_src emacs-lisp
