@@ -155,3 +155,10 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
           (transpose-frame))
       (balance-windows)))
 #+end_src
+** /execute-startup-block
+https://lists.gnu.org/archive/html/emacs-orgmode/2016-07/msg00394.html
+#+begin_src emacs-lisp
+  (defun esf/execute-startup-block (org-block)
+    (org-babel-goto-named-src-block org-block)
+    (org-babel-execute-src-block))
+#+end_src
