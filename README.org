@@ -876,29 +876,30 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
     (setq dired-use-ls-dired nil))
 #+end_src
 ** C, C++
-*** clang-format
+*** COMMENT clang-format
 #+begin_src emacs-lisp
-  (unless (shell-command "which clang-format")
-    (async-shell-command "brew install clang-format"))
-  (use-package clang-format :ensure t)
+  (progn
+    (unless (executable-find "clang-format")
+      (async-shell-command "brew install clang-format"))
+    (use-package clang-format
+      :ensure t))
+    ;; (defun clang-tidy-buffer ()
+    ;;   (when (locate-dominating-file default-directory ".clang-format")
+    ;;     (clang-format-buffer)
+    ;;     ;; Continue to save.
+    ;;     nil)
+    ;;   nil
+    ;;   ;; Buffer local hook.
+    ;;   t)
 
-  ;; (defun clang-tidy-buffer ()
-  ;;   (when (locate-dominating-file default-directory ".clang-format")
-  ;;     (clang-format-buffer)
-  ;;     ;; Continue to save.
-  ;;     nil)
-  ;;   nil
-  ;;   ;; Buffer local hook.
-  ;;   t)
+    ;; (defun clang-format-save-hook-for-this-buffer ()
+    ;;   "Create a buffer local save hook."
+    ;;   (add-hook 'before-save-hook #'clang-tidy-buffer))
 
-  ;; (defun clang-format-save-hook-for-this-buffer ()
-  ;;   "Create a buffer local save hook."
-  ;;   (add-hook 'before-save-hook #'clang-tidy-buffer))
-
-  ;; Run this for each mode you want to use the hook.
-  ;; (add-hook 'c-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
-  ;; (add-hook 'c++-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
-  ;; (add-hook 'glsl-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
+    ;; Run this for each mode you want to use the hook.
+    ;; (add-hook 'c-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
+    ;; (add-hook 'c++-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
+    ;; (add-hook 'glsl-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
 #+end_src
 *** ccls
 #+begin_src emacs-lisp
