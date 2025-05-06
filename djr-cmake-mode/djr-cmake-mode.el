@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 (require 'cmake-font-lock)
 
 ;; Thanks Xah
