@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t; -*-
 ;; The default is 800 kilobytes.  Measured in bytes.
 (setq gc-cons-threshold (* 100 1024 1024))
 

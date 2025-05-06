@@ -4,6 +4,10 @@
 :END:
 This is my initialisation file for Emacs. Behold!, the code blocks will be
 compiled at startup, but not these titles or this text.
+** lexical binding
+#+begin_src emacs-lisp
+;;; -*- lexical-binding: t; -*-
+#+end_src
 ** exec-path-from-shell
 If we build with emacs-plus and we launch from the terminal, we don't need
 this. But if we launch from the finder then we do. The `:if` statement accoutns
@@ -943,8 +947,8 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 ** node
 #+begin_src emacs-lisp
   (unless (and (executable-find "npm")(executable-find "node"))
-    (async-shell-command "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash")
-    (async-shell-command "source ~/.zshrc")
+    (async-shell-command "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && source ~/.zprofile && nvm install node")
+    (async-shell-command "source ~/.zprofile")
     
     (async-shell-command "nvm install node"))
 #+end_src
