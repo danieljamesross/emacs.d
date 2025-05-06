@@ -8,6 +8,10 @@ compiled at startup, but not these titles or this text.
 #+begin_src emacs-lisp
 ;;; -*- lexical-binding: t; -*-
 #+end_src
+** authinfo
+#+begin_src emacs-lisp
+(setq auth-sources '("~/.authinfo"))
+#+end_src
 ** exec-path-from-shell
 If we build with emacs-plus and we launch from the terminal, we don't need
 this. But if we launch from the finder then we do. The `:if` statement accoutns
@@ -2359,6 +2363,11 @@ Details here: [[https://github.com/ahungry/org-jira]]
   (use-package diff-hl
     :init (turn-on-diff-hl-mode)
     :hook ((prog-mode-hook vc-dir-mode-hook) . turn-on-diff-hl-mode))
+#+end_src
+*** forge
+#+begin_src emacs-lisp
+  (use-package forge
+    :after magit)
 #+end_src
 ** glsl-mode
 #+begin_src emacs-lisp
