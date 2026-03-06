@@ -423,75 +423,8 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
     (use-package iedit
       :bind ("C-:" . iedit-mode))
 #+end_src
-** Views
-*** all-the-icons
-#+begin_src emacs-lisp
-  (use-package all-the-icons-completion
-    :hook (corfu-mode . all-the-icons-completion-mode)
-    :after all-the-icons)
-  (use-package all-the-icons-dired
-    :hook (dired-mode . all-the-icons-dired-mode)
-    :after all-the-icons)
-  (use-package all-the-icons-nerd-fonts
-    :after all-the-icons)
-  (use-package all-the-icons-ibuffer
-    :hook (ibuffer-mode . all-the-icons-ibuffer-mode)
-    :after all-the-icons)
-
-  (use-package all-the-icons
-    :defer nil
-    :if (display-graphic-p)
-    :init (progn
-            (when (and (internet-up-p)
-                       (not (member "all-the-icons" (font-family-list))))
-              (all-the-icons-install-fonts t))))
-#+end_src
-*** dimmer-mode
-#+begin_src emacs-lisp
-  (use-package dimmer
-    :if window-system
-    :defer 1
-    :config
-    (setq dimmer-exclusion-predicates
-          '(helm--alive-p window-minibuffer-p echo-area-p))
-    (setq dimmer-exclusion-regexp-list
-          '("^\\*[h|H]elm.*\\*" "^\\*Minibuf-[0-9]+\\*"
-            "^.\\*which-key\\*$" "^*Messages*" "*LV*"
-            "^*[e|E]cho [a|A]rea 0*" "*scratch*"
-            "transient"))
-    (dimmer-mode t))
-#+end_src
-*** doom-themes
-#+begin_src emacs-lisp
-  (use-package doom-themes
-    :config
-    ;; Global settings (defaults)
-    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-          doom-themes-enable-italic t) ; if nil, italics is universally disabled
-    (load-theme 'doom-monokai-pro t)
-
-    ;; Enable flashing mode-line on errors
-    (doom-themes-visual-bell-config)
-    ;; Enable custom neotree theme (all-the-icons must be installed!)
-    (doom-themes-neotree-config)
-    ;; or for treemacs users
-    (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
-    (doom-themes-treemacs-config)
-    ;; Corrects (and improves) org-mode's native fontification.
-    (doom-themes-org-config))
-#+end_src
-*** doom-mode-line
-#+begin_src emacs-lisp
-  (use-package doom-modeline
-    :after (doom-themes all-the-icons)
-    :hook (after-init . doom-modeline-mode))
-#+end_src
-*** fast-scroll
-#+begin_src emacs-lisp
-  (use-package fast-scroll)
-#+end_src
-*** Fonts
-**** UTF-8
+** Text & Fonts
+*** UTF-8
 #+begin_src emacs-lisp
   ;;; utf-8
   (setq locale-coding-system 'utf-8)
@@ -500,13 +433,13 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
   (set-selection-coding-system 'utf-8)
   (prefer-coding-system 'utf-8)
 #+end_src
-**** Unicode
+*** Unicode
 #+begin_src emacs-lisp
   ;; (use-package unicode-fonts
   ;;   :config
   ;;   (unicode-fonts-setup))
 #+end_src
-**** fira-code-mode
+*** fira-code-mode
 Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emulation-in-emacs/post.md#appendix-b-update-1-firacode-integration][here]]
 #+begin_src emacs-lisp
   ;; (use-package fira-code-mode
@@ -515,7 +448,7 @@ Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emula
   ;;   :custom (fira-code-mode-disabled-ligatures '("[]" "x"))  ; ligatures you don't want
   ;;   :hook prog-mode)
 #+end_src
-**** Ligatures
+*** Ligatures
 #+begin_src emacs-lisp
   (let ((lig-path (expand-file-name (concat user-emacs-directory "ligature/")))
         (lig-repo "https://github.com/mickeynp/ligature.el.git"))
@@ -547,23 +480,55 @@ Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emula
       ;; per mode with `ligature-mode'.
       (global-ligature-mode t)))
 #+end_src
-**** Fonts
+*** nerd & all-the-icons
+#+begin_src emacs-lisp
+  (use-package nerd-icons
+    :demand t
+    :custom
+    ;; The Nerd Font you want to use in GUI
+    ;; "Symbols Nerd Font Mono" is the default and is recommended
+    ;; but you can use any other Nerd Font if you want
+    (nerd-icons-font-family "Hack Nerd Font Mono") ;
+    )
+  (use-package all-the-icons-completion
+    :hook (corfu-mode . all-the-icons-completion-mode)
+    :after all-the-icons)
+  (use-package all-the-icons-dired
+    :hook (dired-mode . all-the-icons-dired-mode)
+    :after all-the-icons)
+  (use-package all-the-icons-nerd-fonts
+    :after all-the-icons
+    :demand t
+    :config (all-the-icons-nerd-fonts-prefer))
+  (use-package all-the-icons-ibuffer
+    :hook (ibuffer-mode . all-the-icons-ibuffer-mode)
+    :after all-the-icons)
+
+  (use-package all-the-icons
+    :defer nil
+    :if (display-graphic-p)
+    :init (progn
+            (when (and (internet-up-p)
+                       (not (member "all-the-icons" (font-family-list))))
+              (all-the-icons-install-fonts t))))
+#+end_src
+*** Fonts
 <<fonts>>
-***** Hack Nerd
+**** Hack Nerd
 #+begin_src emacs-lisp
   ;; (check-font-exists-or-download
   ;;  "Hack Nerd Font Mono"
   ;;  "https://github.com/pyrho/hack-font-ligature-nerd-font.git"
   ;;  13)
 #+end_src
-***** Monaspace
+**** Monaspace
 #+begin_src emacs-lisp
   ;; (progn
   ;;   (unless (member  "Monaspace Xenon" (font-family-list))
   ;;     (shell-command "brew install font-monaspace"))
   ;;   (set-default-font "Monaspace Xenon Light" 13))
 #+end_src
-***** Iosevka
+**** Iosevka
 #+begin_src emacs-lisp
   "https://github.com/be5invis/Iosevka/blob/v32.3.1/doc/PACKAGE-LIST.md"
   (unless (member  "Iosevka" (font-family-list))
