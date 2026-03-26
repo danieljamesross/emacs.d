@@ -2253,6 +2253,7 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
 *** org-reveal
 #+begin_src emacs-lisp
   ;; Reveal.js + Org mode
+  (use-package htmlize)
   (use-package ox-reveal
     :config (setq Org-Reveal-root (concat "file://" (expand-file-name "~/reveal.js/"))
                   Org-Reveal-title-slide nil))
