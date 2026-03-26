@@ -1064,13 +1064,14 @@ i.e. `0.3s` becomes `.3s`
 #+end_src
 *** web-mode
 #+begin_src emacs-lisp
-  (use-package web-mode
-    :mode "\\.html\\'"
-    :after (tree-sitter-mode tree-sitter-langs)
-    :config
-    (setq web-mode-enable-auto-quoting nil)
-    (tree-sitter-mode 1)
-    (tree-sitter-hl-mode 1))
+    (use-package web-mode
+      :mode "\\.html'"
+      ;; :after (tree-sitter-mode tree-sitter-langs)
+      :config
+      (setq web-mode-enable-auto-quoting nil)
+      ;; (tree-sitter-mode 1)
+      ;; (tree-sitter-hl-mode 1)
+      )
 #+end_src
 **** web-mode-indent
 #+begin_src emacs-lisp
