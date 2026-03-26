@@ -45,13 +45,8 @@
 (compile-org-or-load-precompiled-el "functions")
 
 (require 'package)
-(package-initialize)
 
 (setq package-enable-at-startup t)
-
-(when (internet-up-p)
-  (add-to-list 'package-archives
-               '("melpa" . "https://melpa.org/packages/")))
 
 ;; Bootstrap `use-package'
 (unless (package-installed-p "use-package")
@@ -61,6 +56,13 @@
 	(package-refresh-contents)
 	(package-install 'use-package))
     (message "Cannot install use-package, internet is down")))
+
+(when (internet-up-p)
+  (add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
+  (add-to-list 'package-archives
+               '("melpa" . "https://melpa.org/packages/")))
+
+;; (package-initialize)
 
 (setq use-package-always-ensure (internet-up-p))
 
