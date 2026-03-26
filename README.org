@@ -640,19 +640,68 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
     :config (setq 'whitespace-cleanup-mode t)
     :hook (prog-mode . whitespace-cleanup))
 #+end_src
+** Views
+*** dimmer-mode
+#+begin_src emacs-lisp
+  (use-package dimmer
+    :if window-system
+    :defer 1
+    :config
+    (setq dimmer-exclusion-predicates
+          '(helm--alive-p window-minibuffer-p echo-area-p))
+    (setq dimmer-exclusion-regexp-list
+          '("^\\*[h|H]elm.*\\*" "^\\*Minibuf-[0-9]+\\*"
+            "^.\\*which-key\\*$" "^*Messages*" "*LV*"
+            "^*[e|E]cho [a|A]rea 0*" "*scratch*"
+            "transient"))
+    (dimmer-mode t))
+#+end_src
+*** doom-themes
+#+begin_src emacs-lisp
+  (use-package doom-themes
+    :config
+    ;; Global settings (defaults)
+    (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+          doom-themes-enable-italic t) ; if nil, italics is universally disabled
+    (load-theme 'doom-monokai-pro t)
+
+    ;; Enable flashing mode-line on errors
+    (doom-themes-visual-bell-config)
+    ;; Enable custom neotree theme (all-the-icons must be installed!)
+    (doom-themes-neotree-config)
+    ;; or for treemacs users
+    (setq doom-themes-treemacs-theme "doom-atom") ; use "doom-colors" for less minimal icon theme
+    (doom-themes-treemacs-config)
+    ;; Corrects (and improves) org-mode's native fontification.
+    (doom-themes-org-config))
+#+end_src
+*** doom-mode-line
+#+begin_src emacs-lisp
+  (use-package doom-modeline
+    :after (doom-themes nerd-icons all-the-icons)
+    :hook (after-init . doom-modeline-mode))
+#+end_src
+*** fast-scroll
+#+begin_src emacs-lisp
+  (use-package fast-scroll)
+#+end_src
 ** tree-sitter
 #+begin_src emacs-lisp
   ;; (use-package tree-sitter
-  ;;   :init (global-tree-sitter-mode 1))
+  ;;   ;;:init (global-tree-sitter-mode 1)
+  ;;   )
 
-  (use-package tree-sitter-langs
-    :after tree-sitter)
+  ;; (use-package tree-sitter-langs
+  ;;   :after tree-sitter)
 
-  (with-eval-after-load
-      'tree-sitter-langs (tree-sitter-require 'tsx)
-      'tree-sitter-langs (tree-sitter-require 'json)
-      (add-to-list 'tree-sitter-major-mode-language-alist '(web-mode . typescript))
-      (add-to-list 'tree-sitter-major-mode-language-alist '(json-mode . json)))
+  ;; (with-eval-after-load
+  ;;     'tree-sitter-langs (tree-sitter-require 'tsx)
+  ;;     'tree-sitter-langs (tree-sitter-require 'json)
+  ;;     (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-mode . typescript))
+  ;;     (add-to-list 'tree-sitter-major-mode-language-alist '(typescript-ts-mode . typescript))
+  ;;     (add-to-list 'tree-sitter-major-mode-language-alist '(js-mode . typescript))
+  ;;     (add-to-list 'tree-sitter-major-mode-language-alist '(web-mode . typescript))
+  ;;     (add-to-list 'tree-sitter-major-mode-language-alist '(json-mode . json)))
 #+end_src
 *** too-long-mode
 #+begin_src emacs-lisp
