@@ -2468,6 +2468,7 @@ Details here: [[https://github.com/ahungry/org-jira]]
 
                 (delete-dups (append ;;program-list file-directory-list
                               history-list))))
+    (setq vterm-max-scrollback 10000)
 
     ;;         (defun vterm-completion-choose-item ()
     ;;           (completing-read "Choose: " (get-full-list) nil nil  (thing-at-point 'word 'no-properties))
