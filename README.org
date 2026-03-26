@@ -2034,25 +2034,38 @@ Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP sup
 #+end_src
 *** lsp-ui
 #+begin_src emacs-lisp
-  (use-package lsp-ui
-    :commands lsp-ui-mode
-    :after lsp-mode
-    :config
-    (setq lsp-ui-doc-enable nil)
-    (setq lsp-ui-doc-header t)
-    (setq lsp-ui-doc-include-signature t)
-    (setq lsp-ui-doc-border (face-foreground 'default))
-    (setq lsp-ui-sideline-show-code-actions t)
-    (setq lsp-ui-sideline-delay 0.05))
+  ;; (use-package lsp-ui
+  ;;   :commands lsp-ui-mode
+  ;;   :after lsp-mode
+  ;;   :config
+  ;;   (setq lsp-ui-doc-enable nil)
+  ;;   (setq lsp-ui-doc-header t)
+  ;;   (setq lsp-ui-doc-include-signature t)
+  ;;   (setq lsp-ui-doc-border (face-foreground 'default))
+  ;;   (setq lsp-ui-sideline-show-code-actions t)
+  ;;   (setq lsp-ui-sideline-delay 0.05))
 #+end_src
 *** lsp-treemacs
 #+begin_src emacs-lisp
-  (use-package lsp-treemacs
-    :after lsp-mode)
+  ;; (use-package lsp-treemacs
+  ;;   :after lsp-mode) 
+#+end_src
+** dap-mode
+#+begin_src emacs-lisp
+  (add-to-list 'exec-path "/Users/dan/elixir-ls-v0.29.3")
+  (use-package dap-mode
+    :config ;; Enabling only some features
+    (setq dap-auto-configure-features '(sessions locals controls tooltip)))
+
 #+end_src
 ** eglot
 #+begin_src emacs-lisp
-  (use-package eglot :hook (prog-mode . eglot-ensure))
+  (use-package eglot :hook (prog-mode . eglot-ensure) :config (setq eglot-code-action-indicator ""))
+#+end_src
+*** eglot-ensure
+#+begin_src emacs-lisp
+;;  (straight-use-package
+;;  '(eglot-booster :type git :host github :repo "jdtsmith/eglot-booster"))
 #+end_src
 ** JSON
 #+begin_src emacs-lisp
