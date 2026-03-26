@@ -2500,6 +2500,7 @@ Details here: [[https://github.com/ahungry/org-jira]]
 **** multi-vterm
 #+begin_src emacs-lisp
   (use-package multi-vterm
+    :after vterm
     :bind (("C-c vt" . multi-vterm-project)
            ("C-c vn" . multi-vterm-next)
            ("C-c vp" . multi-vterm-prev)))
