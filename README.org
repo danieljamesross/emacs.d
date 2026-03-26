@@ -847,22 +847,24 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 #+end_src
 **** Dired
 #+begin_src emacs-lisp
-  (setq trash-directory "~/.Trash")
+      (setq trash-directory "~/.Trash")
 
-  (setq dired-sidebar-icon-scale 0.1
-        dired-sidebar-mode-line-format
-        '("%e" mode-line-front-space mode-line-buffer-identification " " mode-line-end-spaces)
-        dired-sidebar-recenter-cursor-on-tui-update nil
-        dired-sidebar-should-follow-file t
-        dired-sidebar-toggle-hidden-commands '(rotate-windows toggle-window-split balance-windows)
-        dired-dwim-target t
-        delete-by-moving-to-trash t)
+      (setq dired-sidebar-icon-scale 0.1
+            dired-sidebar-mode-line-format
+            '("%e" mode-line-front-space mode-line-buffer-identification " " mode-line-end-spaces)
+            dired-sidebar-recenter-cursor-on-tui-update nil
+            dired-sidebar-should-follow-file t
+            dired-sidebar-toggle-hidden-commands '(rotate-windows toggle-window-split balance-windows)
+            dired-dwim-target t
+            delete-by-moving-to-trash t
+            dired-listing-switches "-alFh"
+            dired-clean-confirm-killing-deleted-buffers nil)
 
 
-  (put 'dired-find-alternate-file 'disabled nil)
-  (add-hook 'dired-mode-hook
-        (lambda ()
-          (dired-hide-details-mode)))
+      (put 'dired-find-alternate-file 'disabled nil)
+      (add-hook 'dired-mode-hook
+            (lambda ()
+              (dired-hide-details-mode)))
 
 #+end_src
 ***** Dired Rainbow
@@ -894,13 +896,17 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
       (dired-rainbow-define vc "#0074d9" ("git" "gitignore" "gitattributes" "gitmodules"))
       (dired-rainbow-define-chmod executable-unix "#38c172" "-.*x.*")))
 #+end_src
+***** dired-filter
+#+begin_src emacs-lisp
+(use-package dired-filter)
+#+end_src
 ***** ls
 #+begin_src emacs-lisp
   (when (string= system-type "darwin")
     (setq dired-use-ls-dired nil))
 #+end_src
 ** C, C++
-*** COMMENT clang-format
+*** clang-format
 #+begin_src emacs-lisp
   (progn
     (unless (executable-find "clang-format")
