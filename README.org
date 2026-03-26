@@ -129,7 +129,6 @@ https://github.com/d12frosted/homebrew-emacs-plus?tab=readme-ov-file#injected-pa
     ;; https://github.com/programLyrique/antesc-mode
     (add-to-list 'load-path (expand-file-name antesc-path))
     ;; (autoload 'antesc-mode "antesc-mode" "Major mode for editing Antescofo code" t)
-
     ;; Extensions for antescofo mode
     (setq auto-mode-alist
           (append '(("\\.\\(score\\|asco\\)\\.txt$" . antesc-mode))
@@ -1149,7 +1148,6 @@ i.e. `0.3s` becomes `.3s`
     (flycheck-mode +1)
     (setq flycheck-check-syntax-automatically '(save mode-enabled))
     (eldoc-mode +1)
-    (tide-hl-identifier-mode +1)
     (setq tide-completion-ignore-case t)
     (eldoc-mode +1)
     (tide-hl-identifier-mode +1)
@@ -1173,7 +1171,7 @@ i.e. `0.3s` becomes `.3s`
     (rjsx-mode flycheck)
     (typescript-mode  flycheck)
     (web-mode  flycheck)
-    :hook (typescript-mode . setup-tide-mode)
+    :hook ;; (typescript-mode . setup-tide-mode)
     (js-mode . setup-tide-mode)
     (rjsx-mode . setup-tide-mode))
   ;; :hook ((before-save . tide-format-before-save))
@@ -1194,16 +1192,17 @@ i.e. `0.3s` becomes `.3s`
   (defun init-js ()
     (interactive)
     (init-prettier)
-    (eglot-ensure)
     (setup-tide-mode)
-    (tree-sitter-mode 1)
-    (tree-sitter-hl-mode 1))
+    ;; (tree-sitter-mode 1)
+    ;; (tree-sitter-hl-mode 1)
+    )
 
     (when (not (executable-find "typescript-language-server"))
       (shell-command "npm install -g typescript-language-server typescript"))
 
   (add-hook 'js-mode-hook #'init-js)
-  (add-to-list 'auto-mode-alist '("\\.[mc]?[tj]sx?\\'" . js-mode))
+  (add-to-list 'auto-mode-alist '("\\.[mc]?jsx?\\'" . js-mode))
+  ;; (add-to-list 'auto-mode-alist '("\\.[mc]?jsx?\\'" . so-long-mode))
 
   (with-eval-after-load 'js-mode
     (define-key js-mode-map (kbd "M-.") nil))
@@ -1230,6 +1229,16 @@ i.e. `0.3s` becomes `.3s`
 #     :hook (tsx-mode . init-prettier)
 #     :mode (("\\.[mc]?[tj]sx?\\'" . tsx-mode)))
 # #+end_src
+*** typescript-mode
+#+begin_src emacs-lisp
+  (use-package typescript-mode
+    :mode "\\.[mc]?tsx?\\'"
+    :hook (typescript-mode . init-prettier)
+    ;; (setup-tide-mode)
+    ;; (tree-sitter-mode 1)
+    ;; (tree-sitter-hl-mode 1)
+     )
+#+end_src
 *** flowjs
 #+begin_src emacs-lisp
   ;; (let ((flow-path (concat user-emacs-directory "flow/"))
