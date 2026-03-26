@@ -2080,25 +2080,27 @@ Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP sup
 #+end_src
 *** SBCL
 #+begin_src emacs-lisp
-  (let ((sbcl (executable-find "sbcl")))
-    (when (not sbcl)
-      (shell-command "brew install sbcl")
-      (setq sbcl (executable-find "sbcl")))
-    ;; Set your lisp system and, optionally, some contribs
-    (setq inferior-lisp-program sbcl)
-    (let ((sbcl-local (car (file-expand-wildcards
-                            "/usr/local/Cellar/sbcl/*/lib/sbcl/sbcl.core"))))
-      (setq slime-lisp-implementations
-            `((sbcl ("/usr/local/bin/sbcl"
-                     "--core"
-                     ;; replace with correct path of sbcl
-                     ,sbcl-local
-                     "--dynamic-space-size" "2147"))))))
+    ;; (let ((sbcl (executable-find "sbcl")))
+    ;;   (when (not sbcl)
+    ;;     (shell-command "brew install sbcl")
+    ;;     (setq sbcl (executable-find "sbcl")))
+    ;;   ;; Set your lisp system and, optionally, some contribs
+    ;;   (setq inferior-lisp-program sbcl)
+    ;;   (let ((sbcl-local (car (file-expand-wildcards
+    ;;                           "/opt/homebrew/Cellar/sbcl/*/lib/sbcl/sbcl.core"))))
+    ;;     (setq slime-lisp-implementations
+    ;;           `((sbcl ("/opt/homebrew/Cellar/sbcl"
+    ;;                    "--core"
+    ;;                    ;; replace with correct path of sbcl
+    ;;                    ,sbcl-local
+    ;;                    "--dynamic-space-size" "2147"))))))
+
+  ;; (setq inferior-lisp-program "/opt/homebrew/Cellar/sbcl/2.5.1/lib/bin/sbcl/sbcl.core")
 #+end_src
 *** slime
 #+begin_src emacs-lisp
   ;; slime
-  (use-package slime)
+  (use-package slime :config (setq inferior-lisp-program "/opt/sbcl/bin/sbcl"))
   ;;   :hook (slime-repl-mode-hook . slime-repl-ansi-color-mode))
 #+end_src
 *** slime-repl-ansi-color
