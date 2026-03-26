@@ -1107,27 +1107,29 @@ i.e. `0.3s` becomes `.3s`
                collect (if (null (json-encode-keyword b)) "false" (json-encode-keyword b)))))
 
   (defun set-prettier-args ()
-    (require 'projectile)
+    ;;(require 'projectile)
     (let* ((node-path "node_modules/.bin")
            (prettier-args '("--arrow-parens" "always"
                             "--semi" "true"
                             "--bracket-spacing" "true"
                             "--single-quote" "true"
-                            "--jsx-bracket-same-line" "true"
                             "--print-width" "80"
                             "--use-tabs" "false"
-                            "--tab-width" "2"))
+                            "--tab-width" "2"
+                            "--trailing-comma" "none"))
            (default-directory (projectile-acquire-root))
            (prettier-config (file-expand-wildcards ".prettierrc*" t)))
       (if (and prettier-config (nth 0 prettier-config) (file-exists-p (nth 0 prettier-config)))
           (progn (message "local prettier found")
-                 (let ((local-prettier-args (args-from-prettier (nth 0 prettier-config))))
+                 (let ((local-prettier-args ""))
+                   ;;(args-from-prettier (nth 0 prettier-config))))
                    (setq prettier-js-args local-prettier-args)))
         (progn (message "no local prettier found")
                (setq prettier-js-args prettier-args)))))
 
   (use-package prettier-js
     :defer t
+    :after projectile
     :config (set-prettier-args))
 
   (defun init-prettier ()
