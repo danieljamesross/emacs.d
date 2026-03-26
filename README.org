@@ -972,6 +972,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 #+end_src
 ** node
 #+begin_src emacs-lisp
+  (file-expand-wildcards "~/.z*")
   (unless (and (executable-find "npm")(executable-find "node"))
     (async-shell-command "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && source ~/.zprofile && nvm install node")
     (async-shell-command "source ~/.zprofile")
@@ -981,7 +982,8 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 ** brew
 #+begin_src emacs-lisp
   (unless (executable-find "brew")
-    (message "Go get brew"))
+    (message "Installing brew")
+    (async-shell-command "/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)""))
 #+end_src
 ** Web Dev
 *** CSS
