@@ -46,25 +46,26 @@
 
 (require 'package)
 
-(setq package-enable-at-startup t)
+(setq package-enable-at-startup t
+      djr/online-p (internet-up-p))
 
 ;; Bootstrap `use-package'
 (unless (package-installed-p "use-package")
-  (if (internet-up-p)
+  (if djr/online-p
       (progn
 	(message "no use-package, installing...")
 	(package-refresh-contents)
 	(package-install 'use-package))
     (message "Cannot install use-package, internet is down")))
 
-(when (internet-up-p)
+(when djr/online-p
   (add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
   (add-to-list 'package-archives
                '("melpa" . "https://melpa.org/packages/")))
 
 ;; (package-initialize)
 
-(setq use-package-always-ensure (internet-up-p))
+(setq use-package-always-ensure djr/online-p)
 
 (defadvice en/disable-command (around put-in-custom-file activate)
   "Put declarations in `custom-file'."
@@ -80,5 +81,5 @@
 (unless (server-running-p)
   (server-start))
 
-(popper--bury-all)
+;(popper--bury-all)
 (recentf-open-files)

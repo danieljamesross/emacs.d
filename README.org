@@ -6,21 +6,89 @@ This is my initialisation file for Emacs. Behold!, the code blocks will be
 compiled at startup, but not these titles or this text.
 ** lexical binding
 #+begin_src emacs-lisp
-;;; -*- lexical-binding: t; -*-
+  ;;; -*- lexical-binding: t; -*-
+#+end_src
+** warnings
+#+begin_src emacs-lisp
+  (setq warning-suppress-types '((file-has-no-lexical-binding)))
+#+end_src
+** Packages and Managers
+*** Quelpa
+#+begin_src emacs-lisp
+  (use-package quelpa
+    :ensure t
+    :if window-system)
+
+  (use-package quelpa-use-package
+    :if window-system
+    :after quelpa)
+#+end_src
+*** Non Elpa/Melpa Package Modes
+**** antesc-mode
+#+begin_src emacs-lisp
+  (let ((antesc-path (concat user-emacs-directory "antesc-mode-master/")))
+    (check-file-exists-or-clone antesc-path "https://github.com/programLyrique/antesc-mode.git")
+    ;; Antescofo text highlighting
+    ;; Thanks to Pierre Donat-Bouillud
+    ;; https://github.com/programLyrique/antesc-mode
+    (add-to-list 'load-path (expand-file-name antesc-path))
+    ;; (autoload 'antesc-mode "antesc-mode" "Major mode for editing Antescofo code" t)
+    ;; Extensions for antescofo mode
+    (setq auto-mode-alist
+          (append '(("\\.\\(score\\|asco\\)\\.txt$" . antesc-mode))
+                  auto-mode-alist)))
+#+end_src
+**** lilypond-modeauto-package-update
+#+begin_src emacs-lisp
+  (let ((lily-path (concat user-emacs-directory "lilypond-mode/")))
+    (check-file-exists-or-clone lily-path "https://github.com/jmgpena/lilypond-mode.git")
+    ;; (add-to-list 'load-path (expand-file-name lily-path))
+    ;; (load (expand-file-name (concat lily-path "lilypond-init.el")))
+    ;; (setq auto-mode-alist (append '(("\\.ly\\'" . lilypond-mode))
+    ;;                               auto-mode-alist))
+
+    (use-package lilypond
+      :load-path "lilypond-mode/lilypond-init.el"
+      :defer t
+      :mode "\\.ly\\'"))
+#+end_src
+**** kintaro-mode
+#+begin_src emacs-lisp
+  ;; (let ((kintaro-path (concat user-emacs-directory "kintaro-mode")))
+  ;;   (check-file-exists-or-clone kintaro-path "https://github.com/danieljamesross/kintaro-mode.git")
+  ;;   (setq load-path (cons (expand-file-name kintaro-path) load-path))
+  ;;   (require 'kintaro-mode)
+  ;;   (add-to-list 'auto-mode-alist '("\\.ksdl\\'" . kintaro-mode)))
+#+end_src
+*** Update
+#+begin_src emacs-lisp
+  (use-package auto-package-update
+    :ensure t
+    :config
+    (setq auto-package-update-delete-old-versions t
+          auto-package-update-hide-results t)
+    (auto-package-update-maybe))
+#+end_src
+*** ensure
+#+begin_src emacs-lisp
+(setq use-package-always-ensure t)
 #+end_src
 ** authinfo
 #+begin_src emacs-lisp
 (setq auth-sources '("~/.authinfo"))
 #+end_src
+** async-shell-command
+#+begin_src emacs-lisp
+(setq async-shell-command-buffer 'new-buffer)
+#+end_src
 ** exec-path-from-shell
 If we build with emacs-plus and we launch from the terminal, we don't need
-this. But if we launch from the finder then we do. The `:if` statement accoutns
+this. But if we launch from the finder then we do. The `:if` statement accounts
 for this.
 https://github.com/d12frosted/homebrew-emacs-plus?tab=readme-ov-file#injected-path
 #+begin_src emacs-lisp
   (use-package exec-path-from-shell
-    :if (and (not (string-match-p (regexp-quote  "/usr/local/bin:") (getenv "PATH")))
-             (memq window-system '(mac ns x)))
+    :if (memq window-system '(mac ns x))
     :config (setq default-directory (expand-file-name "~/"))
     (setenv "SHELL" "/bin/zsh")
     (if (and (fboundp 'native-comp-available-p)
@@ -88,82 +156,7 @@ https://github.com/d12frosted/homebrew-emacs-plus?tab=readme-ov-file#injected-pa
 #+end_src
 *** Node
 #+begin_src emacs-lisp
-  (use-package add-node-modules-path
-    :config)
-#+end_src
-** Packages and Managers
-*** Quelpa
-#+begin_src emacs-lisp
-  (use-package quelpa
-    :if window-system)
-
-  (use-package quelpa-use-package
-    :if window-system
-    :after quelpa)
-#+end_src
-*** straight
-#+begin_src emacs-lisp
-;;  (defvar bootstrap-version)
-;;  (let ((bootstrap-file
-;;        (expand-file-name
-;;          "straight/repos/straight.el/bootstrap.el"
-;;          (or (bound-and-true-p straight-base-dir)
-;;              user-emacs-directory)))
-;;        (bootstrap-version 7))
-;;    (unless (file-exists-p bootstrap-file)
-;;      (with-current-buffer
-;;          (url-retrieve-synchronously
-;;  	   "https://radian-software.github.io/straight.el/install.el"
-;;           'silent 'inhibit-cookies)
-;;        (goto-char (point-max))
-;;        (eval-print-last-sexp)))
-;;    (load bootstrap-file nil 'nomessage))
-#+end_src
-*** Non Elpa/Melpa Package Modes
-**** antesc-mode
-#+begin_src emacs-lisp
-  (let ((antesc-path (concat user-emacs-directory "antesc-mode-master/")))
-    (check-file-exists-or-clone antesc-path "https://github.com/programLyrique/antesc-mode.git")
-    ;; Antescofo text highlighting
-    ;; Thanks to Pierre Donat-Bouillud
-    ;; https://github.com/programLyrique/antesc-mode
-    (add-to-list 'load-path (expand-file-name antesc-path))
-    ;; (autoload 'antesc-mode "antesc-mode" "Major mode for editing Antescofo code" t)
-    ;; Extensions for antescofo mode
-    (setq auto-mode-alist
-          (append '(("\\.\\(score\\|asco\\)\\.txt$" . antesc-mode))
-                  auto-mode-alist)))
-#+end_src
-**** lilypond-mode
-#+begin_src emacs-lisp
-  (let ((lily-path (concat user-emacs-directory "lilypond-mode/")))
-    (check-file-exists-or-clone lily-path "https://github.com/jmgpena/lilypond-mode.git")
-    ;; (add-to-list 'load-path (expand-file-name lily-path))
-    ;; (load (expand-file-name (concat lily-path "lilypond-init.el")))
-    ;; (setq auto-mode-alist (append '(("\\.ly\\'" . lilypond-mode))
-    ;;                               auto-mode-alist))
-
-    (use-package lilypond
-      :load-path "lilypond-mode/lilypond-init.el"
-      :defer t
-      :mode "\\.ly\\'"))
-#+end_src
-**** kintaro-mode
-#+begin_src emacs-lisp
-  ;; (let ((kintaro-path (concat user-emacs-directory "kintaro-mode")))
-  ;;   (check-file-exists-or-clone kintaro-path "https://github.com/danieljamesross/kintaro-mode.git")
-  ;;   (setq load-path (cons (expand-file-name kintaro-path) load-path))
-  ;;   (require 'kintaro-mode)
-  ;;   (add-to-list 'auto-mode-alist '("\\.ksdl\\'" . kintaro-mode)))
-#+end_src
-*** Update
-#+begin_src emacs-lisp
-  (use-package auto-package-update
-    :config
-    (setq auto-package-update-delete-old-versions t)
-    (setq auto-package-update-hide-results t)
-    (when (internet-up-p)
-           (auto-package-update-maybe)))
+  (use-package add-node-modules-path)
 #+end_src
 ** Optimisations
 #+begin_src emacs-lisp
@@ -223,15 +216,6 @@ https://github.com/d12frosted/homebrew-emacs-plus?tab=readme-ov-file#injected-pa
 *** delete
 #+begin_src emacs-lisp
   (delete-selection-mode 1)
-#+end_src
-*** smart-hungry-delete
-#+begin_src emacs-lisp
-  ;; https://github.com/hrehfeld/emacs-smart-hungry-delete
-  (use-package smart-hungry-delete
-    :bind (("<backspace>" . smart-hungry-delete-backward-char)
-           ("<deletechar>" . smart-hungry-delete-forward-char))
-    :defer nil ;; dont defer so we can add our functions to hooks
-    :config (when (internet-up-p) (smart-hungry-delete-add-default-hooks)))
 #+end_src
 *** expand-region
 #+begin_src emacs-lisp
@@ -373,6 +357,7 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
 *** Rainbow delimiters
 #+begin_src emacs-lisp
   (use-package rainbow-delimiters
+    :defer t
     :hook (prog-mode-hook . rainbow-delimiters-mode))
   ;;                                       ; (lisp-mode-hook . rainbow-delimiters-mode)
   ;; :config (cl-loop for index from 1 to rainbow-delimiters-max-face-count
@@ -414,8 +399,9 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
 #+end_src
 *** zygospore
 #+begin_src emacs-lisp
-  (use-package zygospore
-    :config (global-set-key (kbd "C-x 1") 'zygospore-toggle-delete-other-windows))
+   (use-package zygospore
+     :defer t
+     :config (global-set-key (kbd "C-x 1") 'zygospore-toggle-delete-other-windows))
 #+end_src
 ** iedit
 #+begin_src emacs-lisp
@@ -481,35 +467,35 @@ Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emula
 #+end_src
 *** nerd & all-the-icons
 #+begin_src emacs-lisp
+  (use-package all-the-icons
+    :defer 1
+    :config
+    (when (and (display-graphic-p)
+               (not (member "all-the-icons" (font-family-list))))
+      (all-the-icons-install-fonts t)))
+
   (use-package nerd-icons
-    :demand t
-    :custom
-    ;; The Nerd Font you want to use in GUI
-    ;; "Symbols Nerd Font Mono" is the default and is recommended
-    ;; but you can use any other Nerd Font if you want
-    (nerd-icons-font-family "Hack Nerd Font Mono") ;
-    )
-  (use-package all-the-icons-completion
-    :hook (corfu-mode . all-the-icons-completion-mode)
-    :after all-the-icons)
-  (use-package all-the-icons-dired
-    :hook (dired-mode . all-the-icons-dired-mode)
-    :after all-the-icons)
+    :defer 1
+    :config
+    (when (and (display-graphic-p)
+               (not (member "Symbols Nerd Font Mono" (font-family-list))))
+      (nerd-icons-install-fonts t)))
+
   (use-package all-the-icons-nerd-fonts
     :after all-the-icons
-    :demand t
+    :defer 1
     :config (all-the-icons-nerd-fonts-prefer))
-  (use-package all-the-icons-ibuffer
-    :hook (ibuffer-mode . all-the-icons-ibuffer-mode)
-    :after all-the-icons)
 
-  (use-package all-the-icons
-    :defer nil
-    :if (display-graphic-p)
-    :init (progn
-            (when (and (internet-up-p)
-                       (not (member "all-the-icons" (font-family-list))))
-              (all-the-icons-install-fonts t))))
+  (use-package all-the-icons-completion
+    :after (all-the-icons marginalia)
+    :hook (marginalia-mode . all-the-icons-completion-marginalia-setup)
+    :init (all-the-icons-completion-mode))
+  (use-package nerd-icons-dired
+    :after nerd-icons
+    :hook (dired-mode . nerd-icons-dired-mode))
+  (use-package all-the-icons-ibuffer
+    :after all-the-icons
+    :hook (ibuffer-mode . all-the-icons-ibuffer-mode))
 #+end_src
 *** Fonts
 <<fonts>>
@@ -531,8 +517,9 @@ Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emula
 #+begin_src emacs-lisp
   "https://github.com/be5invis/Iosevka/blob/v32.3.1/doc/PACKAGE-LIST.md"
   (unless (member  "Iosevka" (font-family-list))
-    (message "You need to install this font https://github.com/be5invis/Iosevka/blob/v32.3.1/doc/PACKAGE-LIST.md")
-    (set-default-font "Iosevka Fixed" 14))
+    ;; (message "You need to install this font https://github.com/be5invis/Iosevka/blob/v32.3.1/doc/PACKAGE-LIST.md")
+    (async-shell-command "brew install --cask font-iosevka"))
+    (set-default-font "Iosevka Fixed" 13)
 #+end_src
 **** Emoji
 #+begin_src emacs-lisp
@@ -556,12 +543,12 @@ Taken from [[https://github.com/Profpatsch/blog/blob/master/posts/ligature-emula
 *** highlight-indent-guides
 Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 #+begin_src emacs-lisp
-  (use-package highlight-indent-guides
-    :if window-system
-    :config (setq highlight-indent-guides-character-face "Fira Code Symbol"
-                  highlight-indent-guides-method 'bitmap
-                  highlight-indent-guides-auto-character-face-perc 10)
-    :hook (prog-mode-hook . highlight-indent-guides-mode))
+  ;; (use-package highlight-indent-guides
+    ;; :if window-system :defer t
+    ;; :config (setq highlight-indent-guides-character-face "Fira Code Symbol"
+    ;;               highlight-indent-guides-method 'bitmap
+    ;;               highlight-indent-guides-auto-character-face-perc 10)
+    ;; :hook (prog-mode-hook . highlight-indent-guides-mode))
 #+end_src
 *** line-num, highlight, toolbar & fringe
 #+begin_src emacs-lisp
@@ -578,11 +565,11 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 *** popper
 #+begin_src emacs-lisp
   (use-package popper
-    :ensure t ; or :straight t
+    ;; :ensure t ; or :straight t
     :bind (("C-`"   . popper-toggle)
            ("C-M-`"   . popper-cycle)
            ("C-M-~" . popper-toggle-type))
-    :init
+    :config
     (setq popper-reference-buffers
           '("\\*Messages\\*"
             "Output\\*$"
@@ -636,7 +623,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 *** whitespace-cleanup-mode
 #+begin_src emacs-lisp
   (use-package whitespace-cleanup-mode
-    :config (setq 'whitespace-cleanup-mode t)
+    :config (setq whitespace-cleanup-mode t)
     :hook (prog-mode . whitespace-cleanup))
 #+end_src
 ** Views
@@ -844,24 +831,27 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
                 (ibuffer-switch-to-saved-filter-groups "home")))
 
 #+end_src
+**** Dash
+#+begin_src emacs-lisp
+(use-package dash ;; :ensure t
+    )
+#+end_src
 **** Dired
 #+begin_src emacs-lisp
-      (setq trash-directory "~/.Trash")
+  (setq trash-directory "~/.Trash")
+  (setq dired-sidebar-icon-scale 0.1
+        dired-sidebar-mode-line-format
+        '("%e" mode-line-front-space mode-line-buffer-identification " " mode-line-end-spaces)
+        dired-sidebar-recenter-cursor-on-tui-update nil
+        dired-sidebar-should-follow-file t
+        dired-sidebar-toggle-hidden-commands '(rotate-windows toggle-window-split balance-windows)
+        dired-dwim-target t
+        delete-by-moving-to-trash t
+        dired-listing-switches "-alh"
+        dired-clean-confirm-killing-deleted-buffers nil)
 
-      (setq dired-sidebar-icon-scale 0.1
-            dired-sidebar-mode-line-format
-            '("%e" mode-line-front-space mode-line-buffer-identification " " mode-line-end-spaces)
-            dired-sidebar-recenter-cursor-on-tui-update nil
-            dired-sidebar-should-follow-file t
-            dired-sidebar-toggle-hidden-commands '(rotate-windows toggle-window-split balance-windows)
-            dired-dwim-target t
-            delete-by-moving-to-trash t
-            dired-listing-switches "-alFh"
-            dired-clean-confirm-killing-deleted-buffers nil)
-
-
-      (put 'dired-find-alternate-file 'disabled nil)
-      (add-hook 'dired-mode-hook
+  (put 'dired-find-alternate-file 'disabled nil)
+  (add-hook 'dired-mode-hook
             (lambda ()
               (dired-hide-details-mode)))
 
@@ -871,6 +861,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
   (use-package dired-rainbow
     :if window-system
     :defer 2
+    :after dash
     :config
     (progn
       (dired-rainbow-define-chmod directory "#6cb2eb" "d.*")
@@ -897,7 +888,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 #+end_src
 ***** dired-filter
 #+begin_src emacs-lisp
-(use-package dired-filter)
+(use-package dired-filter :after dash)
 #+end_src
 ***** ls
 #+begin_src emacs-lisp
@@ -907,39 +898,40 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 ** C, C++
 *** clang-format
 #+begin_src emacs-lisp
-  (progn
-    (unless (executable-find "clang-format")
-      (async-shell-command "brew install clang-format"))
-    (use-package clang-format
-      :ensure t))
-    ;; (defun clang-tidy-buffer ()
-    ;;   (when (locate-dominating-file default-directory ".clang-format")
-    ;;     (clang-format-buffer)
-    ;;     ;; Continue to save.
-    ;;     nil)
-    ;;   nil
-    ;;   ;; Buffer local hook.
-    ;;   t)
+    (progn
+      (unless (executable-find "clang-format")
+        (async-shell-command "brew install clang-format"))
+     (use-package clang-format
+       :defer t))
+      ;; (defun clang-tidy-buffer ()
+      ;;   (when (locate-dominating-file default-directory ".clang-format")
+      ;;     (clang-format-buffer)
+      ;;     ;; Continue to save.
+      ;;     nil)
+      ;;   nil
+      ;;   ;; Buffer local hook.
+      ;;   t)
 
-    ;; (defun clang-format-save-hook-for-this-buffer ()
-    ;;   "Create a buffer local save hook."
-    ;;   (add-hook 'before-save-hook #'clang-tidy-buffer))
+      ;; (defun clang-format-save-hook-for-this-buffer ()
+      ;;   "Create a buffer local save hook."
+      ;;   (add-hook 'before-save-hook #'clang-tidy-buffer))
 
-    ;; Run this for each mode you want to use the hook.
-    ;; (add-hook 'c-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
-    ;; (add-hook 'c++-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
-    ;; (add-hook 'glsl-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
+      ;; Run this for each mode you want to use the hook.
+      ;; (add-hook 'c-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
+      ;; (add-hook 'c++-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
+      ;; (add-hook 'glsl-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
 #+end_src
-*** ccls
+*** COMMENT ccls
 #+begin_src emacs-lisp
-(use-package ccls
-  :ensure t
-  :config
-  (setq ccls-executable "ccls")
-  (setq lsp-prefer-flymake nil)
-  (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
-  :hook ((c-mode c++-mode objc-mode) .
-         (lambda () (require 'ccls) (lsp))))
+   (use-package ccls
+     :defer t
+     :after dash
+     :config
+     (setq ccls-executable "ccls")
+     (setq lsp-prefer-flymake nil)
+     (setq-default flycheck-disabled-checkers '(c/c++-clang c/c++-cppcheck c/c++-gcc))
+     :hook ((c-mode c++-mode objc-mode) .
+            (lambda () (require 'ccls) (lsp))))
 #+end_src
 *** cmake
 **** cmake
@@ -971,7 +963,6 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 #+end_src
 ** node
 #+begin_src emacs-lisp
-  (file-expand-wildcards "~/.z*")
   (unless (and (executable-find "npm")(executable-find "node"))
     (async-shell-command "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash && source ~/.zprofile && nvm install node")
     (async-shell-command "source ~/.zprofile")
@@ -980,9 +971,9 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
 #+end_src
 ** brew
 #+begin_src emacs-lisp
-  (unless (executable-find "brew")
-    (message "Installing brew")
-    (async-shell-command "/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)""))
+  ;; (unless (executable-find "brew")
+  ;;   (message "Installing brew")
+  ;;   (async-shell-command "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""))
 #+end_src
 ** Web Dev
 *** CSS
@@ -1064,7 +1055,7 @@ i.e. `0.3s` becomes `.3s`
 *** web-mode
 #+begin_src emacs-lisp
     (use-package web-mode
-      :mode "\\.html'"
+      :mode "\\.html\\'"
       ;; :after (tree-sitter-mode tree-sitter-langs)
       :config
       (setq web-mode-enable-auto-quoting nil)
@@ -1198,7 +1189,7 @@ i.e. `0.3s` becomes `.3s`
     )
 
     (when (not (executable-find "typescript-language-server"))
-      (shell-command "npm install -g typescript-language-server typescript"))
+      (async-shell-command "npm install -g typescript-language-server typescript"))
 
   (add-hook 'js-mode-hook #'init-js)
   (add-to-list 'auto-mode-alist '("\\.[mc]?jsx?\\'" . js-mode))
@@ -1684,7 +1675,6 @@ i.e. `0.3s` becomes `.3s`
 #+begin_src emacs-lisp
   ;; Enable vertico
   (use-package vertico
-    :ensure t
     :init
     (vertico-mode)
     :config
@@ -1740,7 +1730,7 @@ i.e. `0.3s` becomes `.3s`
     ;; Recommended: Enable Corfu globally.
     ;; This is recommended since Dabbrev can be used globally (M-/).
     ;; See also `corfu-excluded-modes'.
-    :ensure t
+    ;; :ensure t
     :init (global-corfu-mode))
 #+end_src
 *** Flyspell
@@ -1749,8 +1739,8 @@ You need to install the ASpell spell checker. You can install it with homebrew
 with `brew install aspell`.
 #+begin_src emacs-lisp
   ;; flyspell
-  (unless (file-exists-p "/usr/local/bin/aspell")
-    (shell-command "brew install aspell"))
+  (unless (executable-find "aspell")
+    (async-shell-command "brew install aspell"))
   (dolist (hook '(text-mode-hook markdown-mode-hook))
     (add-hook hook 'flyspell-mode))
   (add-hook 'prog-mode-hook 'flyspell-prog-mode)
@@ -1805,8 +1795,8 @@ with `brew install aspell`.
 *** Flycheck
 #+begin_src emacs-lisp
   (use-package flycheck
-    :ensure t
-    :init (global-flycheck-mode))
+    :defer t
+    :hook (prog-mode . flycheck-mode))
 #+end_src
 *** Minibuffer auto-complete
 #+begin_src emacs-lisp
@@ -1822,19 +1812,6 @@ with `brew install aspell`.
   (use-package bash-completion
     :defer t
     :config (bash-completion-setup))
-#+end_src
-*** selectrum
-#+begin_src emacs-lisp
-  (use-package selectrum
-    :config (selectrum-mode +1))
-
-  (use-package selectrum-prescient
-    :config
-    ;; to make sorting and filtering more intelligent
-    (selectrum-prescient-mode +1)
-    ;; to save your command history on disk, so the sorting gets more
-    ;; intelligent over time
-    (prescient-persist-mode +1))
 #+end_src
 *** Marginalia
 #+begin_src emacs-lisp
@@ -2063,13 +2040,15 @@ Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP sup
 #+begin_src emacs-lisp
   (add-to-list 'exec-path "/Users/dan/elixir-ls-v0.29.3")
   (use-package dap-mode
+    :after dash
+    :defer t
     :config ;; Enabling only some features
     (setq dap-auto-configure-features '(sessions locals controls tooltip)))
 
 #+end_src
 ** eglot
 #+begin_src emacs-lisp
-  (use-package eglot :hook (prog-mode . eglot-ensure) :config (setq eglot-code-action-indicator ""))
+  (use-package eglot :after dash :hook (prog-mode . (lambda () (unless (derived-mode-p 'org-mode) (eglot-ensure)))) :config (setq eglot-code-action-indicator ""))
 #+end_src
 *** eglot-ensure
 #+begin_src emacs-lisp
@@ -2109,7 +2088,7 @@ Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP sup
 *** slime
 #+begin_src emacs-lisp
   ;; slime
-  (use-package slime :config (setq inferior-lisp-program "/opt/sbcl/bin/sbcl"))
+  (use-package slime :defer t :config (setq inferior-lisp-program "/opt/sbcl/bin/sbcl"))
   ;;   :hook (slime-repl-mode-hook . slime-repl-ansi-color-mode))
 #+end_src
 *** slime-repl-ansi-color
@@ -2206,8 +2185,7 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
 #+begin_src emacs-lisp
   (setq pandoc (executable-find "pandoc"))
   (unless pandoc
-    (shell-command "brew install pandoc")
-    (setq pandoc (executable-find "pandoc")))
+    (async-shell-command "brew install pandoc"))
   (setq markdown-command pandoc)
 #+end_src
 *** LaTeX
@@ -2222,7 +2200,7 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
 ** Projectile
 #+begin_src emacs-lisp
   (use-package projectile
-    :ensure t
+    ;; :ensure t
     :bind-keymap ("C-c p" . projectile-command-map)
     :config (setq projectile-switch-project-action #'projectile-dired
                   projectile-indexing-method 'native
@@ -2245,21 +2223,23 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
   (setq org-time-stamp-custom-formats '("<%e %B %Y>" . "<%a, %e %b %Y %H:%M>"))
   ;; (use-package ox
   ;;   :ensure t)
-  (require 'ox)
-  (defun endless/filter-timestamp (trans back _comm)
-    "Remove <> around time-stamps."
-    (pcase back
-      ((or `jekyll `html)
-       (replace-regexp-in-string "&[lg]t;" "" trans))
-      (`latex
-       (replace-regexp-in-string "[<>]" "" trans))))
-  (add-to-list 'org-export-filter-timestamp-functions
-               #'endless/filter-timestamp)
+  (with-eval-after-load 'org
+    (require 'ox)
+    (defun endless/filter-timestamp (trans back _comm)
+      "Remove <> around time-stamps."
+      (pcase back
+        ((or `jekyll `html)
+         (replace-regexp-in-string "&[lg]t;" "" trans))
+        (`latex
+         (replace-regexp-in-string "[<>]" "" trans))))
+    (add-to-list 'org-export-filter-timestamp-functions
+                 #'endless/filter-timestamp))
 #+end_src
 *** Org tempo
 #+begin_src emacs-lisp
-  (require 'org-tempo)
-  (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (with-eval-after-load 'org
+    (require 'org-tempo)
+    (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp")))
 #+end_src
 *** org-reveal
 #+begin_src emacs-lisp
@@ -2392,27 +2372,29 @@ Details here: [[https://github.com/ahungry/org-jira]]
         (setq my/re-builder-positions nil)
         (reb-quit)
         (query-replace-regexp re replacement delimited beg end))))
-  (require 're-builder)
-  (define-key reb-mode-map (kbd "RET") #'reb-replace-regexp)
-  (define-key reb-lisp-mode-map (kbd "RET") #'reb-replace-regexp)
+  (with-eval-after-load 're-builder
+    (define-key reb-mode-map (kbd "RET") #'reb-replace-regexp)
+    (define-key reb-lisp-mode-map (kbd "RET") #'reb-replace-regexp))
   (global-set-key (kbd "C-M-%") #'re-builder)
 #+end_src
 ** Multiple Cursors
 #+begin_src emacs-lisp
-  (use-package multiple-cursors
-    :defer nil
-    :ensure t)
+    (use-package multiple-cursors
+      :defer t
+      ;; :ensure t
+      )
 #+end_src
 ** Magit
 #+begin_src emacs-lisp
   (use-package magit
-    :ensure t
+    ;; :ensure t
     :bind (("C-x g" . magit-status))
     :defer t)
 #+end_src
 *** diff
 #+begin_src emacs-lisp
   (use-package diff-hl
+    ;; :ensure t
     :init (turn-on-diff-hl-mode)
     :hook ((prog-mode-hook vc-dir-mode-hook) . turn-on-diff-hl-mode))
 #+end_src
@@ -2440,13 +2422,11 @@ Details here: [[https://github.com/ahungry/org-jira]]
 ** shader-mode
 #+begin_src emacs-lisp
   (use-package shader-mode
-    :ensure t
     :defer t)
 #+end_src
 ** editorconfig
 #+begin_src emacs-lisp
   (use-package editorconfig
-    :ensure t
     :config
     (editorconfig-mode 1))
 #+end_src
@@ -2574,7 +2554,14 @@ Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
 ** lms
 #+begin_src emacs-lisp
   (use-package lms
-    :config (setq lms-url "http://192.168.0.13:9000"
+    :config (setq lms-url "http://192.168.1.130:9000"
                   lms-default-player "Hallway"))
 #+end_src
-
+** claude
+#+begin_src emacs-lisp
+(use-package claude-code-ide
+  :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
+  :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
+  :config
+  (claude-code-ide-emacs-tools-setup)) ; Optionally enable Emacs MCP tools
+#+end_src

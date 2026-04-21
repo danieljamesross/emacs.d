@@ -12,7 +12,10 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
   (defun internet-up-p (&optional host)
     "Ping bbc.co.uk to test if internet is connected"
     (zerop (call-process "ping" nil nil nil "-c" "1" "-W" "1"
-                         (if host host "elpa.gnu.org"))))
+                         (if host host "www.bbc.co.uk"))))
+
+  (defvar djr/online-p (internet-up-p)
+    "Cached internet connectivity check, run once at startup.")
 #+end_src
 ** kill-async-shell-when-done
 #+begin_src emacs-lisp
@@ -30,29 +33,29 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
                   (kill-buffer (buffer-name (process-buffer process)))))))))
 #+end_src
 ** kill-port
-#+begin_src emacs-lisp
-  (defun kill-port (port)
-    (interactive "nPort to kill: ")
-    (let* ((buffer-name (generate-new-buffer-name "*Async Shell Command*"))
-           (async-shell-buffer
-            (generate-new-buffer buffer-name))
-           proc)
-      (setf proc
-            (progn (async-shell-command
-                    (format "kill -9 $(lsof -t -i:%d)" port)
-                    async-shell-buffer)
-                   (get-buffer-process async-shell-buffer)))
-      (message (format "Killing port %d" port))
-      (kill-async-shell-when-done proc buffer-name)))
+# #+begin_src emacs-lisp
+#   (defun kill-port (port)
+#     (interactive "nPort to kill: ")
+#     (let* ((buffer-name (generate-new-buffer-name "*Async Shell Command*"))
+#            (async-shell-buffer
+#             (generate-new-buffer buffer-name))
+#            proc)
+#       (setf proc
+#             (progn (async-shell-command
+#                     (format "kill -9 $(lsof -t -i:%d)" port)
+#                     async-shell-buffer)
+#                    (get-buffer-process async-shell-buffer)))
+#       (message (format "Killing port %d" port))
+#       (kill-async-shell-when-done proc buffer-name)))
 
-  (defvar +iris-port-list+ '(3000 3001 3002 3003 3004 3005 3020 4000 4001 4002 4003 4004 4005 4400 4401 4400 4500 4501 5001 5002 5003 5004 8086 9299))
+#   (defvar +iris-port-list+ '(3000 3001 3002 3003 3004 3005 3020 4000 4001 4002 4003 4004 4005 4400 4401 4400 4500 4501 5001 5002 5003 5004 8086 9299))
 
-  (defun kill-ports ()
-    (interactive)
-    (mapcar #'kill-port +iris-port-list+))
+#   (defun kill-ports ()
+#     (interactive)
+#     (mapcar #'kill-port +iris-port-list+))
 
-  (add-hook 'kill-emacs-hook #'kill-ports)
-#+end_src
+#   (add-hook 'kill-emacs-hook #'kill-ports)
+# #+end_src
 ** check-file-exists-or-clone
 #+begin_src emacs-lisp
   ;; Stop the async shell buffer from popping up
