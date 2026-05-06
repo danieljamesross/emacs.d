@@ -1120,7 +1120,8 @@ i.e. `0.3s` becomes `.3s`
   (use-package prettier-js
     :defer t
     :after projectile
-    :config (set-prettier-args))
+    ;; :config (set-prettier-args)
+    )
 
   (defun init-prettier ()
     (interactive)
@@ -1128,7 +1129,7 @@ i.e. `0.3s` becomes `.3s`
     (prettier-js-mode 1)
     (message "prettier inited"))
 
-  (eval-after-web-mode-load 'init-prettier)
+  ;; (eval-after-web-mode-load 'init-prettier)
 
 #+end_src
 *** tide-mode
@@ -1182,7 +1183,7 @@ i.e. `0.3s` becomes `.3s`
 #+begin_src emacs-lisp
   (defun init-js ()
     (interactive)
-    (init-prettier)
+    ;; (init-prettier)
     (setup-tide-mode)
     ;; (tree-sitter-mode 1)
     ;; (tree-sitter-hl-mode 1)
@@ -1224,7 +1225,7 @@ i.e. `0.3s` becomes `.3s`
 #+begin_src emacs-lisp
   (use-package typescript-mode
     :mode "\\.[mc]?tsx?\\'"
-    :hook (typescript-mode . init-prettier)
+    ;; :hook (typescript-mode . init-prettier)
     ;; (setup-tide-mode)
     ;; (tree-sitter-mode 1)
     ;; (tree-sitter-hl-mode 1)
@@ -2057,9 +2058,10 @@ Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP sup
 #+end_src
 ** JSON
 #+begin_src emacs-lisp
-  (use-package json-mode
-    :mode "\\.json"
-    :hook (init-prettier))
+    (use-package json-mode
+      :mode "\\.json"
+      ;; :hook (init-prettier)
+      )
 #+end_src
 ** Lisp
 *** paren-mode
