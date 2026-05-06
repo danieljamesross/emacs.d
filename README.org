@@ -2203,13 +2203,24 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
 #+end_src
 ** Projectile
 #+begin_src emacs-lisp
-  (use-package projectile
-    ;; :ensure t
-    :bind-keymap ("C-c p" . projectile-command-map)
-    :config (setq projectile-switch-project-action #'projectile-dired
-                  projectile-indexing-method 'native
-                  projectile-enable-caching t)
-    :init (projectile-mode +1))
+    (use-package projectile
+      ;; :ensure t
+      :bind-keymap ("C-c p" . projectile-command-map)
+      :config (setq projectile-switch-project-action #'projectile-dired
+                    projectile-indexing-method 'native
+                    projectile-enable-caching t)
+      :init (projectile-mode +1))
+
+    (defun djr/find-file-projectile-or-fallback ()
+      "Try `projectile-find-file'; fall back to `find-file' if it errors
+    (e.g. not inside a projectile project)."
+      (interactive)
+      (condition-case nil
+          (call-interactively #'projectile-find-file)
+        (error (call-interactively #'find-file))))
+
+    (with-eval-after-load 'projectile
+      (define-key projectile-command-map (kbd "f") #'djr/find-file-projectile-or-fallback))
 #+end_src
 ** Org
 #+begin_src emacs-lisp
