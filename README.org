@@ -2049,7 +2049,9 @@ Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP sup
 #+end_src
 ** eglot
 #+begin_src emacs-lisp
-  (use-package eglot :after dash :hook (prog-mode . (lambda () (unless (derived-mode-p 'org-mode) (eglot-ensure)))) :config (setq eglot-code-action-indicator ""))
+  (use-package eglot :after dash
+    :hook (prog-mode . (lambda () (unless (derived-mode-p 'org-mode) (eglot-ensure))))
+    :config (setq eglot-code-action-indicator ""))
 #+end_src
 *** eglot-ensure
 #+begin_src emacs-lisp
