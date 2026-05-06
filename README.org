@@ -921,7 +921,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
       ;; (add-hook 'c++-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
       ;; (add-hook 'glsl-mode-hook (lambda () (clang-format-save-hook-for-this-buffer)))
 #+end_src
-*** COMMENT ccls
+*** ccls
 #+begin_src emacs-lisp
    (use-package ccls
      :defer t
