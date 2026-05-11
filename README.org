@@ -563,7 +563,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
   (tool-bar-mode -1)
   (global-hl-line-mode 1)
   (set-face-background hl-line-face "OrangeRed4")
-  (global-display-line-numbers-mode 1)
+  (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 #+end_src
 *** narrow-to-page
 #+begin_src emacs-lisp
@@ -2441,14 +2441,9 @@ Details here: [[https://github.com/ahungry/org-jira]]
 #+end_src
 ** Shells & Terminal Emulators
 *** terminal line numbers
+Line numbers are scoped to ~prog-mode~ via the display section, so terminal,
+shell, org, and treemacs buffers never get them in the first place.
 #+begin_src emacs-lisp
-  (dolist (mode '(org-mode-hook
-                  term-mode-hook
-                  vterm-mode-hook
-                  shell-mode-hook
-                  treemacs-mode-hook
-                  eshell-mode-hook))
-    (add-hook mode (lambda () (display-line-numbers-mode 0))))
 #+end_src
 *** shell highlight
 #+begin_src emacs-lisp
