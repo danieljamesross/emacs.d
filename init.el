@@ -26,21 +26,30 @@
       nil)))
 
 (defun compile-org-or-load-precompiled-el (file-name)
-  "org-babel-load `file-name' if has been edited recently, otherwise load the already
-  compiled .el file. `file-name' is in `user-emacs-directory'."
+  "Tangle/byte-compile `file-name'.org if it has changed, then load the
+result. Prefers .elc over .el. `file-name' is relative to `user-emacs-directory'."
   (let* ((file (concat user-emacs-directory file-name))
          (org (concat file ".org"))
-         (el (concat file ".el")))
-    (if (or (not (file-exists-p el))
-	    (check-newer-than org el))
-        (progn
-          (message (format "loading and compiling %s" org))
-          (org-babel-load-file org)
-	  (message (format "loaded %s" org)))
-      (progn
-        (message (format "loading %s" el))
-        (load-file el)
-	(message (format "loaded %s" el))))))
+         (el (concat file ".el"))
+         (elc (concat file ".elc")))
+    (cond
+     ;; .org newer than .el (or no .el yet): tangle, compile, and load via org-babel
+     ((or (not (file-exists-p el))
+          (check-newer-than org el))
+      (message "tangling and byte-compiling %s" org)
+      (org-babel-load-file org)
+      (when (file-exists-p el)
+        (byte-compile-file el)))
+     ;; .el newer than .elc (rare — manual edit of tangled file): recompile then load .elc
+     ((or (not (file-exists-p elc))
+          (check-newer-than el elc))
+      (message "byte-compiling %s" el)
+      (byte-compile-file el)
+      (load (file-name-sans-extension el) nil 'nomessage))
+     ;; .elc is current: load it
+     (t
+      (message "loading %s" elc)
+      (load (file-name-sans-extension el) nil 'nomessage)))))
 
 (compile-org-or-load-precompiled-el "functions")
 
