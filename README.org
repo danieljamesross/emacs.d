@@ -2503,9 +2503,30 @@ shell, org, and treemacs buffers never get them in the first place.
 #+begin_src emacs-lisp
   (use-package multi-vterm
     :after vterm
-    :bind (("C-c vt" . multi-vterm-project)
+    :bind (("C-c vt" . djr/vterm-project-or-here)
            ("C-c vn" . multi-vterm-next)
            ("C-c vp" . multi-vterm-prev)))
+#+end_src
+**** new vterm in current dir
+#+begin_src emacs-lisp
+  (defun djr/vterm-here ()
+    "Open a new vterm in the current buffer's directory, or HOME if none.
+The buffer is named after that directory."
+    (interactive)
+    (let* ((dir (or (and default-directory
+                         (file-directory-p default-directory)
+                         default-directory)
+                    (expand-file-name "~")))
+           (default-directory dir)
+           (name (file-name-nondirectory (directory-file-name dir))))
+      (vterm (generate-new-buffer-name (format "*vterm %s*" name)))))
+
+  (defun djr/vterm-project-or-here ()
+    "Open `multi-vterm-project' when in a project, else `djr/vterm-here'."
+    (interactive)
+    (if (multi-vterm-project-root)
+        (multi-vterm-project)
+      (djr/vterm-here)))
 #+end_src
 *** Eshell syntax highlighting
 Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
