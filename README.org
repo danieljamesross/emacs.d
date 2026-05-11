@@ -2571,9 +2571,10 @@ Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
 ** claude
 #+begin_src emacs-lisp
   (use-package claude-code-ide
+    :ensure t
+    :after transient
     :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
     :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
-    :hook (claude-code-ide-mode . (lambda () (setq-local vterm--redraw-immediately t)))
-    :config
-    (claude-code-ide-emacs-tools-setup)) ; Optionally enable Emacs MCP tools
+    ;; :hook (claude-code-ide-mode . (lambda () (setq-local vterm--redraw-immediately t)))
+    :config (claude-code-ide-emacs-tools-setup)) ; Optionally enable Emacs MCP tools
 #+end_src
