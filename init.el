@@ -1,6 +1,5 @@
 ;;; -*- lexical-binding: t; -*-
-;; The default is 800 kilobytes.  Measured in bytes.
-(setq gc-cons-threshold (* 100 1024 1024))
+;; GC threshold and file-name-handler-alist startup tweaks live in early-init.el.
 
 (setq user-emacs-directory (expand-file-name "~/.emacs.d/"))
 
@@ -83,8 +82,7 @@ result. Prefers .elc over .el. `file-name' is relative to `user-emacs-directory'
 
 (compile-org-or-load-precompiled-el "README")
 
-;; Make gc pauses faster by decreasing the threshold.
-(setq gc-cons-threshold (* 2 1024 1024))
+;; gc-cons-threshold is restored to a sane value via emacs-startup-hook in early-init.el.
 
 (require 'server)
 (unless (server-running-p)
