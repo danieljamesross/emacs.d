@@ -64,10 +64,14 @@ compiled at startup, but not these titles or this text.
 #+begin_src emacs-lisp
   (use-package auto-package-update
     :ensure t
+    :defer 30
     :config
     (setq auto-package-update-delete-old-versions t
           auto-package-update-hide-results t)
-    (auto-package-update-maybe))
+    (run-with-idle-timer 30 nil
+                         (lambda ()
+                           (when (and (boundp 'djr/online-p) djr/online-p)
+                             (auto-package-update-maybe)))))
 #+end_src
 *** ensure
 #+begin_src emacs-lisp
