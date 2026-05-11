@@ -636,6 +636,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
   (use-package dimmer
     :if window-system
     :defer 1
+    :hook (after-init . dimmer-mode)
     :config
     (setq dimmer-exclusion-predicates
           '(helm--alive-p window-minibuffer-p echo-area-p))
@@ -643,8 +644,7 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
           '("^\\*[h|H]elm.*\\*" "^\\*Minibuf-[0-9]+\\*"
             "^.\\*which-key\\*$" "^*Messages*" "*LV*"
             "^*[e|E]cho [a|A]rea 0*" "*scratch*"
-            "transient"))
-    (dimmer-mode t))
+            "transient")))
 #+end_src
 *** doom-themes
 #+begin_src emacs-lisp
@@ -1680,8 +1680,7 @@ i.e. `0.3s` becomes `.3s`
 #+begin_src emacs-lisp
   ;; Enable vertico
   (use-package vertico
-    :init
-    (vertico-mode)
+    :hook (after-init . vertico-mode)
     :config
     ;; Grow and shrink the Vertico minibuffer
     (setq vertico-resize t)
@@ -1736,7 +1735,7 @@ i.e. `0.3s` becomes `.3s`
     ;; This is recommended since Dabbrev can be used globally (M-/).
     ;; See also `corfu-excluded-modes'.
     ;; :ensure t
-    :init (global-corfu-mode))
+    :hook (after-init . global-corfu-mode))
 #+end_src
 *** Flyspell
 Taken from [[https://stackoverflow.com/questions/17126951/emacs-cannot-find-flyspell-ispell][here]].
@@ -1826,13 +1825,7 @@ with `brew install aspell`.
     :bind (("M-A" . marginalia-cycle)
            :map minibuffer-local-map
            ("M-A" . marginalia-cycle))
-
-    ;; The :init configuration is always executed (Not lazy!)
-    :init
-
-    ;; Must be in the :init section of use-package such that the mode gets
-    ;; enabled right away. Note that this forces loading the package.
-    (marginalia-mode))
+    :hook (after-init . marginalia-mode))
 #+end_src
 *** Orderless
 #+begin_src emacs-lisp
@@ -2210,10 +2203,10 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
     (use-package projectile
       ;; :ensure t
       :bind-keymap ("C-c p" . projectile-command-map)
+      :hook (after-init . projectile-mode)
       :config (setq projectile-switch-project-action #'projectile-dired
                     projectile-indexing-method 'native
-                    projectile-enable-caching t)
-      :init (projectile-mode +1))
+                    projectile-enable-caching t))
 
     (defun djr/find-file-projectile-or-fallback ()
       "Try `projectile-find-file'; fall back to `find-file' if it errors
@@ -2446,8 +2439,7 @@ Details here: [[https://github.com/ahungry/org-jira]]
 ** editorconfig
 #+begin_src emacs-lisp
   (use-package editorconfig
-    :config
-    (editorconfig-mode 1))
+    :hook (after-init . editorconfig-mode))
 #+end_src
 ** Shells & Terminal Emulators
 *** terminal line numbers
