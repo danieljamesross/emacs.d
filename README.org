@@ -1741,14 +1741,23 @@ Taken from [[https://stackoverflow.com/questions/17126951/emacs-cannot-find-flys
 You need to install the ASpell spell checker. You can install it with homebrew
 with `brew install aspell`.
 #+begin_src emacs-lisp
-  ;; flyspell
-  (unless (executable-find "aspell")
-    (async-shell-command "brew install aspell"))
+  ;; flyspell — installed/configured lazily on first spellable buffer
+  (setq ispell-dictionary "british"
+        flyspell-issue-message-flag nil)
+
+  (defvar djr/flyspell-aspell-checked nil
+    "Non-nil once we have checked for aspell at runtime.")
+
+  (defun djr/ensure-aspell ()
+    (unless djr/flyspell-aspell-checked
+      (setq djr/flyspell-aspell-checked t)
+      (unless (executable-find "aspell")
+        (async-shell-command "brew install aspell"))))
+
   (dolist (hook '(text-mode-hook markdown-mode-hook))
-    (add-hook hook 'flyspell-mode))
-  (add-hook 'prog-mode-hook 'flyspell-prog-mode)
-  (setq ispell-dictionary "british")
-  (setq flyspell-issue-message-flag nil)
+    (add-hook hook (lambda () (djr/ensure-aspell) (flyspell-mode))))
+  (add-hook 'prog-mode-hook (lambda () (djr/ensure-aspell) (flyspell-prog-mode)))
+
   (defun flyspell-emacs-popup-textual (event poss word)
     "A textual flyspell popup menu."
     (unless (package-installed-p 'popup)
@@ -1783,15 +1792,13 @@ with `brew install aspell`.
                     (lambda (arg) (if (consp arg) (car arg) arg))
                     base-menu)))
         (cadr (assoc (popup-menu* menu :scroll-bar t) base-menu))))
-    (eval-after-load "flyspell"
-      '(progn
-         (fset 'flyspell-emacs-popup 'flyspell-emacs-popup-textual))))
+    (with-eval-after-load 'flyspell
+      (fset 'flyspell-emacs-popup 'flyspell-emacs-popup-textual)))
 
   ;; two-finger clicks for mac
-  (eval-after-load "flyspell"
-    '(progn
-       (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
-       (define-key flyspell-mouse-map [mouse-3] #'undefined)))
+  (with-eval-after-load 'flyspell
+    (define-key flyspell-mouse-map [down-mouse-3] #'flyspell-correct-word)
+    (define-key flyspell-mouse-map [mouse-3] #'undefined))
 
 
 #+end_src
