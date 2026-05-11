@@ -82,4 +82,4 @@
   (server-start))
 
 ;(popper--bury-all)
-(recentf-open-files)
+(add-hook 'emacs-startup-hook #'recentf-open-files)
