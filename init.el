@@ -90,3 +90,17 @@ result. Prefers .elc over .el. `file-name' is relative to `user-emacs-directory'
 
 ;(popper--bury-all)
 (add-hook 'emacs-startup-hook #'recentf-open-files)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-vc-selected-packages
+   '((lilypond :url "https://github.com/jmgpena/lilypond-mode.git")
+     (antesc :url "https://github.com/programLyrique/antesc-mode.git"))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
