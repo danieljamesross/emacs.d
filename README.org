@@ -204,11 +204,6 @@ https://github.com/d12frosted/homebrew-emacs-plus?tab=readme-ov-file#injected-pa
   (put 'downcase-region 'disabled nil)
   (put 'upcase-region 'disabled nil)
 #+end_src
-*** custom file
-#+begin_src emacs-lisp
-  (setq custom-file (expand-file-name (concat user-emacs-directory "djr-custom.el")))
-  (when (file-exists-p custom-file) (load custom-file))
-#+end_src
 *** debug
 #+begin_src emacs-lisp
   (setq debug-on-error t)
