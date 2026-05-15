@@ -93,7 +93,7 @@ https://github.com/d12frosted/homebrew-emacs-plus?tab=readme-ov-file#injected-pa
     :if (memq window-system '(mac ns x))
     :config
     (setq exec-path-from-shell-variables '("PATH" "MANPATH" "SHELL" "LIBRARY_PATH")
-          exec-path-from-shell-arguments '("-l"))
+          exec-path-from-shell-arguments '("-l" "-i"))
     (setq default-directory (expand-file-name "~/"))
     (setenv "SHELL" "/bin/zsh")
     (if (and (fboundp 'native-comp-available-p)
