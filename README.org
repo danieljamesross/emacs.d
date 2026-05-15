@@ -2565,7 +2565,7 @@ The buffer is named after that directory."
   (defun djr/vterm-project-or-here ()
     "Open `multi-vterm-project' when in a project, else `djr/vterm-here'."
     (interactive)
-    (if (multi-vterm-project-root)
+    (if (projectile-project-p)
         (multi-vterm-project)
       (djr/vterm-here)))
 #+end_src
