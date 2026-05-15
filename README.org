@@ -389,6 +389,43 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
 *** search
 #+begin_src emacs-lisp
   (setq case-fold-search t)
+
+  (defvar djr/search-ignored-dirs '("node_modules" "tmp")
+    "Directory basenames to exclude from project-wide search, at any depth.")
+
+  ;; `find -name <dir> -prune' (built from grep-find-ignored-directories)
+  ;; matches the basename anywhere in the tree, so each entry covers nested
+  ;; copies too.
+  (with-eval-after-load 'grep
+    (dolist (dir djr/search-ignored-dirs)
+      (add-to-list 'grep-find-ignored-directories dir)))
+
+  ;; project-find-regexp dispatches through xref, which shells out to either
+  ;; grep or ripgrep. Inject gitignore-style globs so rg skips any path under
+  ;; these directories, at any depth, even when no .gitignore applies.
+  (with-eval-after-load 'xref
+    (let* ((cell (assq 'ripgrep xref-search-program-alist))
+           (globs (mapconcat (lambda (d) (format "-g '!**/%s/**'" d))
+                             djr/search-ignored-dirs " "))
+           ;; Sentinel substring used to detect prior patching, so re-evaluating
+           ;; this block doesn't stack duplicate globs onto the command.
+           (marker "-g '!**/"))
+      (when (and cell (not (string-match-p (regexp-quote marker) (cdr cell))))
+        (setcdr cell
+                (replace-regexp-in-string "rg " (concat "rg " globs " ")
+                                          (cdr cell) t t)))))
+
+  ;; Buffer-based async project search. Bound to C-x C-g further down; results
+  ;; land in a dedicated *deadgrep* buffer (not the minibuffer) and rg runs in
+  ;; a subprocess so Emacs stays responsive.
+  (use-package deadgrep
+    :commands (deadgrep)
+    :config
+    (when (boundp 'djr/search-ignored-dirs)
+      (setq deadgrep-extra-arguments
+            (append deadgrep-extra-arguments
+                    (mapcar (lambda (d) (format "--glob=!**/%s/**" d))
+                            djr/search-ignored-dirs)))))
 #+end_src
 *** startup
 #+begin_src emacs-lisp
@@ -1307,7 +1344,7 @@ i.e. `0.3s` becomes `.3s`
   ;; Resize Windows
   ;; (global-set-key (kbd "S-s-C-<down>") 'shrink-window-horizontally)
   ;; (global-set-key (kbd "S-s-C-<up>") 'enlarge-window-horizontally)
-  (global-set-key (kbd "C-x C-g") 'project-find-regexp)
+  (global-set-key (kbd "C-x C-g") 'deadgrep)
 #+end_src
 *** Wrap with brackets and quotes
 #+begin_src emacs-lisp
@@ -1910,9 +1947,15 @@ with `brew install aspell`.
     ;; Optionally replace `completing-read-multiple' with an enhanced version.
     (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
 
-    ;; Use Consult to select xref locations with preview
-    ;; (setq xref-show-xrefs-function #'consult-xref
-    ;;       xref-show-definitions-function #'consult-xref)
+    ;; Apply the same dir-exclude list to consult-ripgrep when it's invoked
+    ;; directly (M-s r). It builds its own rg command independent of
+    ;; xref-search-program-alist, so the globs must be appended here too.
+    (when (boundp 'djr/search-ignored-dirs)
+      (setq consult-ripgrep-args
+            (concat consult-ripgrep-args
+                    " "
+                    (mapconcat (lambda (d) (format "--glob=!**/%s/**" d))
+                               djr/search-ignored-dirs " "))))
 
     ;; Configure other variables and modes in the :config section,
     ;; after lazily loading the package.
@@ -1931,7 +1974,7 @@ with `brew install aspell`.
      consult-ripgrep consult-git-grep consult-grep
      consult-bookmark consult-recent-file consult-xref
      ;; consult--source-file consult--source-project-file consult--source-bookmark
-     :preview-key (kbd "M-."))
+     :preview-key "M-.")
 
     ;; Optionally configure the narrowing key.
     ;; Both < and C-+ work reasonably well.
