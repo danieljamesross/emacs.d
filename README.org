@@ -353,6 +353,104 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
 *** recentf
 #+begin_src emacs-lisp
   (recentf-mode 1)
+
+  (defface djr/recentf-header
+    '((t :inherit font-lock-keyword-face :height 1.5 :weight bold))
+    "Header in the recent files buffer.")
+
+  (defface djr/recentf-subtitle
+    '((t :inherit shadow :slant italic))
+    "Subtitle in the recent files buffer.")
+
+  (defface djr/recentf-rule
+    '((t :inherit shadow))
+    "Horizontal rule in the recent files buffer.")
+
+  (defface djr/recentf-index
+    '((t :inherit font-lock-constant-face :weight bold))
+    "Numeric index in the recent files buffer.")
+
+  (defface djr/recentf-file
+    '((t :inherit font-lock-function-name-face :weight semi-bold))
+    "File name in the recent files buffer.")
+
+  (defface djr/recentf-dir
+    '((t :inherit shadow))
+    "Directory path in the recent files buffer.")
+
+  (defun djr/recentf-open-by-index ()
+    "Open the recent file whose index matches the typed digits.
+  Reads consecutive digits so entries past 9 are reachable; RET or any
+  non-digit ends the input."
+    (interactive)
+    (let* ((first (this-command-keys))
+           (digits (concat first))
+           key)
+      (while (and (setq key (read-key (format "Open #%s" digits)))
+                  (characterp key)
+                  (<= ?0 key ?9))
+        (setq digits (concat digits (string key))))
+      (let ((index (string-to-number digits)))
+        (when (and (> index 0) (<= index (length recentf-list)))
+          (find-file (nth (1- index) recentf-list))))))
+
+  (defun djr/recentf-open-files ()
+    "Open a visually styled buffer listing recent files."
+    (interactive)
+    (require 'nerd-icons nil t)
+    (let ((buf (get-buffer-create "*Recent Files*")))
+      (with-current-buffer buf
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (setq-local cursor-type nil)
+          (setq-local display-line-numbers nil)
+          (setq-local mode-line-format nil)
+          (setq-local truncate-lines t)
+          (insert "\n  "
+                  (propertize "Recent Files" 'face 'djr/recentf-header)
+                  "\n  "
+                  (propertize (format "%d files — digit to open, RET on row, n/p to move, g to refresh, q to quit"
+                                      (length recentf-list))
+                              'face 'djr/recentf-subtitle)
+                  "\n  "
+                  (propertize (make-string 72 ?─) 'face 'djr/recentf-rule)
+                  "\n\n")
+          (let ((i 1))
+            (dolist (file recentf-list)
+              (let* ((name (file-name-nondirectory file))
+                     (dir  (abbreviate-file-name
+                            (or (file-name-directory file) "")))
+                     (icon (when (fboundp 'nerd-icons-icon-for-file)
+                             (nerd-icons-icon-for-file name))))
+                (insert "  "
+                        (propertize (format "%2d." i) 'face 'djr/recentf-index)
+                        "  "
+                        (or icon " ")
+                        "  ")
+                (insert-text-button
+                 name
+                 'face 'djr/recentf-file
+                 'follow-link t
+                 'help-echo file
+                 'action `(lambda (_) (find-file ,file)))
+                (insert "   " (propertize dir 'face 'djr/recentf-dir) "\n"))
+              (setq i (1+ i))))
+          (goto-char (point-min))
+          (ignore-errors (forward-button 1))
+          (setq buffer-read-only t)
+          (let ((map (make-sparse-keymap)))
+            (set-keymap-parent map button-buffer-map)
+            (define-key map "q" #'quit-window)
+            (define-key map "n" #'forward-button)
+            (define-key map "p" #'backward-button)
+            (define-key map "g" #'djr/recentf-open-files)
+            (dotimes (d 10)
+              (define-key map (kbd (number-to-string d))
+                          #'djr/recentf-open-by-index))
+            (use-local-map map))))
+      (switch-to-buffer buf)))
+
+  (advice-add 'recentf-open-files :override #'djr/recentf-open-files)
 #+end_src
 *** Rainbow delimiters
 #+begin_src emacs-lisp
