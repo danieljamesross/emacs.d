@@ -785,6 +785,10 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
           doom-themes-enable-italic t
           doom-themes-treemacs-theme "doom-atom")
     (load-theme 'doom-monokai-pro t)
+    (let ((djr/dim-grey "#A39E9B"))
+      (set-face-attribute 'font-lock-comment-face nil :foreground djr/dim-grey)
+      (set-face-attribute 'font-lock-comment-delimiter-face nil :foreground djr/dim-grey)
+      (set-face-attribute 'line-number nil :foreground djr/dim-grey))
     (doom-themes-visual-bell-config)
     ;; Integrations are gated so we don't pull in treemacs/neotree/org
     ;; just to theme them.
