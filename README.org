@@ -1942,7 +1942,6 @@ with `brew install aspell`.
 #+end_src
 *** Minibuffer auto-complete
 #+begin_src emacs-lisp
-  (setq completion-styles '(basic initials partial-completion flex)) ; > Emacs 27.1
   (setq completion-cycle-threshold 10)
 #+end_src
 *** Fido
@@ -1968,7 +1967,10 @@ with `brew install aspell`.
 *** Orderless
 #+begin_src emacs-lisp
   (use-package orderless
-    :custom (completion-styles '(orderless)))
+    :custom
+    (completion-styles '(orderless basic))
+    (completion-category-defaults nil)
+    (completion-category-overrides '((file (styles basic partial-completion)))))
 #+end_src
 *** consult
 #+begin_src emacs-lisp
