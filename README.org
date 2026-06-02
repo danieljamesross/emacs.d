@@ -2213,28 +2213,16 @@ Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP sup
 #+end_src
 *** SBCL
 #+begin_src emacs-lisp
-    ;; (let ((sbcl (executable-find "sbcl")))
-    ;;   (when (not sbcl)
-    ;;     (shell-command "brew install sbcl")
-    ;;     (setq sbcl (executable-find "sbcl")))
-    ;;   ;; Set your lisp system and, optionally, some contribs
-    ;;   (setq inferior-lisp-program sbcl)
-    ;;   (let ((sbcl-local (car (file-expand-wildcards
-    ;;                           "/opt/homebrew/Cellar/sbcl/*/lib/sbcl/sbcl.core"))))
-    ;;     (setq slime-lisp-implementations
-    ;;           `((sbcl ("/opt/homebrew/Cellar/sbcl"
-    ;;                    "--core"
-    ;;                    ;; replace with correct path of sbcl
-    ;;                    ,sbcl-local
-    ;;                    "--dynamic-space-size" "2147"))))))
-
-  ;; (setq inferior-lisp-program "/opt/homebrew/Cellar/sbcl/2.5.1/lib/bin/sbcl/sbcl.core")
+  (when (not (executable-find "sbcl"))
+    (shell-command "brew install sbcl"))
+  (setq inferior-lisp-program "sbcl")
 #+end_src
 *** slime
 #+begin_src emacs-lisp
+  (use-package slime-repl-ansi-color :defer t); :config (setq slime-contribs '(slime-fancy)))
   ;; slime
-  (use-package slime :defer t :config (setq inferior-lisp-program "/opt/sbcl/bin/sbcl"))
-  ;;   :hook (slime-repl-mode-hook . slime-repl-ansi-color-mode))
+  (use-package slime
+    :defer t)
 
   ;; Keep the SLDB debugger out of cramped windows. When it pops up in
   ;; a short window (~7 lines), slime--adjust-window-start's
@@ -2267,6 +2255,46 @@ Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP sup
     :after slime-repl
     :requires slime
     :hook (slime-repl-mode-hook . slime-repl-ansi-color-mode))
+#+end_src
+*** quicklisp
+Quicklisp installs itself to =~/quicklisp/= with a =setup.lisp=. This helper
+installs it via SBCL in batch mode if it isn't already present. We deliberately
+skip =ql:add-to-init-file= — rather than depend on a =~/.sbclrc=, the config
+below tells SLIME to =--load= =setup.lisp= every time it launches SBCL, so
+Quicklisp (and =ql:quickload=) is available in every REPL.
+#+begin_src emacs-lisp
+  (defvar dan/quicklisp-setup (expand-file-name "~/quicklisp/setup.lisp")
+    "Path to Quicklisp's setup.lisp.")
+
+  (defun dan/quicklisp-install ()
+    "Download and install Quicklisp via SBCL unless it is already present."
+    (interactive)
+    (if (file-exists-p dan/quicklisp-setup)
+        (message "Quicklisp already installed at %s" dan/quicklisp-setup)
+      (unless (executable-find "sbcl")
+        (error "SBCL not found; cannot install Quicklisp"))
+      (let ((bootstrap (make-temp-file "quicklisp" nil ".lisp")))
+        (message "Installing Quicklisp...")
+        (url-copy-file "https://beta.quicklisp.org/quicklisp.lisp" bootstrap t)
+        (with-temp-buffer
+          (let ((status (call-process
+                         "sbcl" nil t nil
+                         "--non-interactive"
+                         "--load" bootstrap
+                         "--eval" "(quicklisp-quickstart:install)")))
+            (delete-file bootstrap)
+            (if (and (integerp status) (zerop status))
+                (message "Quicklisp installed to %s"
+                         (expand-file-name "~/quicklisp/"))
+              (error "Quicklisp install failed:\n%s" (buffer-string))))))))
+
+  (dan/quicklisp-install)
+
+  ;; Load Quicklisp every time SLIME launches SBCL, without touching ~/.sbclrc.
+  (with-eval-after-load 'slime
+    (when (file-exists-p dan/quicklisp-setup)
+      (setq slime-lisp-implementations
+            `((sbcl ("sbcl" "--load" ,dan/quicklisp-setup))))))
 #+end_src
 *** paredit
 Man, this is slow. Removing it for now.
