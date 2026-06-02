@@ -150,19 +150,24 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
       (delete-window window)))
 
   (defun display-all-vterms ()
+    "Open a new frame and tile all live vterm buffers evenly across it."
     (interactive)
-    (delete-other-windows)
-    (let ((buffers-in-window (buffer-in-window-list)))
-      (dolist (buffer (buffer-list))
-        (when (and (string-match vterm-string (buffer-name buffer))
-                   (not (memq buffer buffers-in-window)))
-          (set-window-buffer (split-window (get-largest-window)) buffer)))
-      (walk-windows #'delete-non-vterms-windows)
-      (if (< (frame-outer-width) (x-display-pixel-width))
-          (transpose-frame))
+    (let ((vterm-buffers
+           (cl-remove-if-not
+            (lambda (b) (string-match vterm-string (buffer-name b)))
+            (buffer-list))))
+      (unless vterm-buffers
+        (user-error "No vterm buffers to display"))
+      (select-frame (make-frame))
+      (delete-other-windows)
+      (switch-to-buffer (car vterm-buffers))
+      (dolist (buffer (cdr vterm-buffers))
+        (set-window-buffer (split-window (get-largest-window)) buffer))
+      (when (< (frame-outer-width) (x-display-pixel-width))
+        (transpose-frame))
       (balance-windows)))
 #+end_src
-** /execute-startup-block
+** execute-startup-block
 https://lists.gnu.org/archive/html/emacs-orgmode/2016-07/msg00394.html
 #+begin_src emacs-lisp
   (defun esf/execute-startup-block (org-block)

@@ -2627,14 +2627,21 @@ shell, org, and treemacs buffers never get them in the first place.
     :hook (vterm-mode . djr/vterm-disable-display-modes)
     :config
     (defun djr/vterm-disable-display-modes ()
-      "Disable line-numbers, prettify-symbols, and ligature modes in vterm.
-  vterm assumes a fixed-cell grid, so glyph substitution and gutter
-  columns desync cursor positioning and produce ghost text on redraw."
+      "Disable Emacs display features that fight vterm's fixed-cell grid.
+  vterm tracks a character grid and repaints cells directly; any Emacs
+  feature that substitutes glyphs, adds gutter columns, paints extra
+  backgrounds, or visually wraps long lines will desync cursor
+  positioning and produce ghost text or streaks on redraw."
       (display-line-numbers-mode -1)
       (when (bound-and-true-p prettify-symbols-mode)
         (prettify-symbols-mode -1))
       (when (bound-and-true-p ligature-mode)
-        (ligature-mode -1)))
+        (ligature-mode -1))
+      (when (bound-and-true-p whitespace-mode)
+        (whitespace-mode -1))
+      (when (bound-and-true-p hl-line-mode)
+        (hl-line-mode -1))
+      (setq-local truncate-lines t))
 
     (defun get-full-list ()
       (let ((program-list (split-string (shell-command-to-string "compgen -c") "\n" t ))
@@ -2781,6 +2788,13 @@ Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
     can render at different widths than the underlying characters; vterm
     assumes a fixed-cell grid, so this desyncs the cursor and produces
     ghost text on TUI redraws.
+  - `whitespace-mode' inserts visible markers (¶, ▷, etc.) into the
+    buffer, and `hl-line-mode' paints a background swatch across the
+    current row; both fight vterm's cell-level repainting and leave
+    artifacts.
+  - `truncate-lines' must be t so Emacs never visually wraps a long
+    line; vterm tracks line breaks itself, and visual wrap cascades into
+    corruption until the next `clear'.
   - claude-code-ide tries to set `vterm--redraw-immediately' to nil to
     batch updates, but its `boundp' check targets a misspelled symbol
     (`vterm--redraw-immididately', see claude-code-ide.el:422), so the
@@ -2795,6 +2809,11 @@ Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
         (prettify-symbols-mode -1))
       (when (bound-and-true-p ligature-mode)
         (ligature-mode -1))
+      (when (bound-and-true-p whitespace-mode)
+        (whitespace-mode -1))
+      (when (bound-and-true-p hl-line-mode)
+        (hl-line-mode -1))
+      (setq-local truncate-lines t)
       (setq-local vterm--redraw-immediately nil)
       (setq-local process-adaptive-read-buffering nil)))
 
