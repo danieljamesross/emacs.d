@@ -2235,6 +2235,31 @@ Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP sup
   ;; slime
   (use-package slime :defer t :config (setq inferior-lisp-program "/opt/sbcl/bin/sbcl"))
   ;;   :hook (slime-repl-mode-hook . slime-repl-ansi-color-mode))
+
+  ;; Keep the SLDB debugger out of cramped windows. When it pops up in
+  ;; a short window (~7 lines), slime--adjust-window-start's
+  ;; end-of-window geometry assertion fails and masks the actual
+  ;; condition with a cl-assertion-failed backtrace. Reuse an existing
+  ;; sldb window, otherwise claim a full-width slice at the bottom of
+  ;; the frame ~40% tall (>= 20 lines). display-buffer-at-bottom is
+  ;; used deliberately: pop-up-window/below-selected just split the
+  ;; current (possibly tiny) window and don't honour window-height.
+  (add-to-list 'display-buffer-alist
+               '("\\*sldb"
+                 (display-buffer-reuse-window
+                  display-buffer-at-bottom)
+                 (window-height . 0.4)
+                 (window-min-height . 20)))
+
+  ;; Belt and suspenders: the display rule above keeps SLDB in a tall
+  ;; window, but slime--adjust-window-start's geometry assertions are
+  ;; still theoretically reachable in pathological layouts. They are
+  ;; end-of-function sanity checks run after the window is already
+  ;; positioned, so swallowing a failure costs at most a slightly
+  ;; imperfect scroll position -- never the debugger itself.
+  (with-eval-after-load 'slime
+    (advice-add 'slime--adjust-window-start :around
+                (lambda (orig &rest args) (ignore-errors (apply orig args)))))
 #+end_src
 *** slime-repl-ansi-color
 #+begin_src emacs-lisp
