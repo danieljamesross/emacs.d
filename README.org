@@ -1302,7 +1302,7 @@ i.e. `0.3s` becomes `.3s`
     (js-mode . setup-tide-mode)
     (rjsx-mode . setup-tide-mode))
   ;; :hook ((before-save . tide-format-before-save))
-  (eval-after-web-mode-load 'trigger-tide-setup)
+  (eval-after-web-mode-load #'trigger-tide-setup)
 #+end_src
 *** jinja
 #+begin_src emacs-lisp
