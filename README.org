@@ -2250,6 +2250,24 @@ Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP sup
   (with-eval-after-load 'slime
     (advice-add 'slime--adjust-window-start :around
                 (lambda (orig &rest args) (ignore-errors (apply orig args)))))
+
+  ;; Use on-demand (TAB) completion in SLIME buffers instead of corfu's
+  ;; auto-popup. SLIME's completion-at-point is a synchronous swank
+  ;; round-trip (swank:completions), and corfu-auto runs capfs inside
+  ;; `while-no-input' -- so a keystroke arriving mid-query aborts the
+  ;; slime-eval, and the late reply lands on a dead tag, popping the
+  ;; debugger with "Reply to canceled synchronous eval request". This is
+  ;; easy to hit once a huge package (e.g. slippery-chicken) makes the
+  ;; query slow. Disabling corfu-auto keeps the popup but only fires it
+  ;; on demand, so the query always runs to completion. The mode hook
+  ;; runs before global-corfu-mode's after-change-major-mode-hook, so
+  ;; the buffer-local value is in place before corfu reads it.
+  (defun dan/slime-disable-corfu-auto ()
+    "Disable corfu-auto in the current buffer; keep on-demand completion."
+    (setq-local corfu-auto nil)
+    (remove-hook 'post-command-hook 'corfu-auto--post-command 'local))
+  (add-hook 'slime-repl-mode-hook #'dan/slime-disable-corfu-auto)
+  (add-hook 'lisp-mode-hook #'dan/slime-disable-corfu-auto)
 #+end_src
 *** slime-repl-ansi-color
 #+begin_src emacs-lisp
