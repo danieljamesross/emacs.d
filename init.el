@@ -12,43 +12,49 @@
 
 (add-hook 'emacs-startup-hook #'efs/display-startup-time)
 
-(defun last-modified (file)
-  (let* ((file-attrs (file-attributes (expand-file-name file)))
-	 (last-mod-time (nth 5 file-attrs)))
-    (time-convert last-mod-time 'integer)))
-
-(defun check-newer-than (file1 file2)
-  (let ((lm1 (last-modified file1))
-        (lm2 (last-modified file2)))
-    (if (and (numberp lm1) (numberp lm2))
-        (> lm1 lm2)
-      nil)))
-
 (defun compile-org-or-load-precompiled-el (file-name)
-  "Tangle/byte-compile `file-name'.org if it has changed, then load the
-result. Prefers .elc over .el. `file-name' is relative to `user-emacs-directory'."
-  (let* ((file (concat user-emacs-directory file-name))
-         (org (concat file ".org"))
-         (el (concat file ".el"))
-         (elc (concat file ".elc")))
-    (cond
-     ;; .org newer than .el (or no .el yet): tangle, compile, and load via org-babel
-     ((or (not (file-exists-p el))
-          (check-newer-than org el))
-      (message "tangling and byte-compiling %s" org)
-      (org-babel-load-file org)
+  "Tangle FILE-NAME.org -> .el when the org source has changed, byte-compile
+it, then load the result, preferring the .elc.  FILE-NAME is relative to
+`user-emacs-directory'.
+
+Staleness is decided with `file-newer-than-file-p', which uses the full
+file-modification timestamp.  (The previous implementation truncated mtimes
+to whole seconds, so an edit and a prior tangle that landed in the same
+second compared as equal and the edit was silently dropped.)
+
+If byte-compilation fails it returns nil without signalling, leaving the
+.elc missing or stale; in that case we fall back to loading the .el source
+and simply retry the compile on the next startup -- no manual deletion of
+the .el/.elc files is required to pick up an org edit."
+  (let* ((base (expand-file-name file-name user-emacs-directory))
+         (org  (concat base ".org"))
+         (el   (concat base ".el"))
+         (elc  (concat base ".elc")))
+    ;; (Re)tangle whenever the org source is newer than the tangled .el
+    ;; (file-newer-than-file-p also returns t when .el is missing).
+    (when (file-newer-than-file-p org el)
+      (message "tangling %s" org)
+      (require 'ob-tangle)
+      (org-babel-tangle-file org el "emacs-lisp")
+      ;; org-babel-tangle-file may skip rewriting an unchanged .el; force its
+      ;; mtime past the .org so this edit is recorded as processed.
       (when (file-exists-p el)
-        (byte-compile-file el)))
-     ;; .el newer than .elc (rare — manual edit of tangled file): recompile then load .elc
-     ((or (not (file-exists-p elc))
-          (check-newer-than el elc))
+        (set-file-times el)))
+    ;; (Re)compile whenever the .elc is missing or older than the .el.
+    (when (and (file-exists-p el)
+               (file-newer-than-file-p el elc))
       (message "byte-compiling %s" el)
-      (byte-compile-file el)
-      (load (file-name-sans-extension el) nil 'nomessage))
-     ;; .elc is current: load it
-     (t
+      (byte-compile-file el))
+    ;; Load the .elc when it is current, otherwise fall back to .el source.
+    (cond
+     ((file-newer-than-file-p elc el)
       (message "loading %s" elc)
-      (load (file-name-sans-extension el) nil 'nomessage)))))
+      (load elc nil 'nomessage))
+     ((file-exists-p el)
+      (message "loading %s (uncompiled)" el)
+      (load el nil 'nomessage))
+     (t
+      (error "Cannot load %s: neither %s nor %s exists" file-name el elc)))))
 
 (compile-org-or-load-precompiled-el "functions")
 

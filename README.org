@@ -1092,7 +1092,12 @@ Take from [[https://github.com/DarthFennec/highlight-indent-guides][here]]
    ;;                                   (buffer-name))
    ;;               (cmake-mode))))
   (use-package cmake-font-lock)
-  (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "djr-cmake-mode/")))
+  ;; Use eval-and-compile so the directory is on `load-path' during
+  ;; byte-compilation too -- otherwise the compiler evaluates the
+  ;; `require' below before this `add-to-list' has run at load time,
+  ;; fails to find djr-cmake-mode, aborts, and never writes README.elc.
+  (eval-and-compile
+    (add-to-list 'load-path (expand-file-name (concat user-emacs-directory "djr-cmake-mode/"))))
   (require 'djr-cmake-mode)
   (add-to-list 'auto-mode-alist '("\[Cc][Mm]ake[Ll]ists\.txt\\'" . djr-cmake-mode))
 #+end_src
@@ -2193,7 +2198,17 @@ Got this from [[https://emacs-lsp.github.io/lsp-mode/page/installation/][LSP sup
 ** eglot
 #+begin_src emacs-lisp
   (use-package eglot :after dash
-    :hook (prog-mode . (lambda () (unless (derived-mode-p 'org-mode) (eglot-ensure))))
+    ;; Auto-start Eglot for prog-mode buffers that actually have a language
+    ;; server -- but NEVER for Lisp-family modes. Common Lisp (.lsp/.lisp) is
+    ;; served by SLIME, and Emacs Lisp by Emacs's native tooling; neither has an
+    ;; entry in eglot-server-programs. If eglot-ensure fires on them it walks
+    ;; into eglot--connect with no server process and crashes with
+    ;; "(wrong-type-argument processp nil)" -- buffer "EGLOT (project/nil)".
+    :hook (prog-mode . (lambda ()
+                         (unless (derived-mode-p 'org-mode 'emacs-lisp-mode
+                                                 'lisp-mode 'lisp-data-mode
+                                                 'scheme-mode)
+                           (eglot-ensure))))
     :config (setq eglot-code-action-indicator ""))
 #+end_src
 *** eglot-ensure
