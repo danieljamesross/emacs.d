@@ -529,6 +529,7 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
   (setq standard-indent 2
         js-indent-level 2)
   (setq-default indent-tabs-mode nil)
+  (setq-default tab-width 2)
   (setq-default tab-always-indent 'complete)
   (global-set-key (kbd "S-M-t") 'indent-rigidly-left)
 #+end_src
@@ -2374,12 +2375,22 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
 #+begin_src emacs-lisp
   (use-package  auctex
     :defines (latex-help-cmd-alist latex-help-file)
-    :mode ("\\.tex\\'" . TeX-latex-mode)
+    ;; AUCTeX 14 renamed the entry point: the old `TeX-latex-mode' autoload no
+    ;; longer exists, so visiting a .tex file errored with "failed to define
+    ;; function TeX-latex-mode".  The mode function is now `LaTeX-mode'.
+    :mode ("\\.tex\\'" . LaTeX-mode)
     :init
     (setq reftex-plug-into-AUCTeX t)
     (setenv "PATH" (concat "/Library/TeX/texbin:"
                            (getenv "PATH")))
     (add-to-list 'exec-path "/Library/TeX/texbin")
+    ;; Make sure a TeX engine exists before LaTeX-mode (and the preview pane,
+    ;; which shells out to pdflatex) ever runs.  /Library/TeX/texbin is the
+    ;; MacTeX/BasicTeX install location, already on PATH/exec-path above.
+    (unless (executable-find "pdflatex")
+      (if (executable-find "brew")
+          (async-shell-command "brew install --cask mactex")
+        (message "TeX not installed and Homebrew unavailable; install MacTeX or BasicTeX manually")))
     :config
     (defun latex-help-get-cmd-alist () ;corrected version:
       "Scoop up the commands in the index of the latex info manual.
@@ -2423,12 +2434,11 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
 #+end_src
 *** LaTeX
 #+begin_src emacs-lisp
-  ;; (use-package auctex
-  ;;   :ensure t
-  ;;   :if window-system
-  ;;   :config
-  ;;     (latex-preview-pane-enable)
-  ;;     (require 'latex-pretty-symbols))
+ (use-package tex
+  :defer t
+  :ensure auctex
+  :config
+  (setq TeX-auto-save t))
 #+end_src
 ** Projectile
 #+begin_src emacs-lisp
@@ -2892,4 +2902,84 @@ Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
     ;; 0.02s gives the anti-flicker queue a usable batching window.
     (setq claude-code-ide-vterm-render-delay 0.02)
     (add-hook 'vterm-mode-hook #'djr/configure-claude-vterm))
+#+end_src
+** Zone
+The built-in =zone= screensaver only ever animates the /selected/ window, and
+each of its zone programs runs its own blocking read-input loop, so they
+can't be composed across windows. To zone every buffer of every window at
+once I roll my own: copy each visible window's text into a throwaway buffer,
+swap it in, and drive a single timer loop that dissolves them all in
+parallel until any key arrives. =djr/zone-when-idle-mode= is the =zone-mode=
+equivalent — a global minor mode that arms the idle timer (the
+=zone-when-idle= part).
+#+begin_src emacs-lisp
+  (require 'cl-lib)
+
+  (defvar djr/zone-idle-seconds 120
+    "Idle seconds before `djr/zone-all-windows' kicks in.")
+
+  (defvar djr/zone--idle-timer nil
+    "The repeating idle timer armed by `djr/zone-when-idle-mode'.")
+
+  (defvar djr/zone--active nil
+    "Non-nil while a zone is running, to block timer re-entrancy.")
+
+  (defun djr/zone--dissolve-step (buf)
+    "Blank out a few random glyphs in BUF, leaving layout intact."
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (let ((size (buffer-size)))
+          (when (> size 0)
+            (let ((inhibit-read-only t))
+              (dotimes (_ (max 1 (/ size 60)))
+                (goto-char (1+ (random size)))
+                (let ((c (char-after)))
+                  (when (and c (not (memq c '(?\s ?\n ?\t))))
+                    (delete-char 1)
+                    (insert-char ?\s))))))))))
+
+  (defun djr/zone-all-windows ()
+    "Run a dissolve screensaver in every window of every frame at once.
+  Restores all windows as soon as a key is pressed (or \\[keyboard-quit])."
+    (interactive)
+    (unless djr/zone--active
+      (let ((djr/zone--active t)
+            (config (current-frame-configuration))
+            (zbufs nil))
+        (unwind-protect
+            (progn
+              (dolist (frame (frame-list))
+                (when (frame-visible-p frame)
+                  (dolist (w (window-list frame 'no-minibuf))
+                    (let (text)
+                      (with-selected-window w
+                        (setq text (buffer-substring (window-start)
+                                                     (window-end nil t))))
+                      (let ((zb (generate-new-buffer " *djr-zone*")))
+                        (with-current-buffer zb
+                          (insert text)
+                          (goto-char (point-min)))
+                        (set-window-buffer w zb)
+                        (push zb zbufs))))))
+              ;; `sit-for' returns nil the moment input is pending.
+              (while (sit-for 0.08)
+                (mapc #'djr/zone--dissolve-step zbufs)))
+          (set-frame-configuration config)
+          (dolist (b zbufs)
+            (when (buffer-live-p b) (kill-buffer b)))))))
+
+  (define-minor-mode djr/zone-when-idle-mode
+    "Global mode: zone every window after `djr/zone-idle-seconds' idle."
+    :global t
+    :lighter " Zzz"
+    :group 'convenience
+    (when (timerp djr/zone--idle-timer)
+      (cancel-timer djr/zone--idle-timer)
+      (setq djr/zone--idle-timer nil))
+    (when djr/zone-when-idle-mode
+      (setq djr/zone--idle-timer
+            (run-with-idle-timer djr/zone-idle-seconds t
+                                 #'djr/zone-all-windows))))
+
+  (djr/zone-when-idle-mode 1)
 #+end_src
