@@ -2908,12 +2908,16 @@ The built-in =zone= screensaver only ever animates the /selected/ window, and
 each of its zone programs runs its own blocking read-input loop, so they
 can't be composed across windows. To zone every buffer of every window at
 once I roll my own: copy each visible window's text into a throwaway buffer,
-swap it in, and drive a single timer loop that dissolves them all in
-parallel until any key arrives. =djr/zone-when-idle-mode= is the =zone-mode=
+swap it in, and drive a single timer loop that animates them all in
+parallel until any key arrives. Each window draws a random effect from
+=djr/zone-programs= (dissolve, static, case-swap, rot13, drip, bubbles,
+marquee, shuffle, mirror, word-vaporize, pac-man, un-type), so every
+activation looks different. =djr/zone-when-idle-mode= is the =zone-mode=
 equivalent — a global minor mode that arms the idle timer (the
 =zone-when-idle= part).
 #+begin_src emacs-lisp
   (require 'cl-lib)
+  (require 'thingatpt)
 
   (defvar djr/zone-idle-seconds 120
     "Idle seconds before `djr/zone-all-windows' kicks in.")
@@ -2938,6 +2942,214 @@ equivalent — a global minor mode that arms the idle timer (the
                     (delete-char 1)
                     (insert-char ?\s))))))))))
 
+  (defun djr/zone--static-step (buf)
+    "Replace a few random glyphs in BUF with random printable characters."
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (let ((size (buffer-size)))
+          (when (> size 0)
+            (let ((inhibit-read-only t))
+              (dotimes (_ (max 1 (/ size 60)))
+                (goto-char (1+ (random size)))
+                (let ((c (char-after)))
+                  (when (and c (not (memq c '(?\s ?\n ?\t))))
+                    (delete-char 1)
+                    (insert-char (+ ?! (random 94))))))))))))
+
+  (defun djr/zone--case-step (buf)
+    "Flip the case of a few random letters in BUF."
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (let ((size (buffer-size)))
+          (when (> size 0)
+            (let ((inhibit-read-only t))
+              (dotimes (_ (max 1 (/ size 40)))
+                (goto-char (1+ (random size)))
+                (let ((c (char-after)))
+                  (when (and c (or (<= ?a c ?z) (<= ?A c ?Z)))
+                    (delete-char 1)
+                    (insert-char (if (<= ?a c ?z) (upcase c) (downcase c))))))))))))
+
+  (defun djr/zone--rot13-step (buf)
+    "Rot13 a few random letters in BUF."
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (let ((size (buffer-size)))
+          (when (> size 0)
+            (let ((inhibit-read-only t))
+              (dotimes (_ (max 1 (/ size 60)))
+                (goto-char (1+ (random size)))
+                (let ((c (char-after)))
+                  (when (and c (or (<= ?a c ?z) (<= ?A c ?Z)))
+                    (delete-char 1)
+                    (insert-char (if (<= ?a c ?z)
+                                     (+ ?a (% (+ (- c ?a) 13) 26))
+                                   (+ ?A (% (+ (- c ?A) 13) 26)))))))))))))
+
+  (defun djr/zone--drip-step (buf)
+    "Let a few random glyphs in BUF fall one line, leaving a blank behind."
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (let ((size (buffer-size)))
+          (when (> size 0)
+            (let ((inhibit-read-only t))
+              (dotimes (_ (max 1 (/ size 80)))
+                (goto-char (1+ (random size)))
+                (let ((c (char-after))
+                      (col (current-column)))
+                  (when (and c (not (memq c '(?\s ?\n ?\t))))
+                    (delete-char 1)
+                    (insert-char ?\s)
+                    ;; Land one line down, same column, but only into a gap --
+                    ;; never shove existing glyphs aside.
+                    (when (zerop (forward-line 1))
+                      (move-to-column col t)
+                      (when (or (eolp) (eq (char-after) ?\s))
+                        (unless (eolp) (delete-char 1))
+                        (insert-char c))))))))))))
+
+  (defun djr/zone--marquee-step (buf)
+    "Rotate every line of BUF one character to the left."
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (let ((inhibit-read-only t))
+          (goto-char (point-min))
+          (while (not (eobp))
+            (let ((end (line-end-position)))
+              (when (> end (point))
+                (let ((c (char-after)))
+                  (delete-char 1)
+                  (goto-char (1- end))
+                  (insert-char c))))
+            (forward-line 1))))))
+
+  (defun djr/zone--rise-step (buf)
+    "Let a few random glyphs in BUF bubble up one line, leaving a blank behind."
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (let ((size (buffer-size)))
+          (when (> size 0)
+            (let ((inhibit-read-only t))
+              (dotimes (_ (max 1 (/ size 80)))
+                (goto-char (1+ (random size)))
+                (let ((c (char-after))
+                      (col (current-column)))
+                  (when (and c (not (memq c '(?\s ?\n ?\t))))
+                    (delete-char 1)
+                    (insert-char ?\s)
+                    ;; Surface one line up, same column, but only into a gap --
+                    ;; never shove existing glyphs aside.
+                    (when (zerop (forward-line -1))
+                      (move-to-column col t)
+                      (when (or (eolp) (eq (char-after) ?\s))
+                        (unless (eolp) (delete-char 1))
+                        (insert-char c))))))))))))
+
+  (defun djr/zone--shuffle-step (buf)
+    "Swap a few random pairs of glyphs in BUF, scrambling it in place."
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (let ((size (buffer-size)))
+          (when (> size 1)
+            (let ((inhibit-read-only t))
+              (dotimes (_ (max 1 (/ size 60)))
+                (let* ((p1 (1+ (random size)))
+                       (p2 (1+ (random size)))
+                       (c1 (char-after p1))
+                       (c2 (char-after p2)))
+                  ;; Leave newlines alone so the layout survives the scramble.
+                  (when (and c1 c2 (/= p1 p2)
+                             (not (eq c1 ?\n)) (not (eq c2 ?\n)))
+                    (goto-char p1) (delete-char 1) (insert-char c2)
+                    (goto-char p2) (delete-char 1) (insert-char c1))))))))))
+
+  (defun djr/zone--mirror-step (buf)
+    "Reverse a random line of BUF."
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (let ((size (buffer-size)))
+          (when (> size 0)
+            (let ((inhibit-read-only t))
+              (goto-char (1+ (random size)))
+              (let ((beg (line-beginning-position))
+                    (end (line-end-position)))
+                (when (> end beg)
+                  (let ((line (buffer-substring beg end)))
+                    (delete-region beg end)
+                    (goto-char beg)
+                    (insert (reverse line)))))))))))
+
+  (defun djr/zone--vaporize-step (buf)
+    "Blank out a couple of random whole words in BUF."
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (let ((size (buffer-size)))
+          (when (> size 0)
+            (let ((inhibit-read-only t))
+              (dotimes (_ 2)
+                (goto-char (1+ (random size)))
+                (let ((bounds (bounds-of-thing-at-point 'word)))
+                  (when bounds
+                    (let ((len (- (cdr bounds) (car bounds))))
+                      (delete-region (car bounds) (cdr bounds))
+                      (goto-char (car bounds))
+                      (insert-char ?\s len)))))))))))
+
+  (defvar-local djr/zone--pacman-pos 1
+    "Where the pac-man in this zone buffer currently is.")
+
+  (defun djr/zone--pacman-step (buf)
+    "March a hungry C through BUF, eating everything in its path."
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (let ((size (buffer-size)))
+          (when (> size 0)
+            (let ((inhibit-read-only t))
+              (dotimes (_ 4)
+                (when (or (> djr/zone--pacman-pos size)
+                          (< djr/zone--pacman-pos 1))
+                  (setq djr/zone--pacman-pos 1))
+                (goto-char djr/zone--pacman-pos)
+                (unless (eq (char-after) ?\n)
+                  (delete-char 1)
+                  (insert-char ?\s))
+                (setq djr/zone--pacman-pos (1+ djr/zone--pacman-pos)))
+              ;; Redraw the muncher at its new spot, chomping as it goes.
+              (when (<= djr/zone--pacman-pos size)
+                (goto-char djr/zone--pacman-pos)
+                (unless (eq (char-after) ?\n)
+                  (delete-char 1)
+                  (insert-char (if (cl-evenp djr/zone--pacman-pos) ?C ?c))))))))))
+
+  (defun djr/zone--unwrite-step (buf)
+    "Un-type BUF a few characters at a time, from the end."
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
+        (let ((size (buffer-size)))
+          (when (> size 0)
+            (let ((inhibit-read-only t))
+              (dotimes (_ (max 1 (/ size 200)))
+                (when (> (buffer-size) 0)
+                  (goto-char (point-max))
+                  (delete-char -1)))))))))
+
+  (defvar djr/zone-programs
+    '(djr/zone--dissolve-step
+      djr/zone--static-step
+      djr/zone--case-step
+      djr/zone--rot13-step
+      djr/zone--drip-step
+      djr/zone--rise-step
+      djr/zone--marquee-step
+      djr/zone--shuffle-step
+      djr/zone--mirror-step
+      djr/zone--vaporize-step
+      djr/zone--pacman-step
+      djr/zone--unwrite-step)
+    "Animation step functions for `djr/zone-all-windows'.
+  Each takes a zone buffer and mutates it a little; one is drawn at
+  random per window per activation.")
+
   (defun djr/zone-all-windows ()
     "Run a dissolve screensaver in every window of every frame at once.
   Restores all windows as soon as a key is pressed (or \\[keyboard-quit])."
@@ -2960,13 +3172,16 @@ equivalent — a global minor mode that arms the idle timer (the
                           (insert text)
                           (goto-char (point-min)))
                         (set-window-buffer w zb)
-                        (push zb zbufs))))))
+                        (push (cons zb (nth (random (length djr/zone-programs))
+                                            djr/zone-programs))
+                              zbufs))))))
               ;; `sit-for' returns nil the moment input is pending.
               (while (sit-for 0.08)
-                (mapc #'djr/zone--dissolve-step zbufs)))
+                (dolist (pair zbufs)
+                  (funcall (cdr pair) (car pair)))))
           (set-frame-configuration config)
-          (dolist (b zbufs)
-            (when (buffer-live-p b) (kill-buffer b)))))))
+          (dolist (pair zbufs)
+            (when (buffer-live-p (car pair)) (kill-buffer (car pair))))))))
 
   (define-minor-mode djr/zone-when-idle-mode
     "Global mode: zone every window after `djr/zone-idle-seconds' idle."
@@ -2981,5 +3196,5 @@ equivalent — a global minor mode that arms the idle timer (the
             (run-with-idle-timer djr/zone-idle-seconds t
                                  #'djr/zone-all-windows))))
 
-  (djr/zone-when-idle-mode 1)
+  (djr/zone-when-idle-mode 0)
 #+end_src
