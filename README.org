@@ -359,11 +359,11 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
     "Header in the recent files buffer.")
 
   (defface djr/recentf-subtitle
-    '((t :inherit shadow :slant italic))
+    '((t :inherit font-lock-comment-face :slant italic))
     "Subtitle in the recent files buffer.")
 
   (defface djr/recentf-rule
-    '((t :inherit shadow))
+    '((t :inherit font-lock-comment-face))
     "Horizontal rule in the recent files buffer.")
 
   (defface djr/recentf-index
@@ -375,7 +375,7 @@ https://github.com/emacsmirror/emacswiki.org/blob/master/key-chord.el
     "File name in the recent files buffer.")
 
   (defface djr/recentf-dir
-    '((t :inherit shadow))
+    '((t :inherit font-lock-comment-face))
     "Directory path in the recent files buffer.")
 
   (defun djr/recentf-open-by-index ()
