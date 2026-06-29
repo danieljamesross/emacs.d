@@ -2643,7 +2643,187 @@ Details here: [[https://github.com/ahungry/org-jira]]
   (use-package magit
     ;; :ensure t
     :bind (("C-x g" . magit-status))
-    :defer t)
+    :defer t
+    :custom (magit-add-section-hook 'magit-status-sections-hook
+  		                              'magit-insert-worktrees
+                                    'magit-insert-status-headers t))
+#+end_src
+*** worktree
+Work on several features at once without stashing or impacting the other
+checkouts.  A git worktree is a second working directory backed by the
+same =.git=, checked out to its own branch.  Everything else in the stack
+already keys off the buffer's directory, so a worktree is automatically an
+isolated workspace: =projectile=/=project.el= treat it as a distinct
+project, and =claude-code-ide= starts an independent Claude session per
+directory.  These helpers add the missing glue — create the worktree in a
+sibling directory and open it in its own frame.
+
+The intended day-to-day gesture is =C-c w c= (`djr/claude'): start Claude
+and let it pick the workspace.  If the current checkout has no live Claude
+session it starts one in place; if it is already busy it spins up a
+worktree in its own frame and starts the session there.  The branch prompt
+completes on existing branches — pick one to resume it in a worktree, or
+type a new name to branch off.  So "start another Claude" and "branch off a
+feature" are the same keystroke — nothing new to remember.  Committing and pushing need no new workflow either: =C-x g=
+(magit) always acts on the worktree the current buffer lives in, so commit
+and push target that branch automatically.
+
+Lower-level bindings live under =C-c w= (=c= smart Claude launch, =n= new
+or existing branch in a worktree, =o= open an existing worktree, =k=
+remove, =j= jump to an open worktree frame).  It is also added to `claude-code-ide-menu' (=C-c C-'=) as =S=,
+next to the built-in start/continue/resume entries.  Magit's native
+worktree transient (=Z= in the status buffer) remains available for raw
+operations.  (To make the smart launcher your default Claude gesture,
+rebind =C-c C-'= from `claude-code-ide-menu' to `djr/claude' in the claude
+`use-package' below.)
+#+begin_src emacs-lisp
+  (defun djr/open-worktree-frame (path)
+    "Open the worktree at PATH in a new frame, show its root in Dired,
+  and return the frame.  Each worktree gets its own frame so two features
+  never share a window layout.  Because `projectile'/`project.el' and
+  `claude-code-ide' key off the buffer's directory, the new frame is an
+  isolated workspace with its own Claude session."
+    (let* ((name (file-name-nondirectory (directory-file-name path)))
+           (frame (make-frame (list (cons 'name (format "worktree: %s" name))))))
+      (select-frame-set-input-focus frame)
+      (dired path)
+      frame))
+
+  (defun djr/worktrees-root ()
+    "Directory holding this repository's sibling worktrees.
+  For a repo at \"/path/repo\" this is \"/path/repo.worktrees\"."
+    (concat (directory-file-name (magit-toplevel)) ".worktrees"))
+
+  (defun djr/create-feature-worktree (branch &optional start-point)
+    "Create a git worktree for BRANCH and return its path.
+  The worktree is placed at \"<repo>.worktrees/<branch>\" next to the
+  current repository, so the main checkout stays clean and features never
+  touch each other's working tree.  If BRANCH already exists it is checked
+  out; otherwise it is created from START-POINT (default HEAD)."
+    (require 'magit)
+    (let* ((root (djr/worktrees-root))
+           (dir (replace-regexp-in-string "/" "-" branch))
+           (path (expand-file-name dir root)))
+      (make-directory root t)
+      (if (magit-branch-p branch)
+          (magit-run-git "worktree" "add" path branch)
+        (magit-run-git "worktree" "add" "-b" branch path
+                       (or start-point "HEAD")))
+      path))
+
+  (defun djr/read-worktree-branch (prompt)
+    "Read a branch for a worktree, completing on existing local branches.
+  Existing branches are offered for completion so you can open one in its own
+  worktree; a name that matches nothing is accepted verbatim and is created as
+  a new branch by `djr/create-feature-worktree'."
+    (require 'magit)
+    (magit-completing-read prompt (magit-list-local-branch-names)
+                           nil nil nil 'magit-revision-history
+                           (magit-branch-at-point)))
+
+  (defun djr/new-feature-worktree (branch &optional start-point)
+    "Open a git worktree for BRANCH in a sibling directory.
+  BRANCH may be an existing branch (chosen via completion) — which is checked
+  out in the new worktree — or a new name, which is created.  With a prefix
+  argument, prompt for the START-POINT a new branch is cut from (defaults to
+  HEAD); ignored when BRANCH already exists.  The worktree opens in its own
+  frame; this does not start Claude (use `djr/claude' / \\[djr/claude] for that)."
+    (interactive
+     (progn
+       (require 'magit)
+       (list (djr/read-worktree-branch "Worktree branch (existing or new): ")
+             (when current-prefix-arg
+               (magit-read-branch-or-commit "Branch from")))))
+    (djr/open-worktree-frame (djr/create-feature-worktree branch start-point)))
+
+  (defun djr/claude--session-live-p (&optional directory)
+    "Non-nil when a live `claude-code-ide' session exists for DIRECTORY.
+  DIRECTORY defaults to the current project/working directory."
+    (when-let ((proc (claude-code-ide--get-process directory)))
+      (process-live-p proc)))
+
+  (defun djr/claude (&optional branch)
+    "Start a Claude session, branching into a worktree if this repo is busy.
+  If the current checkout has no live Claude session, start one here.  If it
+  already has one, open a git worktree for BRANCH (prompted) in a sibling
+  directory, open it in its own frame, and start the session there — so
+  \"start another Claude\" and \"open a feature\" are one keystroke.  BRANCH may
+  be an existing branch (chosen via completion) or a new name to create."
+    (interactive)
+    (require 'claude-code-ide)
+    (if (not (djr/claude--session-live-p))
+        (claude-code-ide)
+      (require 'magit)
+      (let* ((branch (or branch
+                         (djr/read-worktree-branch
+                          "Repo busy — worktree branch (existing or new): ")))
+             (frame (djr/open-worktree-frame (djr/create-feature-worktree branch)))
+             (buf (window-buffer (frame-selected-window frame))))
+        ;; Resolve the working directory and place the side window in the new
+        ;; frame by running the launcher with that frame and its Dired buffer
+        ;; current — `claude-code-ide' derives its project root from there.
+        (with-selected-frame frame
+          (with-current-buffer buf
+            (claude-code-ide))))))
+
+  (defun djr/open-worktree ()
+    "Open an existing worktree of this repository in its own frame."
+    (interactive)
+    (require 'magit)
+    (djr/open-worktree-frame
+     (completing-read "Open worktree: "
+                      (mapcar #'car (magit-list-worktrees)) nil t)))
+
+  (defun djr/remove-feature-worktree ()
+    "Remove a worktree of this repository.  The branch itself is kept."
+    (interactive)
+    (require 'magit)
+    (let* ((main (magit-toplevel))
+           (others (cl-remove-if (lambda (wt) (file-equal-p (car wt) main))
+                                 (magit-list-worktrees)))
+           (path (completing-read "Remove worktree: "
+                                  (mapcar #'car others) nil t)))
+      (when (yes-or-no-p (format "Remove worktree %s? " path))
+        (magit-run-git "worktree" "remove" path)
+        (message "Removed worktree %s (branch kept)" path))))
+
+  (defun djr/worktree-frames ()
+    "Live frames opened by the worktree helpers, as (NAME . FRAME) pairs.
+  These are the frames whose name `djr/open-worktree-frame' set to
+  \"worktree: ...\"."
+    (delq nil
+          (mapcar (lambda (frame)
+                    (let ((name (frame-parameter frame 'name)))
+                      (when (and (stringp name)
+                                 (string-prefix-p "worktree: " name))
+                        (cons name frame))))
+                  (frame-list))))
+
+  (defun djr/switch-to-worktree-frame ()
+    "Raise and focus one of the open worktree frames, chosen by name."
+    (interactive)
+    (let ((frames (djr/worktree-frames)))
+      (pcase frames
+        ('nil (user-error "No worktree frames are open"))
+        (`((,_ . ,frame)) (select-frame-set-input-focus frame))
+        (_ (let ((choice (completing-read "Worktree frame: "
+                                          (mapcar #'car frames) nil t)))
+             (select-frame-set-input-focus (cdr (assoc choice frames))))))))
+
+  (global-set-key (kbd "C-c w c") #'djr/claude)
+  (global-set-key (kbd "C-c w n") #'djr/new-feature-worktree)
+  (global-set-key (kbd "C-c w o") #'djr/open-worktree)
+  (global-set-key (kbd "C-c w k") #'djr/remove-feature-worktree)
+  (global-set-key (kbd "C-c w j") #'djr/switch-to-worktree-frame)
+
+  ;; Surface the smart launcher in `claude-code-ide-menu' (C-c C-') as "S",
+  ;; alongside the built-in start/continue/resume entries.  The menu lives in
+  ;; the lazily-loaded `claude-code-ide-transient'; remove-then-append keeps
+  ;; this idempotent if the config is re-evaluated.
+  (with-eval-after-load 'claude-code-ide-transient
+    (ignore-errors (transient-remove-suffix 'claude-code-ide-menu "S"))
+    (transient-append-suffix 'claude-code-ide-menu "s"
+      '("S" "Smart start (new worktree if busy)" djr/claude)))
 #+end_src
 *** diff
 #+begin_src emacs-lisp
