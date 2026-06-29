@@ -167,6 +167,31 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
         (transpose-frame))
       (balance-windows)))
 #+end_src
+** display all claude buffers
+#+begin_src emacs-lisp
+  (setq claude-string "\\*claude-code")
+
+  (defun display-all-claude-buffers ()
+    "Open a new frame and tile all live claude-code buffers evenly across it."
+    (interactive)
+    (let ((claude-buffers
+           (cl-remove-if-not
+            (lambda (b) (string-match claude-string (buffer-name b)))
+            (buffer-list))))
+      (unless claude-buffers
+        (user-error "No claude-code buffers to display"))
+      (select-frame (make-frame))
+      (delete-other-windows)
+      (switch-to-buffer (car claude-buffers))
+      (dolist (buffer (cdr claude-buffers))
+        (set-window-buffer (split-window (get-largest-window)) buffer))
+      (when (< (frame-outer-width) (x-display-pixel-width))
+        (transpose-frame))
+      (balance-windows)))
+
+  (global-set-key (kbd "C-c d v") #'display-all-vterms)
+  (global-set-key (kbd "C-c d c") #'display-all-claude-buffers)
+#+end_src
 ** execute-startup-block
 https://lists.gnu.org/archive/html/emacs-orgmode/2016-07/msg00394.html
 #+begin_src emacs-lisp
