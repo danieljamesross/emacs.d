@@ -2691,8 +2691,13 @@ rebind =C-c C-'= from `claude-code-ide-menu' to `djr/claude' in the claude
 
   (defun djr/worktrees-root ()
     "Directory holding this repository's sibling worktrees.
-  For a repo at \"/path/repo\" this is \"/path/repo.worktrees\"."
-    (concat (directory-file-name (magit-toplevel)) ".worktrees"))
+  For a repo whose main checkout is at \"/path/repo\" this is
+  \"/path/repo.worktrees\".  The root is anchored to the *main* worktree
+  (the first entry `magit-list-worktrees' returns), not `magit-toplevel',
+  so creating a worktree from inside a linked worktree still places it as a
+  sibling of the main checkout rather than nesting it inside the current one."
+    (require 'magit)
+    (concat (directory-file-name (caar (magit-list-worktrees))) ".worktrees"))
 
   (defun djr/create-feature-worktree (branch &optional start-point)
     "Create a git worktree for BRANCH and return its path.
