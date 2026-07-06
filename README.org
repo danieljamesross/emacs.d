@@ -2443,7 +2443,7 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
 ** Projectile
 #+begin_src emacs-lisp
     (use-package projectile
-      ;; :ensure t
+      :defer t :ensure t
       :bind-keymap ("C-c p" . projectile-command-map)
       :hook (after-init . projectile-mode)
       :config (setq projectile-switch-project-action #'projectile-dired
@@ -2663,8 +2663,12 @@ and let it pick the workspace.  If the current checkout has no live Claude
 session it starts one in place; if it is already busy it spins up a
 worktree in its own frame and starts the session there.  The branch prompt
 completes on existing branches — pick one to resume it in a worktree, or
-type a new name to branch off.  So "start another Claude" and "branch off a
-feature" are the same keystroke — nothing new to remember.  Committing and pushing need no new workflow either: =C-x g=
+type a new name to branch off.  New branches are cut from =origin/main=
+(or =origin/master=, ... — whatever magit detects; local main if there is
+no origin), not from whatever happens to be checked out, and the remote is
+fetched first so the branch starts from the remote's actual tip; prefix
+the command with =C-u= to cut from any other branch or commit instead.  So "start another Claude" and "branch off
+a feature" are the same keystroke — nothing new to remember.  Committing and pushing need no new workflow either: =C-x g=
 (magit) always acts on the worktree the current buffer lives in, so commit
 and push target that branch automatically.
 
@@ -2699,12 +2703,28 @@ rebind =C-c C-'= from `claude-code-ide-menu' to `djr/claude' in the claude
     (require 'magit)
     (concat (directory-file-name (caar (magit-list-worktrees))) ".worktrees"))
 
+  (defun djr/worktree-main-branch ()
+    "Ref new worktree branches are cut from by default.
+  Prefers \"origin/main\" (etc.) so features start from the remote's trunk
+  even when the local main branch is stale; falls back to the local main
+  branch when there is no origin, and to \"HEAD\" when the repo has no main
+  branch at all.  The main branch name (\"main\", \"master\", ...) is
+  whatever magit detects via `magit-main-branch'."
+    (require 'magit)
+    (if-let* ((main (magit-main-branch)))
+        (let ((remote (concat "origin/" main)))
+          (if (magit-remote-branch-p remote) remote main))
+      "HEAD"))
+
   (defun djr/create-feature-worktree (branch &optional start-point)
     "Create a git worktree for BRANCH and return its path.
   The worktree is placed at \"<repo>.worktrees/<branch>\" next to the
   current repository, so the main checkout stays clean and features never
   touch each other's working tree.  If BRANCH already exists it is checked
-  out; otherwise it is created from START-POINT (default HEAD)."
+  out; otherwise it is created from START-POINT, defaulting to origin's
+  main branch (`djr/worktree-main-branch'), not the current HEAD.  When the
+  start point is a remote branch, its remote is fetched first so the new
+  branch starts from the remote's actual tip, not the last-fetched ref."
     (require 'magit)
     (let* ((root (djr/worktrees-root))
            (dir (replace-regexp-in-string "/" "-" branch))
@@ -2712,8 +2732,12 @@ rebind =C-c C-'= from `claude-code-ide-menu' to `djr/claude' in the claude
       (make-directory root t)
       (if (magit-branch-p branch)
           (magit-run-git "worktree" "add" path branch)
-        (magit-run-git "worktree" "add" "-b" branch path
-                       (or start-point "HEAD")))
+        (let ((start (or start-point (djr/worktree-main-branch))))
+          (when-let* ((remote (and (magit-remote-branch-p start)
+                                   (car (magit-split-branch-name start)))))
+            (message "Fetching %s..." remote)
+            (magit-run-git "fetch" remote))
+          (magit-run-git "worktree" "add" "-b" branch path start)))
       path))
 
   (defun djr/read-worktree-branch (prompt)
@@ -2729,16 +2753,18 @@ rebind =C-c C-'= from `claude-code-ide-menu' to `djr/claude' in the claude
   (defun djr/new-feature-worktree (branch &optional start-point)
     "Open a git worktree for BRANCH in a sibling directory.
   BRANCH may be an existing branch (chosen via completion) — which is checked
-  out in the new worktree — or a new name, which is created.  With a prefix
-  argument, prompt for the START-POINT a new branch is cut from (defaults to
-  HEAD); ignored when BRANCH already exists.  The worktree opens in its own
-  frame; this does not start Claude (use `djr/claude' / \\[djr/claude] for that)."
+  out in the new worktree — or a new name, which is created.  A new branch is
+  cut from START-POINT, defaulting to the main branch; with a prefix argument,
+  prompt for any branch or commit to cut from instead.  START-POINT is ignored
+  when BRANCH already exists.  The worktree opens in its own frame; this does
+  not start Claude (use `djr/claude' / \\[djr/claude] for that)."
     (interactive
      (progn
        (require 'magit)
        (list (djr/read-worktree-branch "Worktree branch (existing or new): ")
              (when current-prefix-arg
-               (magit-read-branch-or-commit "Branch from")))))
+               (magit-read-branch-or-commit "Branch from"
+                                            (djr/worktree-main-branch))))))
     (djr/open-worktree-frame (djr/create-feature-worktree branch start-point)))
 
   (defun djr/claude--session-live-p (&optional directory)
@@ -2747,13 +2773,15 @@ rebind =C-c C-'= from `claude-code-ide-menu' to `djr/claude' in the claude
     (when-let ((proc (claude-code-ide--get-process directory)))
       (process-live-p proc)))
 
-  (defun djr/claude (&optional branch)
+  (defun djr/claude (&optional branch start-point)
     "Start a Claude session, branching into a worktree if this repo is busy.
   If the current checkout has no live Claude session, start one here.  If it
   already has one, open a git worktree for BRANCH (prompted) in a sibling
   directory, open it in its own frame, and start the session there — so
   \"start another Claude\" and \"open a feature\" are one keystroke.  BRANCH may
-  be an existing branch (chosen via completion) or a new name to create."
+  be an existing branch (chosen via completion) or a new name to create.  A
+  new branch is cut from START-POINT, defaulting to the main branch; with a
+  prefix argument, prompt for any branch or commit to cut from instead."
     (interactive)
     (require 'claude-code-ide)
     (if (not (djr/claude--session-live-p))
@@ -2762,7 +2790,12 @@ rebind =C-c C-'= from `claude-code-ide-menu' to `djr/claude' in the claude
       (let* ((branch (or branch
                          (djr/read-worktree-branch
                           "Repo busy — worktree branch (existing or new): ")))
-             (frame (djr/open-worktree-frame (djr/create-feature-worktree branch)))
+             (start-point (or start-point
+                              (when current-prefix-arg
+                                (magit-read-branch-or-commit
+                                 "Branch from" (djr/worktree-main-branch)))))
+             (frame (djr/open-worktree-frame
+                     (djr/create-feature-worktree branch start-point)))
              (buf (window-buffer (frame-selected-window frame))))
         ;; Resolve the working directory and place the side window in the new
         ;; frame by running the launcher with that frame and its Dired buffer
