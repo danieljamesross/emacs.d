@@ -1,5 +1,5 @@
 ;; -*- lexical-binding: t; -*-
-(require 'cmake-font-lock)
+
 
 ;; Thanks Xah
 ;; http://xahlee.info/emacs/emacs/elisp_comment_coloring.html
@@ -16,7 +16,7 @@
 ;;;###autoload
 (define-derived-mode djr-cmake-mode fundamental-mode "djr-cmake-mode"
   "Major mode for CMake files"
-
+  (require 'cmake-font-lock)
   ;; (set-face-foreground 'font-lock-comment-face "light pink")
   (cmake-font-lock-activate)
   (setq-local comment-start "#"))

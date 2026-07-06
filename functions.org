@@ -138,7 +138,7 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
 ** display all vterms
 #+begin_src emacs-lisp
   (setq vterm-string "\\*vterm")
-  
+
   (defun buffer-in-window-list ()
     (let (buffers)
       (walk-windows
@@ -166,6 +166,7 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
       (when (< (frame-outer-width) (x-display-pixel-width))
         (transpose-frame))
       (balance-windows)))
+  (global-set-key (kbd "C-c d v") #'display-all-vterms)
 #+end_src
 ** display all claude buffers
 #+begin_src emacs-lisp
@@ -189,7 +190,6 @@ Taken from this [[https://emacs.stackexchange.com/questions/7653/elisp-code-to-c
         (transpose-frame))
       (balance-windows)))
 
-  (global-set-key (kbd "C-c d v") #'display-all-vterms)
   (global-set-key (kbd "C-c d c") #'display-all-claude-buffers)
 #+end_src
 ** execute-startup-block
