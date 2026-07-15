@@ -60,22 +60,29 @@ the .el/.elc files is required to pick up an org edit."
 
 (require 'package)
 
-(setq package-enable-at-startup t
-      djr/online-p (internet-up-p))
-
-;; Bootstrap `use-package'
-(unless (package-installed-p "use-package")
-  (if djr/online-p
-      (progn
-	(message "no use-package, installing...")
-	(package-refresh-contents)
-	(package-install 'use-package))
-    (message "Cannot install use-package, internet is down")))
+;; package-enable-at-startup is set in early-init.el (setting it here is too
+;; late to have any effect); djr/online-p is defined in functions.el.
 
 (when djr/online-p
   (add-to-list 'package-archives '("gnu"   . "https://elpa.gnu.org/packages/"))
   (add-to-list 'package-archives
                '("melpa" . "https://melpa.org/packages/")))
+
+;; Bootstrap `use-package'.  The package argument must be a SYMBOL: with the
+;; old string argument this check failed every startup, forcing a blocking
+;; package-refresh-contents on each launch -- and when ELPA/network glitched,
+;; the error aborted the rest of init (no README, no keybindings, no Claude).
+;; The condition-case keeps a failed install attempt from ever doing that.
+(unless (package-installed-p 'use-package)
+  (if djr/online-p
+      (condition-case err
+          (progn
+            (message "no use-package, installing...")
+            (package-refresh-contents)
+            (package-install 'use-package))
+        (error (message "use-package bootstrap failed: %s"
+                        (error-message-string err))))
+    (message "Cannot install use-package, internet is down")))
 
 ;; (package-initialize)
 
@@ -85,6 +92,22 @@ the .el/.elc files is required to pick up an org edit."
   "Put declarations in `custom-file'."
   (let ((user-init-file custom-file))
     ad-do-it))
+
+;; vterm's compiled C module (vterm-module.so) is deleted whenever
+;; auto-package-update reinstalls vterm.  Loading vterm then prompts
+;; "Compile it now?" -- and while README.el is being byte-compiled,
+;; use-package loads vterm at compile time from every vterm-dependent block
+;; (vterm, multi-vterm, claude-code-ide), so the prompt fires three times and
+;; each attempt fails because exec-path-from-shell hasn't run yet and a
+;; Dock-launched Emacs can't find homebrew's cmake.  Compile silently instead,
+;; and make cmake findable this early: `executable-find' consults exec-path,
+;; while vterm's actual build runs via "sh -c", which needs PATH.
+(setq vterm-always-compile-module t)
+(unless (member "/opt/homebrew/bin" exec-path)
+  (add-to-list 'exec-path "/opt/homebrew/bin"))
+(let ((path (or (getenv "PATH") "")))
+  (unless (string-match-p "/opt/homebrew/bin" path)
+    (setenv "PATH" (concat "/opt/homebrew/bin:" path))))
 
 (compile-org-or-load-precompiled-el "README")
 
@@ -107,7 +130,8 @@ the .el/.elc files is required to pick up an org edit."
  '(org-directory (expand-file-name "~/org"))
  '(package-selected-packages nil)
  '(package-vc-selected-packages
-   '((lilypond :url "https://github.com/jmgpena/lilypond-mode.git")
+   '((claude-code-ide :url "https://github.com/manzaltu/claude-code-ide.el")
+     (lilypond :url "https://github.com/jmgpena/lilypond-mode.git")
      (antesc :url "https://github.com/programLyrique/antesc-mode.git")))
  '(safe-local-variable-values '((Base . 10) (Package . CL-PPCRE) (Syntax . COMMON-LISP)))
  '(tool-bar-mode nil)
