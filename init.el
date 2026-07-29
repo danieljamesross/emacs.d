@@ -88,6 +88,35 @@ the .el/.elc files is required to pick up an org edit."
 
 (setq use-package-always-ensure djr/online-p)
 
+;; MELPA only ever hosts the *latest* build of each package, so a local archive
+;; cache more than a few days stale points at tarballs that now 404 -- and since
+;; normal startups never run package-refresh-contents (only the use-package
+;; bootstrap above does, and only when use-package itself is missing), an
+;; :ensure install fails with a file-error and the package stays uninstalled
+;; until a manual M-x package-refresh-contents.  Guard against that: on the
+;; first such failure, refresh the archives once and retry the install.  Gated
+;; on djr/online-p and a once-per-session flag so we never refresh offline or
+;; loop refreshing for a package that is genuinely unavailable.
+(defvar djr/package-archives-refreshed nil
+  "Non-nil once `package-refresh-contents' has been re-run this session.")
+
+(define-advice package-install
+    (:around (orig pkg &rest args) djr/refresh-and-retry-on-stale-cache)
+  "Refresh stale archives once and retry when an install 404s.
+A `file-error' from `package-install' usually means the cached tarball
+URL no longer exists on the archive (MELPA rotated the build)."
+  (condition-case err
+      (apply orig pkg args)
+    (file-error
+     (if (or djr/package-archives-refreshed (not djr/online-p))
+         (signal (car err) (cdr err))
+       (setq djr/package-archives-refreshed t)
+       (message "package-install: %s failed (%s); refreshing archives and retrying..."
+                (if (package-desc-p pkg) (package-desc-name pkg) pkg)
+                (error-message-string err))
+       (package-refresh-contents)
+       (apply orig pkg args)))))
+
 (defadvice en/disable-command (around put-in-custom-file activate)
   "Put declarations in `custom-file'."
   (let ((user-init-file custom-file))
