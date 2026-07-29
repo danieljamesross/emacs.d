@@ -3001,6 +3001,73 @@ The buffer is named after that directory."
         (multi-vterm-project)
       (djr/vterm-here)))
 #+end_src
+*** ghostel
+Terminal emulator powered by [[https://github.com/dakra/ghostel][libghostty-vt]], the VT
+engine behind Ghostty. On MELPA, so plain ~:ensure~.
+
+The native ~libghostty-vt~ module is not shipped with the ELPA package;
+ghostel checks for it on first interactive use and, per
+~ghostel-module-auto-install~, either asks, downloads a pre-built binary,
+or compiles from source. We set it to ~download~ so a missing module is
+fetched automatically (no prompt) the first time ~M-x ghostel~ runs.
+
+We also move the module out of the package tree via
+~ghostel-module-directory~: by default it lives in ghostel's ELPA folder,
+and ~auto-package-update~ deletes that folder on every reinstall -- the
+same trap that used to blow away ~vterm-module.so~. Keeping it under
+~user-emacs-directory~ survives package updates.
+
+Both variables must be set before ~ghostel.el~ is loaded — it runs its
+module check at load time, so a ~:config~ setq comes too late and the
+check looks in (and warns about) the ELPA folder.  And ~:init~ is not
+early enough either: while README.el is being byte-compiled, use-package
+requires ghostel at compile time (the same mechanism that loads vterm
+during compilation, see init.el), and compilation only compiles the
+~:init~ forms without running them — so the load-time check ran with
+~ghostel-module-directory~ still nil and warned about the ELPA folder on
+every recompile.  ~eval-and-compile~ runs the setup in both worlds: at
+compile time before use-package's ~require~, and at load time on normal
+startups.
+
+The same block also installs the module itself: when the ~.dylib~ is
+missing from ~ghostel-module-directory~ it downloads the pre-built binary
+for this platform at startup via ghostel's own
+~ghostel--download-module~ (which picks the right release asset and
+writes the version sidecar).  The cost on a normal startup is one
+~file-exists-p~; the download only runs when the module is absent and we
+are online.
+#+begin_src emacs-lisp
+  (eval-and-compile
+    (setq ghostel-module-auto-install 'download
+          ghostel-module-directory
+          (expand-file-name "ghostel/" user-emacs-directory))
+    (unless (file-exists-p (expand-file-name
+                            (concat "ghostel-module" module-file-suffix)
+                            ghostel-module-directory))
+      (if (not djr/online-p)
+          (message "ghostel: native module missing and offline; skipping download")
+        (require 'ghostel-module-install)
+        (ghostel--download-module ghostel-module-directory))))
+
+  (use-package ghostel
+    :commands (ghostel ghostel-project)
+    :bind (("C-c gt" . ghostel-project))
+    :hook (ghostel-mode . djr/ghostel-disable-display-modes)
+    :config
+    (defun djr/ghostel-disable-display-modes ()
+      "Disable Emacs display features that fight ghostel's fixed-cell grid.
+  Same rationale as `djr/vterm-disable-display-modes'; unlike vterm,
+  ghostel-mode already handles `hl-line-mode', `truncate-lines', and
+  `process-adaptive-read-buffering' itself, so only the glyph
+  substitutions and the line-number gutter are left to us."
+      (display-line-numbers-mode -1)
+      (when (bound-and-true-p prettify-symbols-mode)
+        (prettify-symbols-mode -1))
+      (when (bound-and-true-p ligature-mode)
+        (ligature-mode -1))
+      (when (bound-and-true-p whitespace-mode)
+        (whitespace-mode -1))))
+#+end_src
 *** Eshell syntax highlighting
 Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
 #+begin_src emacs-lisp
@@ -3063,63 +3130,22 @@ Taken from [[https://github.com/akreisher/eshell-syntax-highlighting/][here]].
                   lms-default-player "Hallway"))
 #+end_src
 ** claude
+Claude sessions run in ghostel terminals (see [[*ghostel][ghostel]]) rather than
+vterm: ~claude-code-ide~ has a native ghostel backend that handles the
+process wiring, sentinel chaining, and title tracking itself, and
+ghostel-mode plus `djr/ghostel-disable-display-modes' already cover the
+display fixes the old vterm setup carried (redraw batching, adaptive
+read buffering, line wrap, hl-line, glyph substitution).  The
+vterm-specific workarounds this section used to hold are in git history.
 #+begin_src emacs-lisp
-  (defun djr/claude-buffer-p ()
-    "Non-nil when the current buffer is a claude-code-ide vterm.
-  claude-code-ide names its buffers `*claude-code[<dir>]*' via
-  `claude-code-ide--default-buffer-name'."
-    (string-prefix-p "*claude-code" (buffer-name)))
-
-  (defun djr/configure-claude-vterm ()
-    "Apply local fixes for claude-code-ide vterm buffers.
-
-  - Line numbers from `global-display-line-numbers-mode' interfere with
-    the TUI's cursor positioning.
-  - `prettify-symbols-mode' and `ligature-mode' substitute glyphs that
-    can render at different widths than the underlying characters; vterm
-    assumes a fixed-cell grid, so this desyncs the cursor and produces
-    ghost text on TUI redraws.
-  - `whitespace-mode' inserts visible markers (¶, ▷, etc.) into the
-    buffer, and `hl-line-mode' paints a background swatch across the
-    current row; both fight vterm's cell-level repainting and leave
-    artifacts.
-  - `truncate-lines' must be t so Emacs never visually wraps a long
-    line; vterm tracks line breaks itself, and visual wrap cascades into
-    corruption until the next `clear'.
-  - claude-code-ide tries to set `vterm--redraw-immediately' to nil to
-    batch updates, but its `boundp' check targets a misspelled symbol
-    (`vterm--redraw-immididately', see claude-code-ide.el:422), so the
-    upstream `setq-local' silently never runs. Set it ourselves.
-  - Emacs's adaptive read buffering fragments PTY output for fast-talking
-    subprocesses; this causes TUI cursor-position and content escapes to
-    land in separate render cycles, producing the \"typed char on the
-    wrong row\" artifact. Force a deterministic chunk size."
-    (when (djr/claude-buffer-p)
-      (display-line-numbers-mode -1)
-      (when (bound-and-true-p prettify-symbols-mode)
-        (prettify-symbols-mode -1))
-      (when (bound-and-true-p ligature-mode)
-        (ligature-mode -1))
-      (when (bound-and-true-p whitespace-mode)
-        (whitespace-mode -1))
-      (when (bound-and-true-p hl-line-mode)
-        (hl-line-mode -1))
-      (setq-local truncate-lines t)
-      (setq-local vterm--redraw-immediately nil)
-      (setq-local process-adaptive-read-buffering nil)))
-
   (use-package claude-code-ide
     :ensure t
     :after transient
     :vc (:url "https://github.com/manzaltu/claude-code-ide.el" :rev :newest)
     :bind ("C-c C-'" . claude-code-ide-menu) ; Set your favorite keybinding
-    ;; :hook (claude-code-ide-mode . (lambda () (setq-local vterm--redraw-immediately t)))
     :config
     (claude-code-ide-emacs-tools-setup) ; Optionally enable Emacs MCP tools
-    ;; Default is 0.005s, too short for single-keystroke redraws to coalesce.
-    ;; 0.02s gives the anti-flicker queue a usable batching window.
-    (setq claude-code-ide-vterm-render-delay 0.02)
-    (add-hook 'vterm-mode-hook #'djr/configure-claude-vterm))
+    (setq claude-code-ide-terminal-backend 'ghostel))
 #+end_src
 ** Zone
 The built-in =zone= screensaver only ever animates the /selected/ window, and
