@@ -2503,6 +2503,40 @@ Taken from [[https://github.com/jwiegley/use-package/issues/379][this github iss
     :config (setq Org-Reveal-root (concat "file://" (expand-file-name "~/reveal.js/"))
                   Org-Reveal-title-slide nil))
 #+end_src
+*** Export dispatcher: wheel scrolling
+The =C-c C-e= dispatcher reads keys with =read-char-exclusive=, which
+silently discards mouse events, so the menu can only be scrolled from
+the keyboard (=SPC=/=DEL=/=C-n=/=C-p= are built in).  While the
+dispatcher is waiting for a key, route trackpad/wheel events to
+=mwheel-scroll= instead of dropping them.
+#+begin_src emacs-lisp
+  (with-eval-after-load 'ox
+    (define-advice org-export--dispatch-action
+        (:around (orig prompt allowed-keys entries options first-key expertp)
+                 djr/wheel-scroll)
+      "Let mouse/trackpad wheel events scroll the dispatcher menu."
+      (if expertp
+          (funcall orig prompt allowed-keys entries options first-key expertp)
+        (cl-letf (((symbol-function 'read-char-exclusive)
+                   (lambda (&optional prompt &rest _)
+                     (let (key)
+                       (while (not (characterp (setq key (read-event prompt))))
+                         (when (memq (event-basic-type key)
+                                     '(wheel-up wheel-down mouse-4 mouse-5))
+                           (ignore-errors (mwheel-scroll key))))
+                       key))))
+          (funcall orig prompt allowed-keys entries options first-key expertp)))))
+#+end_src
+*** ox-tldraw
+Export Org documents as tldraw canvases: =C-c C-e w w= writes a =.tldr=
+file (mindmap or kanban-board layout) openable at tldraw.com.  Local
+package in =ox-tldraw/=; tests in =ox-tldraw/test/=.
+#+begin_src emacs-lisp
+  (use-package ox-tldraw
+    :ensure nil
+    :load-path "ox-tldraw"
+    :after ox)
+#+end_src
 *** org bullets
 #+begin_src emacs-lisp
   (use-package org-bullets
