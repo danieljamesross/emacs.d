@@ -157,7 +157,7 @@ URL no longer exists on the archive (MELPA rotated the build)."
  '(org-agenda-files (list org-directory))
  '(org-babel-python-command "python3")
  '(org-directory (expand-file-name "~/org"))
- '(package-selected-packages nil)
+ '(package-selected-packages '(claude-code-ide))
  '(package-vc-selected-packages
    '((claude-code-ide :url "https://github.com/manzaltu/claude-code-ide.el")
      (lilypond :url "https://github.com/jmgpena/lilypond-mode.git")
